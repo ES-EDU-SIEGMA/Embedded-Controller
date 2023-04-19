@@ -1,22 +1,23 @@
-#include "limitSwitch.h"
 #include "dispenser.h"
+#include "limitSwitch.h"
 
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
-#include <pico/stdio.h>
-#include <pico/time.h>
-#include <pico/stdio_usb.h>
 #include <pico/printf.h>
+#include <pico/stdio.h>
+#include <pico/stdio_usb.h>
+#include <pico/time.h>
 
 void initPico(bool waitForUSBConnection) {
     if (watchdog_enable_caused_reboot())
         reset_usb_boot(0, 0);
 
     stdio_init_all(); // init usb
-    sleep_ms(2500); // Time to make sure everything is ready
+    sleep_ms(2500);   // Time to make sure everything is ready
 
     if (waitForUSBConnection)
-        while ((!stdio_usb_connected())); // waits for usb connection
+        while ((!stdio_usb_connected()))
+            ; // waits for usb connection
 }
 
 int main() {
