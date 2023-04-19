@@ -1,7 +1,61 @@
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,visualstudiocode
 
-### CMake ###
+### C template
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+### CMake template
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -14,9 +68,36 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
-### CMake Patch ###
+# Build Directories
+cmake-build-*/
+
 # External projects
 *-prefix/
+
+### Ninja template
+.ninja_deps
+.ninja_log
+
+### Vim template
+# Swap
+[._]*.s[a-v][a-z]
+!*.svg  # comment out if you don't need vector files
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+Sessionx.vim
+
+# Temporary
+.netrwhist
+*~
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
 
 ### VisualStudioCode ###
 .vscode/*
@@ -28,9 +109,6 @@ _deps
 
 # Local History for Visual Studio Code
 .history/
-
-### VisualStudioCode Patch ###
-# Ignore all local history of files
 .history
 .ionide
 
@@ -40,7 +118,5 @@ build/
 build_*/
 out/
 
-## IntelliJ IDEA
-.idea/workspace.xml
-
-**/.DS_Store
+### CLion ###
+.idea/
