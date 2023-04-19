@@ -1,19 +1,30 @@
-# Code
+# Drink Mixing Machine Controller
 
-When first loading with CLion only activate one cMake profile for loading everything for the first time.
+## Clone Repository
 
-### Required
+After cloning the repository it is necessary to it is necessary to import the required submodules to build the targets.
+This can be accomplished by running:
 
-    gcc
-    arm-non-eabi-gcc
-    cMake
+```bash
+git submodule update --init --recursive
+```
 
-### Mac installation process
+Despite this the required tools are:
 
-Install brew: https://brew.sh/index_de, then run:
+* gcc
+* arm-none-eabi-gcc
+* CMake
+* Ninja/Make
 
-    brew install gcc-arm-embedded
-    brew install cmake
+## Contribution Guidelines
+
+The source code should be formatted according to the in the [.clang-format](.clang-format) file specified style.
+
+### Folder Structure
+
+The source code for the target device can be found under [src](src), whereas the integration test are implemented under [integration](test/integration).
+The unit test aim to be executed on the local machine/server are implemented under [unit](test/unit).
+The [extern](extern) folder contains all external dependencies like git submodules.
 
 ## Troubleshooting
 
