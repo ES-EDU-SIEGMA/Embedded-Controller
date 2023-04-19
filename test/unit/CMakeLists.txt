@@ -9,7 +9,7 @@ add_executable(unit-test_dispenser
         ${CMAKE_SOURCE_DIR}/src/dispenser/dispenser.c
         ${CMAKE_SOURCE_DIR}/src/motor/motor.c
         ${CMAKE_SOURCE_DIR}/src/limitSwitch/limitSwitch.c
-)
+        )
 target_include_directories(unit-test_dispenser PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}
         ${CMAKE_CURRENT_LIST_DIR}/dummies

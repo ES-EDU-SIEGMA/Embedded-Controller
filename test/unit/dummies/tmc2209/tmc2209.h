@@ -22,9 +22,10 @@ typedef struct TMC2209 {
     uint8_t serial_address;
 } TMC2209_t;
 
-uint64_t CURRENT_VELOCITY;
+extern uint64_t CURRENT_VELOCITY;
 
-void TMC2209_setup(TMC2209_t *tmc2209, SerialUART_t serial, long serial_baud_rate, SerialAddress_t serial_address);
+void TMC2209_setup(TMC2209_t *tmc2209, SerialUART_t serial, long serial_baud_rate,
+                   SerialAddress_t serial_address);
 
 bool TMC2209_isSetupAndCommunicating(TMC2209_t *tmc2209);
 

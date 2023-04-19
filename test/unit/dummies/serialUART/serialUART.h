@@ -9,4 +9,4 @@ typedef struct SerialUART_t {
 
 static SerialUART_t serialUart;
 
-#endif //C_ARDUINO_TO_C_SERIALUART_H
+#endif // C_ARDUINO_TO_C_SERIALUART_H

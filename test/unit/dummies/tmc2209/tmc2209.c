@@ -2,11 +2,12 @@
  * Adapted from:
  *  https://github.com/peterpolidoro/TMC2209
  *  Peter Polidoro peter@polidoro.io
-*** ---------------------------------------------------------------------------- */
+ *** ---------------------------------------------------------------------------- */
 
 #include "tmc2209.h"
 
-void TMC2209_setup(TMC2209_t *tmc2209, SerialUART_t serial, long serial_baud_rate, SerialAddress_t serial_address) {
+void TMC2209_setup(TMC2209_t *tmc2209, SerialUART_t serial, long serial_baud_rate,
+                   SerialAddress_t serial_address) {
     tmc2209->serial_address = serial_address;
     CURRENT_VELOCITY = 0;
 }

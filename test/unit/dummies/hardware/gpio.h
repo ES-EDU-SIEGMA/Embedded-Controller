@@ -1,8 +1,8 @@
 #ifndef SIEGMA_GPIO_H
 #define SIEGMA_GPIO_H
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 enum gpio_function {
     GPIO_FUNC_UART = 0,
@@ -14,7 +14,7 @@ enum gpio_function {
 #define GPIO_OUT 1
 #define GPIO_IN 0
 
-bool GPIO_RETURN;
+extern bool GPIO_RETURN;
 
 bool gpio_get(uint8_t pin);
 
@@ -26,4 +26,4 @@ void gpio_pull_down(uint8_t pin);
 
 void gpio_pull_up(uint8_t pin);
 
-#endif //SIEGMA_GPIO_H
+#endif // SIEGMA_GPIO_H

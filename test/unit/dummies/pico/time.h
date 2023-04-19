@@ -7,4 +7,4 @@ void sleep_ms(uint32_t time);
 
 void sleep_us(uint32_t time);
 
-#endif //SIEGMA_TIME_H
+#endif // SIEGMA_TIME_H
