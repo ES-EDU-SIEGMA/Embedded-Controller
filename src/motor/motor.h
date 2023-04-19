@@ -26,7 +26,8 @@ typedef struct Motor {
 
 // initializes a new motor
 // @param1 The new initialized motor
-// @param2 Serial address of the motor (for more information: https://github.com/janelia-arduino/TMC2209)
+// @param2 Serial address of the motor (for more information:
+// https://github.com/janelia-arduino/TMC2209)
 // @param3 Uart pins to be used
 // @return void
 void setUpMotor(Motor_t *motor, SerialAddress_t address, SerialUART_t uart);
@@ -57,7 +58,8 @@ void moveMotorDown(Motor_t *motor);
 void stopMotor(Motor_t *motor);
 
 // Create a new motor and initialize its pins
-// @param1 Serial address of the stepper driver (for more information: https://github.com/janelia-arduino/TMC2209)
+// @param1 Serial address of the stepper driver (for more information:
+// https://github.com/janelia-arduino/TMC2209)
 // @param2 Uart pins to be used
 // @return Motor struct of the new motor
 Motor_t createMotor(SerialAddress_t address, SerialUART_t uart);
@@ -67,4 +69,4 @@ Motor_t createMotor(SerialAddress_t address, SerialUART_t uart);
 // @return true if the motor communicates, otherwise false
 bool motorIsCommunicating(Motor_t *motor);
 
-#endif //SIEGMA_MOTOR_H
+#endif // SIEGMA_MOTOR_H

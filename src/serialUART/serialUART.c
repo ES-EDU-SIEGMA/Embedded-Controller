@@ -2,7 +2,7 @@
  * Adapted from:
  *  https://github.com/earlephilhower/arduino-pico
  *  https://github.com/earlephilhower/arduino-pico/blob/master/cores/rp2040/SerialUART.cpp
-*** ---------------------------------------------------------------------------- */
+ *** ---------------------------------------------------------------------------- */
 
 /*
     Serial-over-UART for the Raspberry Pi Pico RP2040
@@ -26,9 +26,9 @@
 
 #include "serialUART.h"
 
+#include <hardware/gpio.h>
 #include <hardware/irq.h>
 #include <hardware/uart.h>
-#include <hardware/gpio.h>
 
 #include <stdlib.h>
 
@@ -61,37 +61,37 @@ void SerialUART_begin(unsigned long baud, uint16_t config) {
     int bits, stop;
     uart_parity_t parity;
     switch (config & SERIAL_PARITY_MASK) {
-        case SERIAL_PARITY_EVEN:
-            parity = UART_PARITY_EVEN;
-            break;
-        case SERIAL_PARITY_ODD:
-            parity = UART_PARITY_ODD;
-            break;
-        default:
-            parity = UART_PARITY_NONE;
-            break;
+    case SERIAL_PARITY_EVEN:
+        parity = UART_PARITY_EVEN;
+        break;
+    case SERIAL_PARITY_ODD:
+        parity = UART_PARITY_ODD;
+        break;
+    default:
+        parity = UART_PARITY_NONE;
+        break;
     }
     switch (config & SERIAL_STOP_BIT_MASK) {
-        case SERIAL_STOP_BIT_1:
-            stop = 1;
-            break;
-        default:
-            stop = 2;
-            break;
+    case SERIAL_STOP_BIT_1:
+        stop = 1;
+        break;
+    default:
+        stop = 2;
+        break;
     }
     switch (config & SERIAL_DATA_MASK) {
-        case SERIAL_DATA_5:
-            bits = 5;
-            break;
-        case SERIAL_DATA_6:
-            bits = 6;
-            break;
-        case SERIAL_DATA_7:
-            bits = 7;
-            break;
-        default:
-            bits = 8;
-            break;
+    case SERIAL_DATA_5:
+        bits = 5;
+        break;
+    case SERIAL_DATA_6:
+        bits = 6;
+        break;
+    case SERIAL_DATA_7:
+        bits = 7;
+        break;
+    default:
+        bits = 8;
+        break;
     }
     uart_set_format(sUART._uart, bits, stop, parity);
     sUART._fcnTx = gpio_get_function(sUART._tx);
@@ -106,7 +106,8 @@ void SerialUART_begin(unsigned long baud, uint16_t config) {
         sUART._fcnCts = gpio_get_function(sUART._cts);
         gpio_set_function(sUART._cts, GPIO_FUNC_UART);
     }
-    uart_set_hw_flow(sUART._uart, sUART._rts != UART_PIN_NOT_DEFINED, sUART._cts != UART_PIN_NOT_DEFINED);
+    uart_set_hw_flow(sUART._uart, sUART._rts != UART_PIN_NOT_DEFINED,
+                     sUART._cts != UART_PIN_NOT_DEFINED);
     sUART._writer = 0;
     sUART._reader = 0;
 
@@ -164,7 +165,9 @@ void __not_in_flash_func(SerialUART_handleIRQ)(bool inIRQ) {
         }
         if (next_writer != sUART._reader) {
             sUART._queue[sUART._writer] = val;
-            asm volatile("":: : "memory"); // Ensure the queue is written before the written count advances
+            asm volatile(
+                "" ::
+                    : "memory"); // Ensure the queue is written before the written count advances
             // Avoid using division or mod because the HW divider could be in use
             sUART._writer = next_writer;
         } else {

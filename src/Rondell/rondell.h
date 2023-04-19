@@ -1,22 +1,16 @@
 #ifndef SIEGMA_RONDELL_H
 #define SIEGMA_RONDELL_H
 
-#endif //SIEGMA_RONDELL_H
+#endif // SIEGMA_RONDELL_H
 
-#include <stdint.h>
 #include "motor.h"
+#include <stdint.h>
 
 // A main concept of the rondell is reading out light dependent resistor (=:LDR) values.
 typedef uint16_t LDR_VALUE;
 
 // Possible rondell positions
-enum RondellPos {
-    Pos0 = 0,
-    Pos1,
-    Pos2,
-    Pos3,
-    UNDEFINED
-};
+enum RondellPos { Pos0 = 0, Pos1, Pos2, Pos3, UNDEFINED };
 
 // possible Rondell states.
 enum RondellState {
@@ -41,7 +35,8 @@ typedef struct Rondell {
 } Rondell_t;
 
 // Sets up the rondell by initializing corresponding struct and setting extreme values of ldr.
-// @oaram1 SerialAddress for UART configuration. For further information visit: https://github.com/janelia-arduino/TMC2209
+// @oaram1 SerialAddress for UART configuration. For further information visit:
+// https://github.com/janelia-arduino/TMC2209
 // @param2 Further UART configuration
 // @return void
 void setUpRondell(SerialAddress_t address, SerialUART_t uart);
@@ -50,6 +45,3 @@ void setUpRondell(SerialAddress_t address, SerialUART_t uart);
 // @oaram1 enum RondellPos: Position that should be driven to.
 // @return void
 void moveToDispenserWithId(enum RondellPos positionToDriveTo);
-
-
-

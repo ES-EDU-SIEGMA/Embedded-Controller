@@ -1,19 +1,20 @@
 #include "dispenser.h"
-#include "pico/time.h"
-
+#include <pico/time.h>
 #include <stdio.h>
 
-static DispenserState_t sleepState_t = (DispenserState_t) {.function=&sleepState};
-static DispenserState_t upState_t = (DispenserState_t) {.function=&upState};
-static DispenserState_t topState_t = (DispenserState_t) {.function=&topState};
-static DispenserState_t downState_t = (DispenserState_t) {.function=&downState};
-static DispenserState_t errorState_t = (DispenserState_t) {.function=&errorState};
+static DispenserState_t sleepState_t = (DispenserState_t){.function = &sleepState};
+static DispenserState_t upState_t = (DispenserState_t){.function = &upState};
+static DispenserState_t topState_t = (DispenserState_t){.function = &topState};
+static DispenserState_t downState_t = (DispenserState_t){.function = &downState};
+static DispenserState_t errorState_t = (DispenserState_t){.function = &errorState};
 
 void resetDispenserPosition(Dispenser_t *dispenser) {
     moveMotorUp(&dispenser->motor);
-    while (limitSwitchIsClosed(dispenser->limitSwitch));
+    while (limitSwitchIsClosed(dispenser->limitSwitch))
+        ;
     moveMotorDown(&dispenser->motor);
-    while (!limitSwitchIsClosed(dispenser->limitSwitch));
+    while (!limitSwitchIsClosed(dispenser->limitSwitch))
+        ;
     stopMotor(&dispenser->motor);
 }
 
@@ -66,25 +67,25 @@ Dispenser_t createDispenser(SerialAddress_t address, SerialUART_t uart) {
     dispenser.uart = uart;
     dispenser.haltSteps = 0;
     dispenser.stepsDone = 0;
-    dispenser.state = (DispenserState_t) {.function=&sleepState};
+    dispenser.state = (DispenserState_t){.function = &sleepState};
     dispenser.motor = createMotor(address, uart);
     dispenser.limitSwitch = createLimitSwitch(address);
     dispenser.othersTriggered = 0;
 
     switch (address) {
-        case 0:
-            dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_0 / DISPENSER_STEP_TIME_MS;
-            break;
+    case 0:
+        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_0 / DISPENSER_STEP_TIME_MS;
+        break;
 #ifndef RONDELL
-        case 1:
-            dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_1 / DISPENSER_STEP_TIME_MS;
-            break;
-        case 2:
-            dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_2 / DISPENSER_STEP_TIME_MS;
-            break;
-        case 3:
-            dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_3 / DISPENSER_STEP_TIME_MS;
-            break;
+    case 1:
+        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_1 / DISPENSER_STEP_TIME_MS;
+        break;
+    case 2:
+        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_2 / DISPENSER_STEP_TIME_MS;
+        break;
+    case 3:
+        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_3 / DISPENSER_STEP_TIME_MS;
+        break;
 #endif
     }
 
@@ -119,8 +120,8 @@ static DispenserState_t sleepState(Dispenser_t *dispenser) {
 
 static DispenserState_t upState(Dispenser_t *dispenser) {
     printf("upState\n");
-    printf("%i\n" ,dispenser->stepsDone);
-    printf("%i\n" ,dispenser->stepsUp + 2 * dispenser->othersTriggered);
+    printf("%i\n", dispenser->stepsDone);
+    printf("%i\n", dispenser->stepsUp + 2 * dispenser->othersTriggered);
     if (dispenser->stepsDone > dispenser->stepsUp + 2 * dispenser->othersTriggered) {
         stopMotor(&dispenser->motor);
         return topState_t;
@@ -132,7 +133,8 @@ static DispenserState_t upState(Dispenser_t *dispenser) {
 
 static DispenserState_t topState(Dispenser_t *dispenser) {
     printf("topState\n");
-    if (dispenser->stepsDone > dispenser->stepsUp + 2 * dispenser->othersTriggered + dispenser->haltSteps) {
+    if (dispenser->stepsDone >
+        dispenser->stepsUp + 2 * dispenser->othersTriggered + dispenser->haltSteps) {
         moveMotorDown(&dispenser->motor);
         return downState_t;
     }
@@ -148,7 +150,8 @@ static DispenserState_t downState(Dispenser_t *dispenser) {
         dispenser->haltSteps = 0;
         return sleepState_t;
     }
-    if (dispenser->stepsDone > 2 * dispenser->stepsUp + 2 * dispenser->othersTriggered + dispenser->haltSteps + 10) {
+    if (dispenser->stepsDone >
+        2 * dispenser->stepsUp + 2 * dispenser->othersTriggered + dispenser->haltSteps + 10) {
         stopMotor(&dispenser->motor);
         disableMotorByPin(&dispenser->motor);
         dispenser->haltSteps = 0;

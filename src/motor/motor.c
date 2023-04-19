@@ -1,29 +1,29 @@
 #include "motor.h"
 
-#include <pico/time.h>
 #include <hardware/gpio.h>
+#include <pico/time.h>
 
 #include <stdio.h>
 
 void setUpEnablePin(Motor_t *motor, SerialAddress_t id) {
     switch (id) {
-        case 0:
-            motor->enablePin = MOTOR_ENABLE_PINT_0;
-            break;
-        case 1:
-            motor->enablePin = MOTOR_ENABLE_PINT_1;
-            break;
-        case 2:
-            motor->enablePin = MOTOR_ENABLE_PINT_2;
-            break;
-        case 3:
-            motor->enablePin = MOTOR_ENABLE_PINT_3;
-            break;
-        default:
-            motor->enablePin = 0;
+    case 0:
+        motor->enablePin = MOTOR_ENABLE_PINT_0;
+        break;
+    case 1:
+        motor->enablePin = MOTOR_ENABLE_PINT_1;
+        break;
+    case 2:
+        motor->enablePin = MOTOR_ENABLE_PINT_2;
+        break;
+    case 3:
+        motor->enablePin = MOTOR_ENABLE_PINT_3;
+        break;
+    default:
+        motor->enablePin = 0;
     }
-    gpio_init( motor->enablePin);
-    gpio_set_dir( motor->enablePin, GPIO_OUT);
+    gpio_init(motor->enablePin);
+    gpio_set_dir(motor->enablePin, GPIO_OUT);
 }
 
 void setUpMotor(Motor_t *motor, SerialAddress_t address, SerialUART_t uart) {

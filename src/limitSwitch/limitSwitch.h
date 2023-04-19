@@ -3,8 +3,8 @@
 
 #include <hardware/gpio.h>
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 // Pins of the connected Limit switches
 #define STEPPER0_LS_PIN 29
@@ -13,10 +13,22 @@
 #define STEPPER3_LS_PIN 26
 
 // assign the limit switches to their stepper motors
-#define LIMIT_SWITCH_0 (limitSwitch_t) {.pin = STEPPER0_LS_PIN}
-#define LIMIT_SWITCH_1 (limitSwitch_t) {.pin = STEPPER1_LS_PIN}
-#define LIMIT_SWITCH_2 (limitSwitch_t) {.pin = STEPPER2_LS_PIN}
-#define LIMIT_SWITCH_3 (limitSwitch_t) {.pin = STEPPER3_LS_PIN}
+#define LIMIT_SWITCH_0                                                                             \
+    (limitSwitch_t) {                                                                              \
+        .pin = STEPPER0_LS_PIN                                                                     \
+    }
+#define LIMIT_SWITCH_1                                                                             \
+    (limitSwitch_t) {                                                                              \
+        .pin = STEPPER1_LS_PIN                                                                     \
+    }
+#define LIMIT_SWITCH_2                                                                             \
+    (limitSwitch_t) {                                                                              \
+        .pin = STEPPER2_LS_PIN                                                                     \
+    }
+#define LIMIT_SWITCH_3                                                                             \
+    (limitSwitch_t) {                                                                              \
+        .pin = STEPPER3_LS_PIN                                                                     \
+    }
 
 // a limit switch consists of its pin on the pico
 typedef struct limitSwitch {
@@ -33,4 +45,4 @@ bool limitSwitchIsClosed(limitSwitch_t limitSwitch);
 // @return a new limit switch with initialized pins
 limitSwitch_t createLimitSwitch(uint8_t id);
 
-#endif //SIEGMA_LIMITSWITCH_H
+#endif // SIEGMA_LIMITSWITCH_H

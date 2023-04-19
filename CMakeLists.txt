@@ -8,14 +8,11 @@ if (UNIT_TEST)
 
     project(SIEGMA C CXX ASM)
 
-    fetch_git_submodules()
-
     include(CTest)
 
     add_subdirectory(extern/unity)
     add_subdirectory(test/unit)
 else ()
-
     if (DEBUG)
         add_definitions(-DDEBUG)
     endif()
@@ -29,7 +26,6 @@ else ()
     endif()
 
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-    fetch_git_submodules()
 
     include(extern/pico-sdk/pico_sdk_init.cmake)
 
@@ -43,7 +39,7 @@ else ()
 
         include_directories(src)
         add_subdirectory(src/tmc2209)
-        add_subdirectory(src/SerialUART)
+        add_subdirectory(src/serialUART)
         add_subdirectory(src/dispenser)
         add_subdirectory(src/limitSwitch)
         add_subdirectory(src/Rondell)

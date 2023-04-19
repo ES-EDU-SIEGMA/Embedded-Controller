@@ -5,12 +5,12 @@
 #include "rondell.h"
 #endif
 // Pico SDK
-#include <pico/stdio.h>
-#include <pico/time.h>
-#include <pico/bootrom.h>
-#include <pico/stdio_usb.h>
-#include <hardware/watchdog.h>
 #include <hardware/adc.h>
+#include <hardware/watchdog.h>
+#include <pico/bootrom.h>
+#include <pico/stdio.h>
+#include <pico/stdio_usb.h>
+#include <pico/time.h>
 // Standard library
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,18 +26,19 @@ const char *allowedCharacters = "0123456789i;\nn";
 // Array containing the dispenser
 Dispenser_t dispenser[NUMBER_OF_DISPENSERS];
 
-// initialize the usb connection to the pico
-// @param1 bool if the pico should wait for an usb connection
-// @return void
+/// initialize the usb connection to the pico
+/// @param1 bool if the pico should wait for an usb connection
+/// @return void
 void initPico(bool waitForUSBConnection) {
     if (watchdog_enable_caused_reboot())
         reset_usb_boot(0, 0);
 
     stdio_init_all(); // init usb
-    sleep_ms(2500); // Time to make sure everything is ready
+    sleep_ms(2500);   // Time to make sure everything is ready
 
     if (waitForUSBConnection)
-        while ((!stdio_usb_connected())); // waits for usb connection
+        while ((!stdio_usb_connected()))
+            ; // waits for usb connection
 }
 
 // check if the input character is allowed
@@ -52,9 +53,9 @@ bool isAllowedCharacter(uint32_t input) {
     return false;
 }
 
-// parse a String to fetch the hopper halt timings
-// @param1 the received message containing the halt timing
-// @return The parsed halt timing as an integer or on failure, a Zero
+/// parse a String to fetch the hopper halt timings
+/// @param1 the received message containing the halt timing
+/// @return The parsed halt timing as an integer or on failure, a Zero
 uint32_t parseInputString(char **message) {
     // every halt timing command has to end with a ';'
     // the function will search for this char and save its position
@@ -62,15 +63,16 @@ uint32_t parseInputString(char **message) {
     if (semicolonPosition == NULL) {
         return 0; // No Semicolon found
     }
-    // the string will be cast, from the beginning of the string to the ';'-Position, into an integer
+    // the string will be cast, from the beginning of the string to the
+    // ';'-Position, into an integer
     uint32_t delay = strtol(*message, &semicolonPosition, 10);
     *message = semicolonPosition + 1;
     return delay;
 }
 
-// process the received Message (received over Serial)
-// @param1 char buffer containing the received Message
-// @return void
+/// process the received Message (received over Serial)
+/// @param1 char buffer containing the received Message
+/// @return void
 void processMessage(char *message) {
     uint16_t dispensersTrigger = 0;
 
@@ -106,7 +108,8 @@ void processMessage(char *message) {
     do {
         sleep_until(time);
         time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-        // Checks for each dispenser if their next state is reached and perform the according action
+        // Checks for each dispenser if their next state is reached and perform the
+        // according action
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
             dispenserDoStep(&dispenser[i]);
         }
@@ -115,11 +118,11 @@ void processMessage(char *message) {
 #endif
 }
 
-/*
-This function's purpose is to establish synchronization between the pico and the pi. The pi sends 'i\n' to the pico
-corresponding and to confirm that the string has been received the pico sends back "[POSITION]\n".
-This function imprisons the program flow in the while loop until synchronization has been established.
-*/
+/// This function's purpose is to establish synchronization between the pico
+/// and the pi. The pi sends 'i\n' to the pico corresponding and to confirm
+/// that the string has been received the pico sends back "[POSITION]\n".
+/// This function imprisons the program flow in the while loop until
+/// synchronization has been established.
 void establishConnectionToMaster(void) {
     uint32_t input_identifier;
     volatile bool identified = false;
@@ -142,7 +145,7 @@ void establishConnectionToMaster(void) {
             }
         } else {
             input_identifier = 0;
-            printf("F\n");  // Did not receive proper string; await new string.
+            printf("F\n"); // Did not receive proper string; await new string.
         }
     }
 }
@@ -155,7 +158,7 @@ void initialize_adc(uint8_t gpio, uint8_t input) {
 }
 #endif
 
-// MAIN
+/// MAIN
 int main() {
     initPico(false);
 
@@ -178,9 +181,9 @@ int main() {
     memset(input_buf, '\0', INPUT_BUFFER_LEN);
     uint16_t characterCounter = 0;
 
-    // Waits for an input in the form ([0..9];)+[\n|n], each number standing for the wait time of the corresponding dispenser
+    // Waits for an input in the form ([0..9];)+[\n|n], each number standing for
+    // the wait time of the corresponding dispenser
     while (true) {
-
 
         uint32_t input = getchar_timeout_us(10000000); // 10 seconds wait
 
@@ -195,7 +198,6 @@ int main() {
             continue;
         }
 
-
         // received end character, message should be complete, start with processing
         if (input == 'n' || input == '\n') {
 #ifdef DEBUG
@@ -206,7 +208,8 @@ int main() {
             characterCounter = 0;
             printf("READY\n");
         }
-            // received to many characters -> flushing the uart connection and start over
+        // received to many characters -> flushing the uart connection and start
+        // over
         else if (characterCounter >= INPUT_BUFFER_LEN - 1) {
 #ifdef DEBUG
             printf("Input too long, flushing...\n");
@@ -214,7 +217,7 @@ int main() {
             memset(input_buf, '\0', INPUT_BUFFER_LEN);
             characterCounter = 0;
         }
-            // character is allowed and we did not reach the end
+        // character is allowed and we did not reach the end
         else {
 #ifdef DEBUG
             printf("Received: %c (counter: %d)\n", input, characterCounter);
