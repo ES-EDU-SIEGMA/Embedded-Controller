@@ -123,6 +123,7 @@ void processMessage(char *message) {
             dispensersTrigger++;
         }
         setDispenserHaltTime(&dispenser[i], dispenserHaltTimes);
+    }
 #endif
 }
 
@@ -199,10 +200,10 @@ int main() {
     dispenser[0] = createDispenser(0, SERIAL2);
     setUpRondell(2, SERIAL2);
 #else
-        // create the dispenser with their address and save them in an array
-        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            dispenser[i] = createDispenser(i, SERIAL_UART);
-        }
+    // create the dispenser with their address and save them in an array
+    for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
+        dispenser[i] = createDispenser(i, SERIAL_UART);
+    }
 #endif
 
     PRINT("CALIBRATED")
