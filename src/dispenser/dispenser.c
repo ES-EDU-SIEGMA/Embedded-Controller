@@ -18,12 +18,6 @@ void resetDispenserPosition(Dispenser_t *dispenser) {
     stopMotor(&dispenser->motor);
 }
 
-#ifdef RONDELL
-#define FIND_TIME 750
-#else
-#define FIND_TIME 250
-#endif
-
 void findDirection(Dispenser_t *dispenser, uint32_t time) {
     time = time + FIND_TIME;
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
