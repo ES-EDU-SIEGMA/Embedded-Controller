@@ -1,5 +1,5 @@
-#ifndef C_ARDUINO_TO_C_SERIALUART_H
-#define C_ARDUINO_TO_C_SERIALUART_H
+#ifndef SIEGMA_SERIAL_UART_H
+#define SIEGMA_SERIAL_UART_H
 
 #define SERIAL serialUart
 #define SERIAL_BAUD_RATE 0
@@ -9,4 +9,4 @@ typedef struct SerialUART_t {
 
 static SerialUART_t serialUart;
 
-#endif // C_ARDUINO_TO_C_SERIALUART_H
+#endif // SIEGMA_SERIAL_UART_H

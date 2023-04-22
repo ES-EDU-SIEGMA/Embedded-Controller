@@ -29,7 +29,7 @@ typedef struct Motor {
  * @param address serial address of the motor (for more information: https://github.com/janelia-arduino/TMC2209)
  * @param uart    uart pins to be used
  */
-void setUpMotor(Motor_t *motor, SerialAddress_t address, SerialUART_t uart);
+void setUpMotor(Motor_t *motor, SerialAddress_t address, serialUart_t uart);
 
 /*! Enable the motor
  *
@@ -67,7 +67,7 @@ void stopMotor(Motor_t *motor);
  * @param uart    uart pins to be used
  * @return        motor struct of the new motor
  */
-Motor_t createMotor(SerialAddress_t address, SerialUART_t uart);
+Motor_t createMotor(SerialAddress_t address, serialUart_t uart);
 
 /*! Check if the motor is capable of communication over uart
  *

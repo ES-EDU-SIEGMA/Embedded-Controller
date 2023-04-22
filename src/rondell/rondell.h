@@ -35,7 +35,7 @@ struct Rondell {
     LDR_VALUE max_ldr_value;
     LDR_VALUE min_ldr_value;
     Motor_t motor;
-    SerialUART_t uart;
+    serialUart_t uart;
 };
 typedef struct Rondell Rondell_t;
 
@@ -45,7 +45,7 @@ typedef struct Rondell Rondell_t;
  * https://github.com/janelia-arduino/TMC2209
  * @param uart    Further UART configuration
  */
-void setUpRondell(SerialAddress_t address, SerialUART_t uart);
+void setUpRondell(SerialAddress_t address, serialUart_t uart);
 
 /*! This is the core-function of the rondell; it moves the rondell to the desired dispenser.
  *

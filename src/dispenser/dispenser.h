@@ -56,7 +56,7 @@ typedef struct Dispenser {
     DispenserState_t state;
     Motor_t motor;
     limitSwitch_t limitSwitch;
-    SerialUART_t uart;
+    serialUart_t uart;
 } Dispenser_t;
 
 /* endregion DEFINES */
@@ -69,7 +69,7 @@ typedef struct Dispenser {
  * @param uart    which UART pins will be used
  * @return        a initialized Dispenser
  */
-Dispenser_t createDispenser(SerialAddress_t address, SerialUART_t uart);
+Dispenser_t createDispenser(SerialAddress_t address, serialUart_t uart);
 
 /*! Dispenser cycles to the next state
  *

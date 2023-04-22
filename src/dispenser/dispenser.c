@@ -55,7 +55,7 @@ void findDirection(Dispenser_t *dispenser, uint32_t time) {
     }
 }
 
-Dispenser_t createDispenser(SerialAddress_t address, SerialUART_t uart) {
+Dispenser_t createDispenser(SerialAddress_t address, serialUart_t uart) {
     Dispenser_t dispenser;
     dispenser.address = address;
     dispenser.uart = uart;

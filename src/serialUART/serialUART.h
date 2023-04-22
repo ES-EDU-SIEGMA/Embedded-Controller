@@ -1,11 +1,8 @@
-#ifndef C_ARDUINO_TO_C_SERIALUART_H
-#define C_ARDUINO_TO_C_SERIALUART_H
-
-#pragma once
+#ifndef SIEGMA_SERIAL_UART_H
+#define SIEGMA_SERIAL_UART_H
 
 #include <hardware/gpio.h>
 #include <hardware/uart.h>
-
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -29,18 +26,24 @@
 
 #define SERIAL_8N1 (SERIAL_STOP_BIT_1 | SERIAL_PARITY_NONE | SERIAL_DATA_8)
 
-// Serial
-#define PIN_SERIAL1_TX (0u)
-#define PIN_SERIAL1_RX (1u)
-
-#define PIN_SERIAL2_TX (4u)
-#define PIN_SERIAL2_RX (5u)
-
 #define UART_PIN_NOT_DEFINED (255u)
 
 #define SERIAL_BAUD_RATE 115200
 
-typedef struct SerialUART_t {
+/* region Serial 1 */
+#define PIN_SERIAL1_TX (0u)
+#define PIN_SERIAL1_RX (1u)
+
+#define SERIAL1 serialUartCreate(uart0, PIN_SERIAL1_TX, PIN_SERIAL1_RX)
+/* endregion Serial 1 */
+/* region Serial 2 */
+#define PIN_SERIAL2_TX (4u)
+#define PIN_SERIAL2_RX (5u)
+
+#define SERIAL2 serialUartCreate(uart1, PIN_SERIAL2_TX, PIN_SERIAL2_RX)
+/* endregion Serial 2 */
+
+struct serialUart {
     bool _running; // set to false by init
     uart_inst_t *_uart;
     uint8_t _tx, _rx;
@@ -55,22 +58,19 @@ typedef struct SerialUART_t {
     uint32_t _reader;
     uint8_t _fifoSize; // set to 32 by init
     uint8_t *_queue;
-} SerialUART_t;
+};
+typedef struct serialUart serialUart_t;
 
-void SerialUART_begin(unsigned long baud, uint16_t config);
+void serialUartBegin(unsigned long baud, uint16_t config);
 
-void SerialUART_end();
+void serialUartEnd();
 
-int SerialUART_read();
+int serialUartRead();
 
-uint8_t SerialUART_available();
+uint8_t serialUartAvailable();
 
-size_t SerialUART_write(uint8_t c);
+size_t serialUartWrite(uint8_t c);
 
-SerialUART_t SerialUART(uart_inst_t *uart, uint8_t tx, uint8_t rx);
+serialUart_t serialUartCreate(uart_inst_t *uart, uint8_t tx, uint8_t rx);
 
-#define SERIAL1 SerialUART(uart0, PIN_SERIAL1_TX, PIN_SERIAL1_RX)
-
-#define SERIAL2 SerialUART(uart1, PIN_SERIAL2_TX, PIN_SERIAL2_RX)
-
-#endif // C_ARDUINO_TO_C_SERIALUART_H
+#endif // SIEGMA_SERIAL_UART_H

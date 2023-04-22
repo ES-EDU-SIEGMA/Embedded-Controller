@@ -25,7 +25,7 @@ void setUpEnablePin(Motor_t *motor, SerialAddress_t id) {
     gpio_set_dir(motor->enablePin, GPIO_OUT);
 }
 
-void setUpMotor(Motor_t *motor, SerialAddress_t address, SerialUART_t uart) {
+void setUpMotor(Motor_t *motor, SerialAddress_t address, serialUart_t uart) {
     setUpEnablePin(motor, address);
     disableMotorByPin(motor);
 
@@ -60,7 +60,7 @@ void disableMotorByPin(Motor_t *motor) {
     gpio_pull_up(motor->enablePin);
 }
 
-Motor_t createMotor(SerialAddress_t address, SerialUART_t uart) {
+Motor_t createMotor(SerialAddress_t address, serialUart_t uart) {
     Motor_t motor = {.address = address};
     setUpMotor(&motor, address, uart);
     return motor;
