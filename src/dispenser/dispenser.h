@@ -40,24 +40,35 @@
 #error ONLY 4 DISPENERS AVAILABLE
 #endif
 
-typedef struct Dispenser Dispenser_t;
+typedef struct dispenser dispenser_t;
+typedef struct dispenserState dispenserState_t;
 
-typedef struct dispenserState {
-    struct dispenserState (*function)(struct Dispenser *);
-} DispenserState_t;
+struct dispenserState {
+    struct dispenserState (*function)(dispenser_t *);
+};
 
 /// Dispenser struct holding all important values to control the stepper driver
-typedef struct Dispenser {
+struct dispenser {
     SerialAddress_t address;
     uint8_t othersTriggered;
     uint16_t stepsDone;
     uint16_t stepsUp;
     uint16_t haltSteps;
-    DispenserState_t state;
+    dispenserState_t state;
     Motor_t motor;
     limitSwitch_t limitSwitch;
     serialUart_t uart;
-} Dispenser_t;
+};
+
+enum {
+    DISPENSER_STATE_SLEEP,
+    DISPENSER_STATE_UP,
+    DISPENSER_STATE_TOP,
+    DISPENSER_STATE_DOWN,
+    DISPENSER_STATE_ERROR,
+    DISPENSER_STATE_INVALID,
+};
+typedef uint8_t dispenserStateCode_t;
 
 /* endregion DEFINES */
 
@@ -69,13 +80,13 @@ typedef struct Dispenser {
  * @param uart    which UART pins will be used
  * @return        a initialized Dispenser
  */
-Dispenser_t createDispenser(SerialAddress_t address, serialUart_t uart);
+dispenser_t dispenserCreate(SerialAddress_t address, serialUart_t uart);
 
 /*! Dispenser cycles to the next state
  *
  * @param dispenser the Dispenser to take action on
  */
-void dispenserDoStep(Dispenser_t *dispenser);
+void dispenserDoStep(dispenser_t *dispenser);
 
 /*! Check if all Dispenser are sleeping
  *
@@ -83,7 +94,7 @@ void dispenserDoStep(Dispenser_t *dispenser);
  * @param number_of_dispenser the amount of initialized dispenser
  * @return true if all Dispenser are in a sleeping state
  */
-bool allDispenserInSleepState(Dispenser_t *dispenser, uint8_t number_of_dispenser);
+bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser);
 
 /*! Set the halt time for the dispenser to wait at the "top"
  *
@@ -91,7 +102,9 @@ bool allDispenserInSleepState(Dispenser_t *dispenser, uint8_t number_of_dispense
  * @param haltTime  the time in ms to halt
  * @return void
  */
-void setDispenserHaltTime(Dispenser_t *dispenser, uint32_t haltTime);
+void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime);
+
+dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser);
 
 /* endregion FUNCTION PROTOTYPES */
 

@@ -5,7 +5,7 @@
 Dispenser_t dispenser;
 
 void setUp() {
-    dispenser = createDispenser(0, SERIAL);
+    dispenser = dispenserCreate(0, SERIAL);
 }
 
 void tearDown() {}
@@ -16,7 +16,7 @@ void testDispenserStructChanged(void) {
 }
 
 void testDispenserCycle(void) {
-    //    setDispenserHaltTime(&dispenser, 10);
+    //    dispenserSetHaltTime(&dispenser, 10);
     //
     //    TEST_ASSERT_EQUAL(sleepState, dispenser.state.function);
     //

@@ -32,7 +32,7 @@ void initPico(bool waitForUSBConnection) {
 int main() {
     initPico(true);
 
-    Dispenser_t dispenser[NUMBER_OF_DISPENSERS];
+    dispenser_t dispenser[NUMBER_OF_DISPENSERS];
 
     PRINT("##########\n# Start Test")
     while (true) {
@@ -59,7 +59,7 @@ int main() {
         switch (command) {
         case 's':
             PRINT("Setup dispenser: %lu", id)
-            dispenser[id] = createDispenser(id, SERIAL_UART);
+            dispenser[id] = dispenserCreate(id, SERIAL_UART);
             break;
         case 't':
             PRINT("Set halt time for dispenser %lu:", id)
@@ -69,7 +69,7 @@ int main() {
                 haltTime = 10000;
             }
             PRINT("Halt time set to %lu", haltTime)
-            setDispenserHaltTime(&dispenser[id], haltTime);
+            dispenserSetHaltTime(&dispenser[id], haltTime);
             break;
         case 'r':
             PRINT("Running")
@@ -86,8 +86,7 @@ int main() {
                 dispenserDoStep(&dispenser[id]);
                 // When all dispensers are finished, they are in the state sleep
 
-                // TODO: implement dispenserGetState(...)
-            } while (dispenser->state.function != sleepState);
+            } while (DISPENSER_STATE_SLEEP != dispenserGetStateCode(dispenser));
             PRINT("Ready")
             break;
         default:

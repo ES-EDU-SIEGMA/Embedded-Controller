@@ -25,7 +25,7 @@
 #define SERIAL_UART SERIAL2
 
 const char *allowedCharacters = "0123456789i;\nn"; /// sequence of allowed character
-Dispenser_t dispenser[NUMBER_OF_DISPENSERS];       /// Array containing the dispenser
+dispenser_t dispenser[NUMBER_OF_DISPENSERS];       /// Array containing the dispenser
 
 /* endregion VARIABLES/DEFINES */
 
@@ -93,7 +93,7 @@ void processMessage(char *message) {
     for (uint8_t i = 0; i < 4; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
 #ifdef RONDELL
-        setDispenserHaltTime(&dispenser[0], dispenserHaltTimes);
+        dispenserSetHaltTime(&dispenser[0], dispenserHaltTimes);
         if (dispenserHaltTimes > 0) {
             moveToDispenserWithId(i);
             absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
@@ -101,7 +101,7 @@ void processMessage(char *message) {
                 sleep_until(time);
                 time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
                 dispenserDoStep(&dispenser[0]);
-            } while (!allDispenserInSleepState(dispenser, 1));
+            } while (!dispenserSetAllToSleepState(dispenser, 1));
         }
     }
     for (int i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
@@ -117,12 +117,12 @@ void processMessage(char *message) {
             dispenserDoStep(&dispenser[i]);
         }
         // When all dispensers are finished, they are in the state sleep
-    } while (!allDispenserInSleepState(dispenser, NUMBER_OF_DISPENSERS));
+    } while (!dispenserSetAllToSleepState(dispenser, NUMBER_OF_DISPENSERS));
 #else
         if (dispenserHaltTimes > 0) {
             dispensersTrigger++;
         }
-        setDispenserHaltTime(&dispenser[i], dispenserHaltTimes);
+        dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
     }
 #endif
 }
@@ -197,12 +197,12 @@ int main() {
 
 #ifdef RONDELL
     initialize_adc(28);
-    dispenser[0] = createDispenser(0, SERIAL2);
+    dispenser[0] = dispenserCreate(0, SERIAL2);
     setUpRondell(2, SERIAL2);
 #else
     // create the dispenser with their address and save them in an array
     for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-        dispenser[i] = createDispenser(i, SERIAL_UART);
+        dispenser[i] = dispenserCreate(i, SERIAL_UART);
     }
 #endif
 
