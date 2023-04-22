@@ -1,4 +1,5 @@
 #include "dispenser.h"
+#include "dispenser_internal.h"
 #include <pico/time.h>
 #include <stdio.h>
 
@@ -7,6 +8,8 @@ static DispenserState_t upState_t = (DispenserState_t){.function = &upState};
 static DispenserState_t topState_t = (DispenserState_t){.function = &topState};
 static DispenserState_t downState_t = (DispenserState_t){.function = &downState};
 static DispenserState_t errorState_t = (DispenserState_t){.function = &errorState};
+
+/* region HEADER FUNCTIONS */
 
 void resetDispenserPosition(Dispenser_t *dispenser) {
     moveMotorUp(&dispenser->motor);
@@ -93,6 +96,10 @@ Dispenser_t createDispenser(SerialAddress_t address, serialUart_t uart) {
     return dispenser;
 }
 
+/* endregion HEADER FUNCTIONS */
+
+/* region STATIC FUNCTIONS */
+
 static DispenserState_t errorState(Dispenser_t *dispenser) {
     setUpMotor(&dispenser->motor, dispenser->address, dispenser->uart);
     if (motorIsCommunicating(&dispenser->motor)) {
@@ -177,3 +184,5 @@ bool allDispenserInSleepState(Dispenser_t *dispenser, uint8_t number_of_dispense
     }
     return true;
 }
+
+/* endregion STATIC FUNCTIONS */
