@@ -1,8 +1,6 @@
 #ifndef SIEGMA_LIMITSWITCH_H
 #define SIEGMA_LIMITSWITCH_H
 
-#include <hardware/gpio.h>
-
 #include <stdbool.h>
 #include <stdint.h>
 

@@ -1,16 +1,17 @@
+#include "rondell.h"
+#include "common.h"
+#include "rondell_internal.h"
+#include "serialUART.h"
+#include "tmc2209.h"
 #include <hardware/adc.h>
 #include <pico/time.h>
 #include <stdio.h>
 
-#include "rondell.h"
-#include "serialUART.h"
-#include "tmc2209.h"
-
-#define MEAN_OF_LDR_VALUES ((rondell.max_ldr_value + rondell.min_ldr_value) / 2)
+/* region VARIABLES */
 
 static Rondell_t rondell;
 
-static void createRondell(SerialAddress_t address, SerialUART_t uart) {
+static void createRondell(SerialAddress_t address, serialUart_t uart) {
     rondell.address = address;
     rondell.uart = uart;
     rondell.position = UNDEFINED;
@@ -21,101 +22,17 @@ static void createRondell(SerialAddress_t address, SerialUART_t uart) {
     rondell.motor = createMotor(address, uart);
 }
 
-/*
-"setExtrema" is called at startup and its purpose is to set the maximum and minimum ldr value in
-order to correctly calculate the threshold for "passDarkPeriod/passBrightPeriod". The threshold
-formula is visible in the macro definition of "MEAN_OF_LDR_VALUES". This function allows to adapt to
-various lighting situation since the threshold is not a fixed number.
-*/
-static void setExtrema(void);
+/* endregion VARIABLES */
 
-static void moveRondellClockwise(void);
+/* region HEADER FUNCTIONS */
 
-void setUpRondell(SerialAddress_t address, SerialUART_t uart) {
+void setUpRondell(SerialAddress_t address, serialUart_t uart) {
     createRondell(address, uart);
     setExtrema();
 }
 
-static void moveRondellCounterClockwise(void) {
-    moveMotorUp(&rondell.motor);
-    rondell.state = RONDELL_MOVING_COUNTER_CLOCKWISE;
-    sleep_ms(200);
-}
-
-static void moveRondellClockwise(void) {
-    moveMotorDown(&rondell.motor);
-    rondell.state = RONDELL_MOVING_CLOCKWISE;
-    sleep_ms(200);
-}
-
-static void stopRondell(void) {
-    stopMotor(&rondell.motor);
-    disableMotorByPin(&rondell.motor);
-}
-
-/*
-Being at position 0 or 3 and wanting to get to 0 or 3 is special, because applied to the set
-{0,1,2,3} some rules of arithmetics, specifically the absolute value function, are different and
-therefore need special consideration. Returns a bool.
- */
-static uint8_t specialPositionGiven(void) {
-    uint8_t specialPosition;
-    (rondell.position == 0 && rondell.positionToDriveTo == 3) ||
-            (rondell.position == 3 && rondell.positionToDriveTo == 0)
-        ? (specialPosition = 1)
-        : (specialPosition = 0);
-    return specialPosition;
-}
-
-static int8_t subtractPositions(void) {
-    int8_t current_pos = (int8_t)rondell.position;
-    int8_t positionToDriveTo = (int8_t)rondell.positionToDriveTo;
-    return (current_pos - positionToDriveTo);
-}
-
-static uint8_t calculatePositionDifference(void) {
-    if (specialPositionGiven())
-        return 1;
-    uint8_t positionDifference;
-    ((subtractPositions()) >= 0) ? (positionDifference = subtractPositions())
-                                 : (positionDifference = -(subtractPositions()));
-    return positionDifference;
-}
-
-static void setExtrema(void) {
-#ifdef DEBUG
-    printf("ENTERED setExtrema\n");
-#endif
-    enableMotorByPin(&rondell.motor);
-    moveRondellClockwise();
-    uint16_t dataCollectionTime_ms = 15000;
-    uint16_t counter = 0;
-    while (counter <= dataCollectionTime_ms) {
-        uint16_t current_val = adc_read();
-        if (current_val > rondell.max_ldr_value) {
-            rondell.max_ldr_value = current_val;
-        }
-        if (current_val < rondell.min_ldr_value) {
-            rondell.min_ldr_value = current_val;
-        }
-        counter += 10;
-        sleep_ms(10);
-    }
-    stopRondell();
-    rondell.state = RONDELL_SLEEP;
-    sleep_ms(1000);
-    moveToDispenserWithId(0);
-    rondell.state = RONDELL_SLEEP;
-#ifdef DEBUG
-    printf("LEAVING SET EXTREMA, MAX LDR: %d, MIN LDR: %d\n", rondell.max_ldr_value,
-           rondell.min_ldr_value);
-#endif
-}
-
 void handleSpecialPosition(void) {
-#ifdef DEBUG
-    printf("ENTERED handleSpecialPosition\n");
-#endif
+    PRINT_DEBUG("ENTERED handleSpecialPosition\n");
     if (rondell.positionToDriveTo == 3 && rondell.position == 0) {
         moveRondellCounterClockwise();
     } else {
@@ -148,18 +65,103 @@ void handleOrdinaryPosition(void) {
     }
 }
 
-// Depending on the difference between the rondell's current position and its desired position a
-// decision is being made whether to move clockwise or counter-clockwise.
+void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
+
+    rondell.positionToDriveTo = positionToDriveTo;
+
+    if (rondell.positionToDriveTo == rondell.position) {
+        return;
+    }
+
+    bool reachedDesiredPosition = false;
+    while (!reachedDesiredPosition) {
+        moveRondellToKeyPosition();
+        if (rondell.position == rondell.positionToDriveTo)
+            reachedDesiredPosition = true;
+    }
+    rondell.state = RONDELL_IN_KEY_POS;
+    stopRondell();
+    PRINT_DEBUG("reached desired position: %d, while position variable is: %d", positionToDriveTo,
+                rondell.position)
+}
+
+/* endregion HEADER FUNCTIONS */
+
+/* region STATIC FUNCTION IMPLEMENTATIONS */
+
+static void moveRondellCounterClockwise(void) {
+    moveMotorUp(&rondell.motor);
+    rondell.state = RONDELL_MOVING_COUNTER_CLOCKWISE;
+    sleep_ms(200);
+}
+
+static void moveRondellClockwise(void) {
+    moveMotorDown(&rondell.motor);
+    rondell.state = RONDELL_MOVING_CLOCKWISE;
+    sleep_ms(200);
+}
+
+static void stopRondell(void) {
+    stopMotor(&rondell.motor);
+    disableMotorByPin(&rondell.motor);
+}
+
+static uint8_t specialPositionGiven(void) {
+    uint8_t specialPosition;
+    (rondell.position == 0 && rondell.positionToDriveTo == 3) ||
+            (rondell.position == 3 && rondell.positionToDriveTo == 0)
+        ? (specialPosition = 1)
+        : (specialPosition = 0);
+    return specialPosition;
+}
+
+static int8_t subtractPositions(void) {
+    int8_t current_pos = (int8_t)rondell.position;
+    int8_t positionToDriveTo = (int8_t)rondell.positionToDriveTo;
+    return (current_pos - positionToDriveTo);
+}
+
+static uint8_t calculatePositionDifference(void) {
+    if (specialPositionGiven())
+        return 1;
+    uint8_t positionDifference;
+    ((subtractPositions()) >= 0) ? (positionDifference = subtractPositions())
+                                 : (positionDifference = -(subtractPositions()));
+    return positionDifference;
+}
+
+static void setExtrema(void) {
+    PRINT_DEBUG("ENTERED setExtrema")
+    enableMotorByPin(&rondell.motor);
+    moveRondellClockwise();
+    uint16_t dataCollectionTime_ms = 15000;
+    uint16_t counter = 0;
+    while (counter <= dataCollectionTime_ms) {
+        uint16_t current_val = adc_read();
+        if (current_val > rondell.max_ldr_value) {
+            rondell.max_ldr_value = current_val;
+        }
+        if (current_val < rondell.min_ldr_value) {
+            rondell.min_ldr_value = current_val;
+        }
+        counter += 10;
+        sleep_ms(10);
+    }
+    stopRondell();
+    rondell.state = RONDELL_SLEEP;
+    sleep_ms(1000);
+    moveToDispenserWithId(0);
+    rondell.state = RONDELL_SLEEP;
+    PRINT_DEBUG("LEAVING SET EXTREMA, MAX LDR: %d, MIN LDR: %d", rondell.max_ldr_value,
+                rondell.min_ldr_value)
+}
+
 static void startRondellAndDecideDirection(void) {
-#ifdef DEBUG
-    printf("started rondell and deciding direction\n");
-#endif
+    PRINT_DEBUG("started rondell and deciding direction")
     enableMotorByPin(&rondell.motor);
     if (rondell.position != UNDEFINED) {
         uint8_t positionDifference = calculatePositionDifference();
-#ifdef DEBUG
-        printf("POSITION DIFFERENCE: %u\n", positionDifference);
-#endif
+        PRINT_DEBUG("POSITION DIFFERENCE: %u\n", positionDifference)
         if (positionDifference == 1) {
             if (specialPositionGiven()) {
                 handleSpecialPosition();
@@ -173,21 +175,8 @@ static void startRondellAndDecideDirection(void) {
     moveRondellClockwise();
 }
 
-static void passBrightPeriod(void);
-
-static void passDarkPeriod(uint32_t *counter);
-
-/*
-The idea of "findLongHole" is to increment a counter until a certain value, during a period in which
-there is light, is reached; if the counter reaches the value it means that there was light for so
-long that the passed area qualifies as a long hole. "adc_read() < MEAN_OF_LDR_VALUES" might be
-unintuitive; since we're checking for light "adc_read() > MEAN_OF_LDR_VALUES" may be expected,
-however this is due to a restriction of the PCB.
-*/
 static void findLongHole(bool *longHoleFound) {
-#ifdef DEBUG
-    printf("entered FINDLONGHOLE\n");
-#endif
+    PRINT_DEBUG("entered FINDLONGHOLE")
     int high_counter = 0;
     passDarkPeriod(0);
     while (adc_read() < MEAN_OF_LDR_VALUES) {
@@ -217,24 +206,11 @@ static void findLongHoleAndPassIt(void) {
     while (!longHoleFound) {
         findLongHole(&longHoleFound);
     }
-#ifdef DEBUG
-    printf("LONG HOLE FOUND\n");
-#endif
+    PRINT_DEBUG("LONG HOLE FOUND")
 
     passLongHole();
 }
 
-/*
- The following two functions check whether the ADC reads above/below a certain value. So long as
- that value is read, the rondell keeps moving. The usage of ">" and "<" may seem confusing; the
- reader might think that "adc_read() > threshold" in "passDARKPeriod" does not make sense, because
- intuitively you would rather except "adc_read < threshold", but this is necessary because of a
- hardware restriction on the PCB that could not be changed anymore.
-
- The decision to not generalize the sleep-duration is based on the need for consistent behaviour.
- The sleep period should always be the same; therefore the usage of a constant.
-
- */
 static void passDarkPeriod(uint32_t *counter) {
     while (adc_read() > MEAN_OF_LDR_VALUES) {
         if (counter) {
@@ -250,12 +226,6 @@ static void passBrightPeriod(void) {
     }
 }
 
-/*
-The idea for the algorithm of "identify position" is to determine time differences between certain
-areas on the rondell. Tests have shown these values to be quite stable. There is a tolerance of
-about ±100 for each critical value, though tests have shown that a lesser tolerance probably would
-have worked too.
-*/
 static void identifyPosition(void) {
     // The next two lines ensure a proper transition from the long hole and counts the time for that
     // period.
@@ -265,24 +235,18 @@ static void identifyPosition(void) {
     passDarkPeriod(&counterLongHoleToFirstHole);
     sleep_ms(25);
 
-#ifdef DEBUG
-    printf("LH TO FH: %u\n", counterLongHoleToFirstHole);
-#endif
+    PRINT_DEBUG("LH TO FH: %u", counterLongHoleToFirstHole)
     // If one of the first two if statements evaluates to true the position can be determined
-    // immediately due to the rondell's shape. Tests have shown that the time difference for Pos2
-    // needs wider range of tolerance.
+    // immediately due to the rondell's shape. Tests have shown that the time difference for
+    // RONDELL_POSITION_2 needs wider range of tolerance.
     if (counterLongHoleToFirstHole >= 700 && counterLongHoleToFirstHole <= 1000) {
-#ifdef DEBUG
-        printf("RONDELL POS2\n");
-#endif
-        rondell.position = Pos2;
+        PRINT_DEBUG("RONDELL POS2")
+        rondell.position = RONDELL_POSITION_2;
         return;
     }
     if (counterLongHoleToFirstHole >= 400 && counterLongHoleToFirstHole <= 600) {
-#ifdef DEBUG
-        printf("RONDELL POS3\n");
-#endif
-        rondell.position = Pos3;
+        PRINT_DEBUG("RONDELL POS3")
+        rondell.position = RONDELL_POSITION_4;
         return;
     }
 
@@ -297,41 +261,29 @@ static void identifyPosition(void) {
         sleep_ms(50);
 
         passDarkPeriod(&counterFirstHoleToSecondHole);
-#ifdef DEBUG
-        printf("FH TO 2ndH: %u\n", counterFirstHoleToSecondHole);
-#endif
+        PRINT_DEBUG("FH TO 2ndH: %u", counterFirstHoleToSecondHole)
         if (counterFirstHoleToSecondHole >= 100 && counterFirstHoleToSecondHole <= 300) {
-#ifdef DEBUG
-            printf("RONDELL POS1\n");
-#endif
-            rondell.position = Pos1;
+            PRINT_DEBUG("RONDELL POS1")
+            rondell.position = RONDELL_POSITION_1;
             return;
         }
         if (counterFirstHoleToSecondHole >= 400 && counterFirstHoleToSecondHole <= 600) {
-#ifdef DEBUG
-            printf("RONDELL POS0\n");
-#endif
-            rondell.position = Pos0;
+            PRINT_DEBUG("RONDELL POS0")
+            rondell.position = RNDELL_POSITION_0;
             return;
         }
     }
 }
 
-/*
-This function moves the dispenser in alignment with the hopper.
-After passBrightPeriod/passDarkPeriod there might be some extra sleep time to ensure a smooth
-transition. Some values/instruction may seem arbitrary/inconsistent; this is because of some slight
-inaccuracies of the rondell-pattern.
-*/
 static void moveRondellToKeyPosition(void) {
     findLongHoleAndPassIt();
     identifyPosition();
     switch (rondell.position) {
-    case Pos2:
+    case RONDELL_POSITION_2:
         passBrightPeriod();
         return;
 
-    case Pos1:
+    case RONDELL_POSITION_1:
         passBrightPeriod();
         sleep_ms(100);
         passDarkPeriod(0);
@@ -341,13 +293,13 @@ static void moveRondellToKeyPosition(void) {
         sleep_ms(200);
         return;
 
-    case Pos0:
+    case RNDELL_POSITION_0:
         sleep_ms(50);
         passBrightPeriod();
         sleep_ms(100);
         return;
 
-    case Pos3:
+    case RONDELL_POSITION_4:
         passBrightPeriod();
         sleep_ms(100);
         passDarkPeriod(0);
@@ -358,24 +310,4 @@ static void moveRondellToKeyPosition(void) {
     }
 }
 
-void moveToDispenserWithId(enum RondellPos positionToDriveTo) {
-
-    rondell.positionToDriveTo = positionToDriveTo;
-
-    if (rondell.positionToDriveTo == rondell.position) {
-        return;
-    }
-
-    bool reachedDesiredPosition = false;
-    while (!reachedDesiredPosition) {
-        moveRondellToKeyPosition();
-        if (rondell.position == rondell.positionToDriveTo)
-            reachedDesiredPosition = true;
-    }
-    rondell.state = RONDELL_IN_KEY_POS;
-    stopRondell();
-#ifdef DEBUG
-    printf("reached desired position: %d, while position variable is: %d\n", positionToDriveTo,
-           rondell.position);
-#endif
-}
+/* endregion STATIC FUNCTION IMPLEMENTATIONS */

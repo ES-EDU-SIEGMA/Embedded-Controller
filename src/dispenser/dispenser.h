@@ -6,6 +6,8 @@
 #include "serialUART.h"
 #include <stdint.h>
 
+/* region DEFINES */
+
 #ifdef RONDELL
 #define NUMBER_OF_DISPENSERS 1
 #else
@@ -28,76 +30,82 @@
 #define MS_DISPENSERS_ARE_MOVING_UP_3 7900
 #endif
 
-// error check if the number of dispenser exceeds its limits
+#ifdef RONDELL
+#define FIND_TIME 750
+#else
+#define FIND_TIME 250
+#endif
+
 #if NUMBER_OF_DISPENSERS > 4
 #error ONLY 4 DISPENERS AVAILABLE
 #endif
 
-typedef struct Dispenser Dispenser_t;
+typedef struct dispenser dispenser_t;
+typedef struct dispenserState dispenserState_t;
 
-typedef struct dispenserState {
-    struct dispenserState (*function)(struct Dispenser *);
-} DispenserState_t;
+struct dispenserState {
+    struct dispenserState (*function)(dispenser_t *);
+};
 
 /// Dispenser struct holding all important values to control the stepper driver
-typedef struct Dispenser {
+struct dispenser {
     SerialAddress_t address;
     uint8_t othersTriggered;
     uint16_t stepsDone;
     uint16_t stepsUp;
     uint16_t haltSteps;
-    DispenserState_t state;
+    dispenserState_t state;
     Motor_t motor;
     limitSwitch_t limitSwitch;
-    SerialUART_t uart;
-} Dispenser_t;
+    serialUart_t uart;
+};
 
-/// initialize a new Dispenser with all of its components (Uart, Limit Switch)
-/// @param1 The Address for the uart connection (1, 2, 3, 4)
-/// @param2 which Uart Pins will be used
-/// @return an initialized Dispenser
-Dispenser_t createDispenser(SerialAddress_t address, SerialUART_t uart);
+enum {
+    DISPENSER_STATE_SLEEP,
+    DISPENSER_STATE_UP,
+    DISPENSER_STATE_TOP,
+    DISPENSER_STATE_DOWN,
+    DISPENSER_STATE_ERROR,
+    DISPENSER_STATE_INVALID,
+};
+typedef uint8_t dispenserStateCode_t;
 
-/// Dispenser cycles to the next state
-/// @param the Dispenser to take action on
-/// @return void
-void dispenserDoStep(Dispenser_t *dispenser);
+/* endregion DEFINES */
 
-/// Check if all Dispenser are sleeping
-/// @param1 an array holding all Dispenser
-/// @param2 The amount of initialized Dispenser
-/// @return true if all Dispenser are in a sleeping state
-bool allDispenserInSleepState(Dispenser_t *dispenser, uint8_t number_of_dispenser);
+/* region FUNCTION PROTOTYPES */
 
-/// Set the halt time for the dispenser to wait at the "top"
-/// @param1 Dispenser to be set
-/// @param2 The time (in ms) to halt
-/// @return void
-void setDispenserHaltTime(Dispenser_t *dispenser, uint32_t haltTime);
+/*! initialize a new Dispenser with all of its components (Uart, Limit Switch)
+ *
+ * @param address the address for the UART connection (1, 2, 3, 4)
+ * @param uart    which UART pins will be used
+ * @return        a initialized Dispenser
+ */
+dispenser_t dispenserCreate(SerialAddress_t address, serialUart_t uart);
 
-/// Change dispenser state to the sleep state (wait for new command)
-/// @param1 Dispenser to be set
-/// @return new state (sleep state) of the dispenser
-static DispenserState_t sleepState(Dispenser_t *dispenser);
+/*! Dispenser cycles to the next state
+ *
+ * @param dispenser the Dispenser to take action on
+ */
+void dispenserDoStep(dispenser_t *dispenser);
 
-/// Change dispenser state to the up state (drive upwards)
-/// @param1 Dispenser to be set
-/// @return new state (up state) of the dispenser
-static DispenserState_t upState(Dispenser_t *dispenser);
+/*! Check if all Dispenser are sleeping
+ *
+ * @param dispenser           an array holding a reference to all dispenser
+ * @param number_of_dispenser the amount of initialized dispenser
+ * @return true if all Dispenser are in a sleeping state
+ */
+bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser);
 
-/// Change dispenser state to the top state (stay in the up position)
-/// @param1 Dispenser to be set
-/// @return new state (top state) of the dispenser
-static DispenserState_t topState(Dispenser_t *dispenser);
+/*! Set the halt time for the dispenser to wait at the "top"
+ *
+ * @param dispenser dispenser to be set
+ * @param haltTime  the time in ms to halt
+ * @return void
+ */
+void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime);
 
-/// Change dispenser state to the down state (drive downwards)
-/// @param1 Dispenser to be set
-/// @return new state (down state) of the dispenser
-static DispenserState_t downState(Dispenser_t *dispenser);
+dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser);
 
-/// Change dispenser state to the error state (no connection to the tmc -> try again)
-/// @param1 Dispenser to be set
-/// @return new state (error state) of the dispenser
-static DispenserState_t errorState(Dispenser_t *dispenser);
+/* endregion FUNCTION PROTOTYPES */
 
 #endif // SIEGMA_DISPENSER_H

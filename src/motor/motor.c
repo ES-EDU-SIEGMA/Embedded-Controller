@@ -1,8 +1,7 @@
 #include "motor.h"
-
+#include "common.h"
 #include <hardware/gpio.h>
 #include <pico/time.h>
-
 #include <stdio.h>
 
 void setUpEnablePin(Motor_t *motor, SerialAddress_t id) {
@@ -26,28 +25,22 @@ void setUpEnablePin(Motor_t *motor, SerialAddress_t id) {
     gpio_set_dir(motor->enablePin, GPIO_OUT);
 }
 
-void setUpMotor(Motor_t *motor, SerialAddress_t address, SerialUART_t uart) {
+void setUpMotor(Motor_t *motor, SerialAddress_t address, serialUart_t uart) {
     setUpEnablePin(motor, address);
     disableMotorByPin(motor);
 
     TMC2209_setup(&motor->tmc2209, uart, SERIAL_BAUD_RATE, address);
 
     while (!TMC2209_isSetupAndCommunicating(&motor->tmc2209)) {
-#ifdef DEBUG
         if (TMC2209_disabledByInputPin(&motor->tmc2209)) {
-            printf("Setup: Stepper driver with address %i DISABLED by input pin!\n", address);
+            PRINT_DEBUG("Setup: Stepper driver with address %i DISABLED by input pin!", address)
         }
-        printf("Setup: Stepper driver with address %i NOT communicating and setup!\n", address);
-#endif
-
+        PRINT_DEBUG("Setup: Stepper driver with address %i NOT communicating and setup!", address)
         TMC2209_setup(&motor->tmc2209, uart, SERIAL_BAUD_RATE, address);
         sleep_ms(500);
     }
 
-#ifdef DEBUG
-    printf("Setup: Stepper driver with address %i communicating and setup!\n", address);
-#endif
-
+    PRINT_DEBUG("Setup: Stepper driver with address %i communicating and setup!", address)
     TMC2209_setRunCurrent(&motor->tmc2209, 100);
     TMC2209_setHoldCurrent(&motor->tmc2209, 50);
     TMC2209_enable(&motor->tmc2209);
@@ -67,7 +60,7 @@ void disableMotorByPin(Motor_t *motor) {
     gpio_pull_up(motor->enablePin);
 }
 
-Motor_t createMotor(SerialAddress_t address, SerialUART_t uart) {
+Motor_t createMotor(SerialAddress_t address, serialUart_t uart) {
     Motor_t motor = {.address = address};
     setUpMotor(&motor, address, uart);
     return motor;

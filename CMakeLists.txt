@@ -30,34 +30,27 @@ else ()
     include(extern/pico-sdk/pico_sdk_init.cmake)
 
     project(SIEGMA C CXX ASM)
+    set(CMAKE_C_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 17)
+
+    set(PICO_BOARD pimoroni_tiny2040)
 
     pico_sdk_init()
 
     if (TARGET tinyusb_device)
-
-        add_subdirectory(test/integration)
-
-        include_directories(src)
+        # include libraries
         add_subdirectory(src/tmc2209)
         add_subdirectory(src/serialUART)
         add_subdirectory(src/dispenser)
         add_subdirectory(src/limitSwitch)
-        add_subdirectory(src/Rondell)
+        add_subdirectory(src/rondell)
         add_subdirectory(src/motor)
 
-        add_executable(main src/main.c) # creates executable
-        target_include_directories(main PUBLIC ${CMAKE_SOURCE_DIR}/src)
-        target_link_libraries(main
-                pico_stdlib
-                hardware_adc
-                rondell_lib
-                serialUART_lib
-                tmc2209_lib
-                dispenser_lib
-                limitSwitch_lib
-                motor_lib
-                )
-        make_to_output_file(main)
+        # include integration tests
+        add_subdirectory(test/integration)
+
+        # include main target
+        add_subdirectory(src)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")
     endif ()

@@ -1,14 +1,74 @@
 #include "dispenser.h"
+#include "dispenser_internal.h"
 #include <pico/time.h>
 #include <stdio.h>
 
-static DispenserState_t sleepState_t = (DispenserState_t){.function = &sleepState};
-static DispenserState_t upState_t = (DispenserState_t){.function = &upState};
-static DispenserState_t topState_t = (DispenserState_t){.function = &topState};
-static DispenserState_t downState_t = (DispenserState_t){.function = &downState};
-static DispenserState_t errorState_t = (DispenserState_t){.function = &errorState};
+static dispenserState_t sleepState_t = (dispenserState_t){.function = &sleepState};
+static dispenserState_t upState_t = (dispenserState_t){.function = &upState};
+static dispenserState_t topState_t = (dispenserState_t){.function = &topState};
+static dispenserState_t downState_t = (dispenserState_t){.function = &downState};
+static dispenserState_t errorState_t = (dispenserState_t){.function = &errorState};
 
-void resetDispenserPosition(Dispenser_t *dispenser) {
+/* region HEADER FUNCTIONS */
+dispenser_t dispenserCreate(SerialAddress_t address, serialUart_t uart) {
+    dispenser_t dispenser;
+    dispenser.address = address;
+    dispenser.uart = uart;
+    dispenser.haltSteps = 0;
+    dispenser.stepsDone = 0;
+    dispenser.state = (dispenserState_t){.function = &sleepState};
+    dispenser.motor = createMotor(address, uart);
+    dispenser.limitSwitch = createLimitSwitch(address);
+    dispenser.othersTriggered = 0;
+
+    switch (address) {
+    case SERIAL_ADDRESS_0:
+        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_0 / DISPENSER_STEP_TIME_MS;
+        break;
+#ifndef RONDELL
+    case SERIAL_ADDRESS_1:
+        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_1 / DISPENSER_STEP_TIME_MS;
+        break;
+    case SERIAL_ADDRESS_2:
+        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_2 / DISPENSER_STEP_TIME_MS;
+        break;
+    case SERIAL_ADDRESS_3:
+        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_3 / DISPENSER_STEP_TIME_MS;
+        break;
+#endif
+    }
+
+    findDirection(&dispenser, 250);
+
+    // Reset Dispenser position
+    resetDispenserPosition(&dispenser);
+
+    disableMotorByPin(&dispenser.motor);
+
+    return dispenser;
+}
+
+dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser) {
+    if (dispenser->state.function == sleepState) {
+        return DISPENSER_STATE_SLEEP;
+    } else if (dispenser->state.function == upState) {
+        return DISPENSER_STATE_UP;
+    } else if (dispenser->state.function == topState) {
+        return DISPENSER_STATE_TOP;
+    } else if (dispenser->state.function == downState) {
+        return DISPENSER_STATE_DOWN;
+    } else if (dispenser->state.function == errorState) {
+        return DISPENSER_STATE_ERROR;
+    } else {
+        return DISPENSER_STATE_INVALID;
+    }
+}
+
+/* endregion HEADER FUNCTIONS */
+
+/* region STATIC FUNCTIONS */
+
+static void resetDispenserPosition(dispenser_t *dispenser) {
     moveMotorUp(&dispenser->motor);
     while (limitSwitchIsClosed(dispenser->limitSwitch))
         ;
@@ -18,13 +78,7 @@ void resetDispenserPosition(Dispenser_t *dispenser) {
     stopMotor(&dispenser->motor);
 }
 
-#ifdef RONDELL
-#define FIND_TIME 750
-#else
-#define FIND_TIME 250
-#endif
-
-void findDirection(Dispenser_t *dispenser, uint32_t time) {
+static void findDirection(dispenser_t *dispenser, uint32_t time) {
     time = time + FIND_TIME;
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         moveMotorUp(&dispenser->motor);
@@ -61,45 +115,7 @@ void findDirection(Dispenser_t *dispenser, uint32_t time) {
     }
 }
 
-Dispenser_t createDispenser(SerialAddress_t address, SerialUART_t uart) {
-    Dispenser_t dispenser;
-    dispenser.address = address;
-    dispenser.uart = uart;
-    dispenser.haltSteps = 0;
-    dispenser.stepsDone = 0;
-    dispenser.state = (DispenserState_t){.function = &sleepState};
-    dispenser.motor = createMotor(address, uart);
-    dispenser.limitSwitch = createLimitSwitch(address);
-    dispenser.othersTriggered = 0;
-
-    switch (address) {
-    case 0:
-        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_0 / DISPENSER_STEP_TIME_MS;
-        break;
-#ifndef RONDELL
-    case 1:
-        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_1 / DISPENSER_STEP_TIME_MS;
-        break;
-    case 2:
-        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_2 / DISPENSER_STEP_TIME_MS;
-        break;
-    case 3:
-        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_3 / DISPENSER_STEP_TIME_MS;
-        break;
-#endif
-    }
-
-    findDirection(&dispenser, 250);
-
-    // Reset Dispenser position
-    resetDispenserPosition(&dispenser);
-
-    disableMotorByPin(&dispenser.motor);
-
-    return dispenser;
-}
-
-static DispenserState_t errorState(Dispenser_t *dispenser) {
+static dispenserState_t errorState(dispenser_t *dispenser) {
     setUpMotor(&dispenser->motor, dispenser->address, dispenser->uart);
     if (motorIsCommunicating(&dispenser->motor)) {
         disableMotorByPin(&dispenser->motor);
@@ -109,7 +125,7 @@ static DispenserState_t errorState(Dispenser_t *dispenser) {
     return errorState_t;
 }
 
-static DispenserState_t sleepState(Dispenser_t *dispenser) {
+static dispenserState_t sleepState(dispenser_t *dispenser) {
     if (dispenser->haltSteps > 0) {
         enableMotorByPin(&dispenser->motor);
         moveMotorUp(&dispenser->motor);
@@ -118,7 +134,7 @@ static DispenserState_t sleepState(Dispenser_t *dispenser) {
     return sleepState_t;
 }
 
-static DispenserState_t upState(Dispenser_t *dispenser) {
+static dispenserState_t upState(dispenser_t *dispenser) {
     printf("upState\n");
     printf("%i\n", dispenser->stepsDone);
     printf("%i\n", dispenser->stepsUp + 2 * dispenser->othersTriggered);
@@ -131,7 +147,7 @@ static DispenserState_t upState(Dispenser_t *dispenser) {
     return upState_t;
 }
 
-static DispenserState_t topState(Dispenser_t *dispenser) {
+static dispenserState_t topState(dispenser_t *dispenser) {
     printf("topState\n");
     if (dispenser->stepsDone >
         dispenser->stepsUp + 2 * dispenser->othersTriggered + dispenser->haltSteps) {
@@ -142,7 +158,7 @@ static DispenserState_t topState(Dispenser_t *dispenser) {
     return topState_t;
 }
 
-static DispenserState_t downState(Dispenser_t *dispenser) {
+static dispenserState_t downState(dispenser_t *dispenser) {
     printf("downState\n");
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(&dispenser->motor);
@@ -161,14 +177,14 @@ static DispenserState_t downState(Dispenser_t *dispenser) {
     return downState_t;
 }
 
-void dispenserDoStep(Dispenser_t *dispenser) {
+void dispenserDoStep(dispenser_t *dispenser) {
     if (!motorIsCommunicating(&dispenser->motor)) {
         dispenser->state = errorState_t;
     }
     dispenser->state = dispenser->state.function(dispenser);
 }
 
-void setDispenserHaltTime(Dispenser_t *dispenser, uint32_t haltTime) {
+void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime) {
     dispenser->haltSteps = haltTime / DISPENSER_STEP_TIME_MS;
     dispenser->stepsDone = 0;
 #ifdef DEBUG
@@ -176,10 +192,12 @@ void setDispenserHaltTime(Dispenser_t *dispenser, uint32_t haltTime) {
 #endif
 }
 
-bool allDispenserInSleepState(Dispenser_t *dispenser, uint8_t number_of_dispenser) {
+bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser) {
     for (uint8_t i = 0; i < number_of_dispenser; ++i) {
         if (dispenser[i].state.function != sleepState_t.function)
             return false;
     }
     return true;
 }
+
+/* endregion STATIC FUNCTIONS */

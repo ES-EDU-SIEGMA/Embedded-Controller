@@ -1,4 +1,5 @@
 #include "limitSwitch.h"
+#include <hardware/gpio.h>
 
 bool limitSwitchIsClosed(limitSwitch_t limitSwitch) {
     return gpio_get(limitSwitch.pin);

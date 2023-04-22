@@ -1,7 +1,7 @@
 /** ----------------------------------------------------------------------------
  * Adapted from:
  *  https://github.com/earlephilhower/arduino-pico
- *  https://github.com/earlephilhower/arduino-pico/blob/master/cores/rp2040/SerialUART.cpp
+ *  https://github.com/earlephilhower/arduino-pico/blob/master/cores/rp2040/serialUartCreate.cpp
  *** ---------------------------------------------------------------------------- */
 
 /*
@@ -25,39 +25,37 @@
 */
 
 #include "serialUART.h"
-
 #include <hardware/gpio.h>
 #include <hardware/irq.h>
 #include <hardware/uart.h>
-
 #include <stdlib.h>
 
-static SerialUART_t sUART;
+static serialUart_t serialUart;
 
-SerialUART_t SerialUART(uart_inst_t *uart, uint8_t tx, uint8_t rx) {
-    sUART._uart = uart;
-    sUART._tx = tx;
-    sUART._rx = rx;
-    sUART._rts = rx;
-    sUART._cts = tx;
-    sUART._running = false;
-    sUART._polling = false;
-    sUART._fifoSize = 32;
-    return sUART;
+serialUart_t serialUartCreate(uart_inst_t *uart, uint8_t tx, uint8_t rx) {
+    serialUart._uart = uart;
+    serialUart._tx = tx;
+    serialUart._rx = rx;
+    serialUart._rts = rx;
+    serialUart._cts = tx;
+    serialUart._running = false;
+    serialUart._polling = false;
+    serialUart._fifoSize = 32;
+    return serialUart;
 }
 
-static void SerialUART_uart0IRQ();
+static void serialUartUart0Irq();
 
-static void SerialUART_uart1IRQ();
+static void serialUartUart1Irq();
 
-void SerialUART_begin(unsigned long baud, uint16_t config) {
-    if (sUART._running) {
-        SerialUART_end();
+void serialUartBegin(unsigned long baud, uint16_t config) {
+    if (serialUart._running) {
+        serialUartEnd();
     }
-    sUART._overflow = false;
-    sUART._queue = malloc(sUART._fifoSize);
-    sUART._baud = baud;
-    uart_init(sUART._uart, baud);
+    serialUart._overflow = false;
+    serialUart._queue = malloc(serialUart._fifoSize);
+    serialUart._baud = baud;
+    uart_init(serialUart._uart, baud);
     int bits, stop;
     uart_parity_t parity;
     switch (config & SERIAL_PARITY_MASK) {
@@ -93,141 +91,141 @@ void SerialUART_begin(unsigned long baud, uint16_t config) {
         bits = 8;
         break;
     }
-    uart_set_format(sUART._uart, bits, stop, parity);
-    sUART._fcnTx = gpio_get_function(sUART._tx);
-    sUART._fcnRx = gpio_get_function(sUART._rx);
-    gpio_set_function(sUART._tx, GPIO_FUNC_UART);
-    gpio_set_function(sUART._rx, GPIO_FUNC_UART);
-    if (sUART._rts != UART_PIN_NOT_DEFINED) {
-        sUART._fcnRts = gpio_get_function(sUART._rts);
-        gpio_set_function(sUART._rts, GPIO_FUNC_UART);
+    uart_set_format(serialUart._uart, bits, stop, parity);
+    serialUart._fcnTx = gpio_get_function(serialUart._tx);
+    serialUart._fcnRx = gpio_get_function(serialUart._rx);
+    gpio_set_function(serialUart._tx, GPIO_FUNC_UART);
+    gpio_set_function(serialUart._rx, GPIO_FUNC_UART);
+    if (serialUart._rts != UART_PIN_NOT_DEFINED) {
+        serialUart._fcnRts = gpio_get_function(serialUart._rts);
+        gpio_set_function(serialUart._rts, GPIO_FUNC_UART);
     }
-    if (sUART._cts != UART_PIN_NOT_DEFINED) {
-        sUART._fcnCts = gpio_get_function(sUART._cts);
-        gpio_set_function(sUART._cts, GPIO_FUNC_UART);
+    if (serialUart._cts != UART_PIN_NOT_DEFINED) {
+        serialUart._fcnCts = gpio_get_function(serialUart._cts);
+        gpio_set_function(serialUart._cts, GPIO_FUNC_UART);
     }
-    uart_set_hw_flow(sUART._uart, sUART._rts != UART_PIN_NOT_DEFINED,
-                     sUART._cts != UART_PIN_NOT_DEFINED);
-    sUART._writer = 0;
-    sUART._reader = 0;
+    uart_set_hw_flow(serialUart._uart, serialUart._rts != UART_PIN_NOT_DEFINED,
+                     serialUart._cts != UART_PIN_NOT_DEFINED);
+    serialUart._writer = 0;
+    serialUart._reader = 0;
 
-    if (!sUART._polling) {
-        if (sUART._uart == uart0) {
-            irq_set_exclusive_handler(UART0_IRQ, SerialUART_uart0IRQ);
+    if (!serialUart._polling) {
+        if (serialUart._uart == uart0) {
+            irq_set_exclusive_handler(UART0_IRQ, serialUartUart0Irq);
             irq_set_enabled(UART0_IRQ, true);
         } else {
-            irq_set_exclusive_handler(UART1_IRQ, SerialUART_uart1IRQ);
+            irq_set_exclusive_handler(UART1_IRQ, serialUartUart1Irq);
             irq_set_enabled(UART1_IRQ, true);
         }
         // Set the IRQ enables and FIFO level to minimum
-        uart_set_irq_enables(sUART._uart, true, false);
+        uart_set_irq_enables(serialUart._uart, true, false);
     } else {
         // Polling mode has no IRQs used
     }
-    sUART._running = true;
+    serialUart._running = true;
 }
 
-void SerialUART_end() {
-    if (!sUART._running) {
+void serialUartEnd() {
+    if (!serialUart._running) {
         return;
     }
-    sUART._running = false;
-    if (!sUART._polling) {
-        if (sUART._uart == uart0) {
+    serialUart._running = false;
+    if (!serialUart._polling) {
+        if (serialUart._uart == uart0) {
             irq_set_enabled(UART0_IRQ, false);
         } else {
             irq_set_enabled(UART1_IRQ, false);
         }
     }
 
-    uart_deinit(sUART._uart);
-    free(sUART._queue);
+    uart_deinit(serialUart._uart);
+    free(serialUart._queue);
 
     // Restore pin functions
-    gpio_set_function(sUART._tx, sUART._fcnTx);
-    gpio_set_function(sUART._rx, sUART._fcnRx);
-    if (sUART._rts != UART_PIN_NOT_DEFINED) {
-        gpio_set_function(sUART._rts, sUART._fcnRts);
+    gpio_set_function(serialUart._tx, serialUart._fcnTx);
+    gpio_set_function(serialUart._rx, serialUart._fcnRx);
+    if (serialUart._rts != UART_PIN_NOT_DEFINED) {
+        gpio_set_function(serialUart._rts, serialUart._fcnRts);
     }
-    if (sUART._cts != UART_PIN_NOT_DEFINED) {
-        gpio_set_function(sUART._cts, sUART._fcnCts);
+    if (serialUart._cts != UART_PIN_NOT_DEFINED) {
+        gpio_set_function(serialUart._cts, serialUart._fcnCts);
     }
 }
 
-void __not_in_flash_func(SerialUART_handleIRQ)(bool inIRQ) {
+void __not_in_flash_func(serialUartHandleIrq)(bool inIRQ) {
     // ICR is write-to-clear
-    uart_get_hw(sUART._uart)->icr = UART_UARTICR_RTIC_BITS | UART_UARTICR_RXIC_BITS;
-    while (uart_is_readable(sUART._uart)) {
-        int val = uart_getc(sUART._uart);
-        uint8_t next_writer = sUART._writer + 1;
-        if (next_writer == sUART._fifoSize) {
+    uart_get_hw(serialUart._uart)->icr = UART_UARTICR_RTIC_BITS | UART_UARTICR_RXIC_BITS;
+    while (uart_is_readable(serialUart._uart)) {
+        int val = uart_getc(serialUart._uart);
+        uint8_t next_writer = serialUart._writer + 1;
+        if (next_writer == serialUart._fifoSize) {
             next_writer = 0;
         }
-        if (next_writer != sUART._reader) {
-            sUART._queue[sUART._writer] = val;
+        if (next_writer != serialUart._reader) {
+            serialUart._queue[serialUart._writer] = val;
             asm volatile(
                 "" ::
                     : "memory"); // Ensure the queue is written before the written count advances
             // Avoid using division or mod because the HW divider could be in use
-            sUART._writer = next_writer;
+            serialUart._writer = next_writer;
         } else {
-            sUART._overflow = true;
+            serialUart._overflow = true;
         }
     }
 }
 
-void SerialUART_pumpFIFO() {
-    int irqno = (sUART._uart == uart0) ? UART0_IRQ : UART1_IRQ;
+void serialUartPumpFifo() {
+    int irqno = (serialUart._uart == uart0) ? UART0_IRQ : UART1_IRQ;
     bool enabled = irq_is_enabled(irqno);
     irq_set_enabled(irqno, false);
-    SerialUART_handleIRQ(false);
+    serialUartHandleIrq(false);
     irq_set_enabled(irqno, enabled);
 }
 
-int SerialUART_read() {
-    if (sUART._polling) {
-        SerialUART_handleIRQ(false);
+int serialUartRead() {
+    if (serialUart._polling) {
+        serialUartHandleIrq(false);
     } else {
-        SerialUART_pumpFIFO();
+        serialUartPumpFifo();
     }
-    if (sUART._writer != sUART._reader) {
-        int ret = sUART._queue[sUART._reader];
+    if (serialUart._writer != serialUart._reader) {
+        int ret = serialUart._queue[serialUart._reader];
         // asm volatile("":: : "memory"); // Ensure the value is read before advancing
-        uint8_t next_reader = (sUART._reader + 1) % sUART._fifoSize;
+        uint8_t next_reader = (serialUart._reader + 1) % serialUart._fifoSize;
         // asm volatile("":: : "memory"); // Ensure the reader value is only written once, correctly
-        sUART._reader = next_reader;
+        serialUart._reader = next_reader;
         return ret;
     }
     return -1;
 }
 
-bool SerialUART_overflow() {
-    bool hold = sUART._overflow;
-    sUART._overflow = false;
+bool serialUartOverflow() {
+    bool hold = serialUart._overflow;
+    serialUart._overflow = false;
     return hold;
 }
 
-uint8_t SerialUART_available() {
-    if (sUART._polling) {
-        SerialUART_handleIRQ(false);
+uint8_t serialUartAvailable() {
+    if (serialUart._polling) {
+        serialUartHandleIrq(false);
     } else {
-        SerialUART_pumpFIFO();
+        serialUartPumpFifo();
     }
-    return (sUART._fifoSize + sUART._writer - sUART._reader) % sUART._fifoSize;
+    return (serialUart._fifoSize + serialUart._writer - serialUart._reader) % serialUart._fifoSize;
 }
 
-size_t SerialUART_write(uint8_t c) {
-    if (sUART._polling) {
-        SerialUART_handleIRQ(false);
+size_t serialUartWrite(uint8_t c) {
+    if (serialUart._polling) {
+        serialUartHandleIrq(false);
     }
-    uart_putc_raw(sUART._uart, c);
+    uart_putc_raw(serialUart._uart, c);
     return 1;
 }
 
-static void __not_in_flash_func(SerialUART_uart0IRQ)() {
-    SerialUART_handleIRQ(true);
+static void __not_in_flash_func(serialUartUart0Irq)() {
+    serialUartHandleIrq(true);
 }
 
-static void __not_in_flash_func(SerialUART_uart1IRQ)() {
-    SerialUART_handleIRQ(true);
+static void __not_in_flash_func(serialUartUart1Irq)() {
+    serialUartHandleIrq(true);
 }
