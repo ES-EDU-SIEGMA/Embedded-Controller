@@ -1,8 +1,7 @@
-/** ----------------------------------------------------------------------------
- * Adapted from:
- *  https://github.com/peterpolidoro/TMC2209
- *  Peter Polidoro peter@polidoro.io
- *** ---------------------------------------------------------------------------- */
+// ----------------------------------------------------------------------------
+// Adapted from: https://github.com/peterpolidoro/TMC2209
+// Peter Polidoro peter@polidoro.io
+// ----------------------------------------------------------------------------
 
 /*
     Janelia Open-Source Software
@@ -37,12 +36,9 @@
 */
 
 #include "tmc2209.h"
-#include "tmc2209_intern.h"
-
 #include "serialUART.h"
-
+#include "tmc2209_intern.h"
 #include <pico/time.h>
-
 #include <stdio.h>
 
 #ifndef constrain
@@ -53,7 +49,7 @@ long map(long x, long in_min, long in_max, long out_min, long out_max) {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-void TMC2209_setup(TMC2209_t *tmc2209, SerialUART_t serial, uint32_t serial_baud_rate,
+void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, uint32_t serial_baud_rate,
                    SerialAddress_t serial_address) {
     tmc2209->toff_ = TMC2209_TOFF_DEFAULT;
 
@@ -163,7 +159,7 @@ void TMC2209_enableCoolStep(TMC2209_t *tmc2209, uint8_t lower_threshold, uint8_t
     tmc2209->cool_step_enabled = true;
 }
 
-void TMC2209_setOperationModeToSerial(TMC2209_t *tmc2209, SerialUART_t serial,
+void TMC2209_setOperationModeToSerial(TMC2209_t *tmc2209, serialUart_t serial,
                                       long serial_baud_rate, SerialAddress_t serial_address) {
     tmc2209->serial_ptr = &serial;
     tmc2209->serial_address = serial_address;

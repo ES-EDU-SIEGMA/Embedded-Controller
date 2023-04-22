@@ -1,14 +1,14 @@
+#ifndef TMC2209_H
+#define TMC2209_H
+
 // ----------------------------------------------------------------------------
 // Adapted from: https://github.com/peterpolidoro/TMC2209
 // Peter Polidoro peter@polidoro.io
 // ----------------------------------------------------------------------------
 
-#ifndef TMC2209_H
-#define TMC2209_H
-
 #include "serialUART.h"
-
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef enum SerialAddress {
     SERIAL_ADDRESS_0 = 0,
@@ -253,7 +253,7 @@ const static uint8_t PWM_GRAD_DEFAULT = 0x14;
 
 typedef struct TMC2209 {
     bool blocking;
-    SerialUART_t *serial_ptr;
+    serialUart_t *serial_ptr;
     uint32_t serial_baud_rate;
     uint8_t serial_address;
 
@@ -266,7 +266,7 @@ typedef struct TMC2209 {
     TMC2209_GlobalConfig_t global_config;
 } TMC2209_t;
 
-void TMC2209_setup(TMC2209_t *tmc2209, SerialUART_t serial, uint32_t serial_baud_rate,
+void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, uint32_t serial_baud_rate,
                    SerialAddress_t serial_address);
 
 // check to make sure TMC2209 is properly setup and communicating

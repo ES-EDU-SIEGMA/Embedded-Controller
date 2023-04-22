@@ -1,9 +1,16 @@
 #ifndef SIEGMA_TMC2209_INTERN_H
 #define SIEGMA_TMC2209_INTERN_H
 
-#include "tmc2209.h"
+// ----------------------------------------------------------------------------
+// Adapted from: https://github.com/peterpolidoro/TMC2209
+// Peter Polidoro peter@polidoro.io
+// ----------------------------------------------------------------------------
 
-void TMC2209_setOperationModeToSerial(TMC2209_t *tmc2209, SerialUART_t seral, long serial_baud_rate,
+#include "serialUART.h"
+#include "tmc2209.h"
+#include <stdint.h>
+
+void TMC2209_setOperationModeToSerial(TMC2209_t *tmc2209, serialUart_t seral, long serial_baud_rate,
                                       SerialAddress_t serial_address);
 
 void TMC2209_setRegistersToDefaults(TMC2209_t *tmc2209);
