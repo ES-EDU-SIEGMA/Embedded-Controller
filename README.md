@@ -2,7 +2,7 @@
 
 ## Clone Repository
 
-After cloning the repository it is necessary to it is necessary to import the required submodules to build the targets.
+After cloning the repository it is necessary to import the required submodules to build the targets.
 This can be accomplished by running:
 
 ```bash
