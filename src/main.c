@@ -43,8 +43,9 @@ void initPico(bool waitForUSBConnection) {
     sleep_ms(2500);   // Time to make sure everything is ready
 
     if (waitForUSBConnection)
-        while ((!stdio_usb_connected()))
-            ; // waits for usb connection
+        while ((!stdio_usb_connected())) {
+            // waits for usb connection
+        }
 }
 
 bool isAllowedCharacter(uint32_t charToCheck) {
@@ -137,26 +138,26 @@ void establishConnectionToMaster(void) {
     uint32_t input_identifier;
     volatile bool identified = false;
 
-    while (!(identified)) {
+    while (!identified) {
         input_identifier = getchar_timeout_us(10000000); // 10 seconds wait
         if (input_identifier == 'i') {
             input_identifier = getchar_timeout_us(10000000);
             if (input_identifier == '\n' || input_identifier == 'n') {
-                identified = true;
 #ifdef RONDELL
-                PRINT_DEBUG("RONDELL")
+                PRINT_COMMAND("RONDELL")
 #endif
 #ifdef LEFT
-                PRINT_DEBUG("LEFT")
+                PRINT_COMMAND("LEFT")
 #endif
 #ifdef RIGHT
-                PRINT_DEBUG("RIGHT")
+                PRINT_COMMAND("RIGHT")
 #endif
+                identified = true;
             }
         } else {
             // Did not receive proper string; await new string.
             input_identifier = 0;
-            printf("F\n");
+            PRINT_COMMAND("F")
         }
     }
 }
@@ -206,7 +207,7 @@ int main() {
     }
 #endif
 
-    PRINT("CALIBRATED")
+    PRINT_COMMAND("CALIBRATED")
     // Buffer for received Messages
     char *input_buf = malloc(INPUT_BUFFER_LEN);
     memset(input_buf, '\0', INPUT_BUFFER_LEN);
@@ -234,7 +235,7 @@ int main() {
             processMessage(input_buf);
             memset(input_buf, '\0', INPUT_BUFFER_LEN);
             characterCounter = 0;
-            printf("READY\n");
+            PRINT_COMMAND("READY")
         } else if (isMessageToLong(characterCounter)) {
             // received to many characters -> flushing the uart connection and start over
             PRINT_DEBUG("Input too long, flushing...")

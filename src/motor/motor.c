@@ -1,3 +1,5 @@
+#define SOURCE_FILE "MOTOR"
+
 #include "motor.h"
 #include "common.h"
 #include <hardware/gpio.h>
@@ -33,14 +35,14 @@ void setUpMotor(Motor_t *motor, SerialAddress_t address, serialUart_t uart) {
 
     while (!TMC2209_isSetupAndCommunicating(&motor->tmc2209)) {
         if (TMC2209_disabledByInputPin(&motor->tmc2209)) {
-            PRINT_DEBUG("Setup: Stepper driver with address %i DISABLED by input pin!", address)
+            PRINT_DEBUG("Setup: Stepper driver with address %u DISABLED by input pin!", address)
         }
-        PRINT_DEBUG("Setup: Stepper driver with address %i NOT communicating and setup!", address)
+        PRINT_DEBUG("Setup: Stepper driver with address %u NOT communicating and setup!", address)
         TMC2209_setup(&motor->tmc2209, uart, SERIAL_BAUD_RATE, address);
         sleep_ms(500);
     }
 
-    PRINT_DEBUG("Setup: Stepper driver with address %i communicating and setup!", address)
+    PRINT_DEBUG("Setup: Stepper driver with address %u communicating and setup!", address)
     TMC2209_setRunCurrent(&motor->tmc2209, 100);
     TMC2209_setHoldCurrent(&motor->tmc2209, 50);
     TMC2209_enable(&motor->tmc2209);

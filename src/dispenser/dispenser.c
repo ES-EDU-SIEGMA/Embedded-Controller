@@ -1,4 +1,7 @@
+#define SOURCE_FILE "DISPENSER"
+
 #include "dispenser.h"
+#include "common.h"
 #include "dispenser_internal.h"
 #include <pico/time.h>
 #include <stdio.h>
@@ -81,6 +84,7 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
 static void findDirection(dispenser_t *dispenser, uint32_t time) {
     time = time + FIND_TIME;
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
+        PRINT_DEBUG("limitswitch closed")
         moveMotorUp(&dispenser->motor);
         sleep_ms(time);
         if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
@@ -97,6 +101,7 @@ static void findDirection(dispenser_t *dispenser, uint32_t time) {
                 findDirection(dispenser, time + FIND_TIME);
         }
     } else {
+        PRINT_DEBUG("limitswitch open")
         moveMotorDown(&dispenser->motor);
         sleep_ms(time);
         if (limitSwitchIsClosed(dispenser->limitSwitch)) {
@@ -135,9 +140,9 @@ static dispenserState_t sleepState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t upState(dispenser_t *dispenser) {
-    printf("upState\n");
-    printf("%i\n", dispenser->stepsDone);
-    printf("%i\n", dispenser->stepsUp + 2 * dispenser->othersTriggered);
+    PRINT("upState")
+    PRINT_DEBUG("%i", dispenser->stepsDone)
+    PRINT_DEBUG("%i", dispenser->stepsUp + 2 * dispenser->othersTriggered)
     if (dispenser->stepsDone > dispenser->stepsUp + 2 * dispenser->othersTriggered) {
         stopMotor(&dispenser->motor);
         return topState_t;
@@ -148,7 +153,7 @@ static dispenserState_t upState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t topState(dispenser_t *dispenser) {
-    printf("topState\n");
+    PRINT("topState")
     if (dispenser->stepsDone >
         dispenser->stepsUp + 2 * dispenser->othersTriggered + dispenser->haltSteps) {
         moveMotorDown(&dispenser->motor);
@@ -159,7 +164,7 @@ static dispenserState_t topState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t downState(dispenser_t *dispenser) {
-    printf("downState\n");
+    PRINT("downState");
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(&dispenser->motor);
         disableMotorByPin(&dispenser->motor);
@@ -187,9 +192,7 @@ void dispenserDoStep(dispenser_t *dispenser) {
 void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime) {
     dispenser->haltSteps = haltTime / DISPENSER_STEP_TIME_MS;
     dispenser->stepsDone = 0;
-#ifdef DEBUG
-    printf("Dispenser %i will stop %hu steps\n", dispenser->address, dispenser->haltSteps);
-#endif
+    PRINT_DEBUG("Dispenser %u will stop after %hu steps", dispenser->address, dispenser->haltSteps);
 }
 
 bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser) {

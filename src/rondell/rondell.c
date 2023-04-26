@@ -1,3 +1,5 @@
+#define SOURCE_FILE "RONDELL"
+
 #include "rondell.h"
 #include "common.h"
 #include "rondell_internal.h"
@@ -10,17 +12,6 @@
 /* region VARIABLES */
 
 static Rondell_t rondell;
-
-static void createRondell(SerialAddress_t address, serialUart_t uart) {
-    rondell.address = address;
-    rondell.uart = uart;
-    rondell.position = UNDEFINED;
-    rondell.state = RONDELL_SLEEP;
-    rondell.positionToDriveTo = UNDEFINED;
-    rondell.max_ldr_value = 0;
-    rondell.min_ldr_value = 4095;
-    rondell.motor = createMotor(address, uart);
-}
 
 /* endregion VARIABLES */
 
@@ -40,33 +31,26 @@ void handleSpecialPosition(void) {
     }
 }
 
-/*
-"OrdinaryPosition" means that (position, positionToDriveTo)
-have a difference of 1 but are neither (3,0) nor (0,3).
-*/
+/*!
+ * "OrdinaryPosition" means that (position, positionToDriveTo) have a difference of 1 but are
+ * neither (3,0) nor (0,3).
+ */
 void handleOrdinaryPosition(void) {
-#ifdef DEBUG
-    printf("ENTERED handleOrdinaryPosition\n");
-    printf("rondell.position = %d, rondell.positionToDriveTo: %d\n", rondell.position,
-           rondell.positionToDriveTo);
-#endif
+    PRINT_DEBUG("ENTERED handleOrdinaryPosition")
+    PRINT_DEBUG("rondell.position = %d, rondell.positionToDriveTo: %d", rondell.position,
+                rondell.positionToDriveTo)
     // The if-condition may seem arbitrary, but it is not; it results from the corresponding
     // dispenser IDs.
     if (rondell.positionToDriveTo > rondell.position) {
-#ifdef DEBUG
-        printf("positionToDriveTo > rondell.position\n");
-#endif
+        PRINT_DEBUG("positionToDriveTo > rondell.position")
         moveRondellClockwise();
     } else {
-#ifdef DEBUG
-        printf("positionToDriveTo <= rondell.position\n");
-#endif
+        PRINT_DEBUG("positionToDriveTo <= rondell.position")
         moveRondellCounterClockwise();
     }
 }
 
 void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
-
     rondell.positionToDriveTo = positionToDriveTo;
 
     if (rondell.positionToDriveTo == rondell.position) {
@@ -88,6 +72,17 @@ void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
 /* endregion HEADER FUNCTIONS */
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
+
+static void createRondell(SerialAddress_t address, serialUart_t uart) {
+    rondell.address = address;
+    rondell.uart = uart;
+    rondell.position = UNDEFINED;
+    rondell.state = RONDELL_SLEEP;
+    rondell.positionToDriveTo = UNDEFINED;
+    rondell.max_ldr_value = 0;
+    rondell.min_ldr_value = 4095;
+    rondell.motor = createMotor(address, uart);
+}
 
 static void moveRondellCounterClockwise(void) {
     moveMotorUp(&rondell.motor);
@@ -161,7 +156,7 @@ static void startRondellAndDecideDirection(void) {
     enableMotorByPin(&rondell.motor);
     if (rondell.position != UNDEFINED) {
         uint8_t positionDifference = calculatePositionDifference();
-        PRINT_DEBUG("POSITION DIFFERENCE: %u\n", positionDifference)
+        PRINT_DEBUG("POSITION DIFFERENCE: %u", positionDifference)
         if (positionDifference == 1) {
             if (specialPositionGiven()) {
                 handleSpecialPosition();
