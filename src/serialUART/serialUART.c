@@ -24,7 +24,10 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#define SOURCE_FILE "SERIAL_UART"
+
 #include "serialUART.h"
+#include "common.h"
 #include <hardware/gpio.h>
 #include <hardware/irq.h>
 #include <hardware/uart.h>

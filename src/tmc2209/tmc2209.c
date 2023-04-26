@@ -35,11 +35,13 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#define SOURCE_FILE "TMC2209"
+
 #include "tmc2209.h"
+#include "common.h"
 #include "serialUART.h"
 #include "tmc2209_intern.h"
 #include <pico/time.h>
-#include <stdio.h>
 
 #ifndef constrain
 #define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
@@ -68,8 +70,9 @@ void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, uint32_t serial_baud
     TMC2209_disableAutomaticCurrentScaling(tmc2209);
     TMC2209_disableAutomaticGradientAdaptation(tmc2209);
 
-    if (!TMC2209_isSetupAndCommunicating(tmc2209))
+    if (!TMC2209_isSetupAndCommunicating(tmc2209)) {
         tmc2209->blocking = true;
+    }
 }
 
 void TMC2209_setHoldCurrent(TMC2209_t *tmc2209, uint8_t percent) {
@@ -92,22 +95,25 @@ bool TMC2209_isCommunicatingButNotSetup(TMC2209_t *tmc2209) {
 }
 
 void TMC2209_enable(TMC2209_t *tmc2209) {
-    if (tmc2209->blocking)
+    if (tmc2209->blocking) {
         return;
+    }
     tmc2209->chopper_config.toff = tmc2209->toff_;
     TMC2209_writeStoredChopperConfig(tmc2209);
 }
 
 void TMC2209_disable(TMC2209_t *tmc2209) {
-    if (tmc2209->blocking)
+    if (tmc2209->blocking) {
         return;
+    }
     tmc2209->chopper_config.toff = TOFF_DISABLE;
     TMC2209_writeStoredChopperConfig(tmc2209);
 }
 
 bool TMC2209_disabledByInputPin(TMC2209_t *tmc2209) {
-    if (tmc2209->blocking)
+    if (tmc2209->blocking) {
         return false;
+    }
     TMC2209_Input_t input;
     input.bytes = TMC2209_read(tmc2209, ADDRESS_IOIN);
 
@@ -115,23 +121,26 @@ bool TMC2209_disabledByInputPin(TMC2209_t *tmc2209) {
 }
 
 void TMC2209_setRunCurrent(TMC2209_t *tmc2209, uint8_t percent) {
-    if (tmc2209->blocking)
+    if (tmc2209->blocking) {
         return;
+    }
     uint8_t run_current = TMC2209_percentToCurrentSetting(percent);
     tmc2209->driver_current.irun = run_current;
     TMC2209_writeStoredDriverCurrent(tmc2209);
 }
 
 void TMC2209_disableAutomaticCurrentScaling(TMC2209_t *tmc2209) {
-    if (tmc2209->blocking)
+    if (tmc2209->blocking) {
         return;
+    }
     tmc2209->pwm_config.pwm_autoscale = STEPPER_DRIVER_FEATURE_OFF;
     TMC2209_writeStoredPwmConfig(tmc2209);
 }
 
 void TMC2209_disableAutomaticGradientAdaptation(TMC2209_t *tmc2209) {
-    if (tmc2209->blocking)
+    if (tmc2209->blocking) {
         return;
+    }
     tmc2209->pwm_config.pwm_autograd = STEPPER_DRIVER_FEATURE_OFF;
     TMC2209_writeStoredPwmConfig(tmc2209);
 }
@@ -149,8 +158,9 @@ void TMC2209_moveAtVelocity(TMC2209_t *tmc2209, int32_t microsteps_per_period) {
 }
 
 void TMC2209_enableCoolStep(TMC2209_t *tmc2209, uint8_t lower_threshold, uint8_t upper_threshold) {
-    if (tmc2209->blocking)
+    if (tmc2209->blocking) {
         return;
+    }
     lower_threshold = constrain(lower_threshold, SEMIN_MIN, SEMIN_MAX);
     tmc2209->cool_config.semin = lower_threshold;
     upper_threshold = constrain(upper_threshold, SEMAX_MIN, SEMAX_MAX);
