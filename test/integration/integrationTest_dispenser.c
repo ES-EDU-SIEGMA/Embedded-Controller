@@ -2,7 +2,6 @@
 
 #include "common.h"
 #include "dispenser.h"
-#include "dispenser_internal.h"
 #include "serialUART.h"
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
@@ -63,10 +62,19 @@ int main() {
             break;
         case 't':
             PRINT("Set halt time for dispenser %lu:", id)
+            // use ascii code as number reference for character!!
+            // 0 -> 48
+            // 1 -> 49
+            // 2 -> 50
+            // ...
+            // P -> 80
+            // haltTime/100 == steps
             uint32_t haltTime = getchar_timeout_us(10000000);
             if (haltTime == PICO_ERROR_TIMEOUT) {
                 PRINT("No halt time received. Set to 10s.")
                 haltTime = 10000;
+            } else {
+                haltTime *= 100;
             }
             PRINT("Halt time set to %lu", haltTime)
             dispenserSetHaltTime(&dispenser[id], haltTime);
