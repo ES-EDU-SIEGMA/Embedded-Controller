@@ -14,6 +14,12 @@
         printf("\n");                                                                              \
     }
 
+#define PRINT_COMMAND(str, ...)                                                                    \
+    {                                                                                              \
+        printf(str, ##__VA_ARGS__);                                                                \
+        printf("\n");                                                                              \
+    }
+
 #ifdef DEBUG
 #define PRINT_DEBUG(str, ...)                                                                      \
     {                                                                                              \
@@ -25,9 +31,5 @@
 #define PRINT_DEBUG(str, ...)                                                                      \
     {}
 #endif
-
-#define ASSERT(test)                                                                               \
-    if (!(test))                                                                                   \
-        return 0;
 
 #endif // SIEGMA_COMMON_H
