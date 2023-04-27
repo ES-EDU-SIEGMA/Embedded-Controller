@@ -13,6 +13,7 @@ static dispenserState_t downState_t = (dispenserState_t){.function = &downState}
 static dispenserState_t errorState_t = (dispenserState_t){.function = &errorState};
 
 /* region HEADER FUNCTIONS */
+
 dispenser_t dispenserCreate(SerialAddress_t address, serialUart_t uart) {
     dispenser_t dispenser;
     dispenser.address = address;

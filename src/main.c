@@ -36,16 +36,18 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS];       /// Array containing the disp
  * @param waitForUSBConnection Bool if the pico should wait for an usb connection
  */
 void initPico(bool waitForUSBConnection) {
-    if (watchdog_enable_caused_reboot())
+    if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
+    }
 
     stdio_init_all(); // init usb
     sleep_ms(2500);   // Time to make sure everything is ready
 
-    if (waitForUSBConnection)
+    if (waitForUSBConnection) {
         while ((!stdio_usb_connected())) {
             // waits for usb connection
         }
+    }
 }
 
 bool isAllowedCharacter(uint32_t charToCheck) {
@@ -105,6 +107,12 @@ void processMessage(char *message) {
             } while (!dispenserSetAllToSleepState(dispenser, 1));
         }
     }
+#else
+        if (dispenserHaltTimes > 0) {
+            dispensersTrigger++;
+        }
+        dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
+    }
     for (int i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
         dispenser[i].othersTriggered = dispensersTrigger;
     }
@@ -119,12 +127,6 @@ void processMessage(char *message) {
         }
         // When all dispensers are finished, they are in the state sleep
     } while (!dispenserSetAllToSleepState(dispenser, NUMBER_OF_DISPENSERS));
-#else
-        if (dispenserHaltTimes > 0) {
-            dispensersTrigger++;
-        }
-        dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
-    }
 #endif
 }
 
