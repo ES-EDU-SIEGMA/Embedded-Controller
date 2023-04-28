@@ -10,10 +10,10 @@ typedef uint16_t LDR_VALUE;
 /// all possible rondell positions
 typedef uint8_t rondellPosition_t;
 enum rondellPosition {
-    RNDELL_POSITION_0 = 0,
-    RONDELL_POSITION_1 = 1,
-    RONDELL_POSITION_2 = 2,
-    RONDELL_POSITION_4 = 4,
+    RONDELL_POSITION_0,
+    RONDELL_POSITION_1,
+    RONDELL_POSITION_2,
+    RONDELL_POSITION_3,
     UNDEFINED
 };
 
