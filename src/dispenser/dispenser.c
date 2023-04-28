@@ -141,7 +141,7 @@ static dispenserState_t sleepState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t upState(dispenser_t *dispenser) {
-    PRINT("upState")
+    PRINT_DEBUG("upState")
     PRINT_DEBUG("%i", dispenser->stepsDone)
     PRINT_DEBUG("%i", dispenser->stepsUp + 2 * dispenser->othersTriggered)
     if (dispenser->stepsDone > dispenser->stepsUp + 2 * dispenser->othersTriggered) {
@@ -154,7 +154,7 @@ static dispenserState_t upState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t topState(dispenser_t *dispenser) {
-    PRINT("topState")
+    PRINT_DEBUG("topState")
     if (dispenser->stepsDone >
         dispenser->stepsUp + 2 * dispenser->othersTriggered + dispenser->haltSteps) {
         moveMotorDown(&dispenser->motor);
@@ -165,7 +165,7 @@ static dispenserState_t topState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t downState(dispenser_t *dispenser) {
-    PRINT("downState");
+    PRINT_DEBUG("downState");
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(&dispenser->motor);
         disableMotorByPin(&dispenser->motor);

@@ -8,29 +8,29 @@
 
 /* region DEFINES */
 
-#ifdef RONDELL
+#if defined(RONDELL)
 #define NUMBER_OF_DISPENSERS 1
-#else
+#elif defined(LEFT) || defined(RIGHT)
 #define NUMBER_OF_DISPENSERS 4
 #endif
 
 #define DISPENSER_STEP_TIME_MS 100
 
-#ifdef RONDELL
+#if defined(RONDELL)
 #define MS_DISPENSERS_ARE_MOVING_UP_0 7500
-#elifdef LEFT
+#elif defined(LEFT)
 #define MS_DISPENSERS_ARE_MOVING_UP_0 8300
 #define MS_DISPENSERS_ARE_MOVING_UP_1 8500
 #define MS_DISPENSERS_ARE_MOVING_UP_2 7500
 #define MS_DISPENSERS_ARE_MOVING_UP_3 7300
-#elifdef RIGHT
+#elif defined(RIGHT)
 #define MS_DISPENSERS_ARE_MOVING_UP_0 7700
 #define MS_DISPENSERS_ARE_MOVING_UP_1 7500
 #define MS_DISPENSERS_ARE_MOVING_UP_2 8200
 #define MS_DISPENSERS_ARE_MOVING_UP_3 7900
 #endif
 
-#ifdef RONDELL
+#if defined(RONDELL)
 #define FIND_TIME 750
 #else
 #define FIND_TIME 250
@@ -38,6 +38,8 @@
 
 #if NUMBER_OF_DISPENSERS > 4
 #error ONLY 4 DISPENERS AVAILABLE
+#elif NUMBER_OF_DISPENSERS < 1
+#error NO DISPENSER AVAILABLE
 #endif
 
 typedef struct dispenser dispenser_t;
