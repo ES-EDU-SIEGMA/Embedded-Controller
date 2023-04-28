@@ -60,8 +60,9 @@ void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
     bool reachedDesiredPosition = false;
     while (!reachedDesiredPosition) {
         moveRondellToKeyPosition();
-        if (rondell.position == rondell.positionToDriveTo)
+        if (rondell.position == rondell.positionToDriveTo) {
             reachedDesiredPosition = true;
+        }
     }
     rondell.state = RONDELL_IN_KEY_POS;
     stopRondell();
@@ -117,8 +118,9 @@ static int8_t subtractPositions(void) {
 }
 
 static uint8_t calculatePositionDifference(void) {
-    if (specialPositionGiven())
+    if (specialPositionGiven()) {
         return 1;
+    }
     uint8_t positionDifference;
     ((subtractPositions()) >= 0) ? (positionDifference = subtractPositions())
                                  : (positionDifference = -(subtractPositions()));
@@ -241,7 +243,7 @@ static void identifyPosition(void) {
     }
     if (counterLongHoleToFirstHole >= 400 && counterLongHoleToFirstHole <= 600) {
         PRINT_DEBUG("RONDELL POS3")
-        rondell.position = RONDELL_POSITION_4;
+        rondell.position = RONDELL_POSITION_3;
         return;
     }
 
@@ -264,7 +266,7 @@ static void identifyPosition(void) {
         }
         if (counterFirstHoleToSecondHole >= 400 && counterFirstHoleToSecondHole <= 600) {
             PRINT_DEBUG("RONDELL POS0")
-            rondell.position = RNDELL_POSITION_0;
+            rondell.position = RONDELL_POSITION_0;
             return;
         }
     }
@@ -274,35 +276,31 @@ static void moveRondellToKeyPosition(void) {
     findLongHoleAndPassIt();
     identifyPosition();
     switch (rondell.position) {
-    case RONDELL_POSITION_2:
+    case RONDELL_POSITION_0:
+        sleep_ms(50);
         passBrightPeriod();
-        return;
-
+        sleep_ms(100);
+        break;
     case RONDELL_POSITION_1:
         passBrightPeriod();
         sleep_ms(100);
         passDarkPeriod(0);
-
         sleep_ms(50);
         passBrightPeriod();
         sleep_ms(200);
-        return;
-
-    case RNDELL_POSITION_0:
-        sleep_ms(50);
+        break;
+    case RONDELL_POSITION_2:
         passBrightPeriod();
-        sleep_ms(100);
-        return;
-
-    case RONDELL_POSITION_4:
+        break;
+    case RONDELL_POSITION_3:
         passBrightPeriod();
         sleep_ms(100);
         passDarkPeriod(0);
         passBrightPeriod();
-        return;
+        break;
     default:
-        return;
+        break;
     }
-}
+    }
 
 /* endregion STATIC FUNCTION IMPLEMENTATIONS */
