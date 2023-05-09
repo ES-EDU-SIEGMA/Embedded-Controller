@@ -68,7 +68,7 @@ static bool isMessageToLong(uint16_t numberOfCharacters);
  */
 static uint32_t parseInputString(char **message);
 
-static void processMessage(char *message);
+static void processMessage(char *message, size_t *messageLength);
 
 static void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacterCount);
 
@@ -256,10 +256,10 @@ static uint32_t parseInputString(char **message) {
     return delay;
 }
 
-static void processMessage(char *message) {
+static void processMessage(char *message, size_t *messageLength) {
     uint16_t dispensersTrigger = 0;
 
-    PRINT_DEBUG("Process message len: %d", characterCounter)
+    PRINT_DEBUG("Process message len: %d", *messageLength)
     for (uint8_t i = 0; i < 4; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
 #ifdef RONDELL
@@ -298,12 +298,12 @@ static void processMessage(char *message) {
 }
 
 static void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacterCount) {
-    processMessage(buffer);
+    processMessage(buffer, receivedCharacterCount);
     resetMessageBuffer(buffer, maxBufferSize, receivedCharacterCount);
 }
 
 static void storeCharacter(char *buffer, size_t *bufferIndex, char newCharacter) {
-    PRINT_DEBUG("Received: %c (counter: %d)", input, characterCounter)
+    PRINT_DEBUG("Received: %c (counter: %d)", buffer, bufferIndex)
     buffer[*bufferIndex] = newCharacter;
     *bufferIndex = *bufferIndex + 1;
 }
