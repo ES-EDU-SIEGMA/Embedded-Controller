@@ -124,9 +124,10 @@ int main() {
         if (isLineEnd(input)) {
             handleMessage(input_buf, INPUT_BUFFER_LEN, &characterCounter);
             PRINT_COMMAND("READY")
-        } else {
-            storeCharacter(input_buf, &characterCounter, input);
+            continue;
         }
+
+        storeCharacter(input_buf, &characterCounter, input);
 
         /* endregion handle received character */
     }
