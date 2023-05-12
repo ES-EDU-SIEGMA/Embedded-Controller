@@ -29,28 +29,203 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS];       /// Array containing the disp
 
 /* endregion VARIABLES/DEFINES */
 
-/* region HELPER FUCTIONS */
+/* region HELPER FUNCTION PROTOTYPES */
 
-/*! initialize the usb connection to the pico
+static void initPico(void);
+
+static void initRondell(void);
+
+static void initSide(void);
+
+/*! initializes the ADC of the MCU
  *
- * @param waitForUSBConnection Bool if the pico should wait for an usb connection
+ * @param gpio  GPIO of the Tiny2040 for the ADC input
  */
-void initPico(bool waitForUSBConnection) {
+static void initialize_adc(uint8_t gpio);
+
+/*! This function's purpose is to establish synchronization between the pico
+ * and the pi. The pi sends `i\\n` to the pico corresponding and to confirm
+ * that the string has been received the pico sends back `[POSITION]\\n`.
+ * This function imprisons the program flow in the while loop until
+ * synchronization has been established.
+ */
+static void establishConnectionToMaster(void);
+
+/* region handle message */
+
+static void resetMessageBuffer(char *buffer, size_t bufferSize, size_t *receivedCharacterCount);
+
+static bool isAllowedCharacter(uint32_t charToCheck);
+
+static bool isLineEnd(uint32_t charToCheck);
+
+static bool isMessageToLong(uint16_t numberOfCharacters);
+
+/*! parse a String to fetch the hopper halt timings
+ *
+ * @param message The received message containing the halt timing
+ * @return        The parsed halt timing as an integer or on failure, a Zero
+ */
+static uint32_t parseInputString(char **message);
+
+static void processMessage(char *message, size_t *messageLength);
+
+static void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacterCount);
+
+static void storeCharacter(char *buffer, size_t *bufferIndex, char newCharacter);
+
+/* endregion Handle message */
+
+/* endregion HELPER FUNCTION PROTOTYPES*/
+
+int main() {
+    initPico();
+    establishConnectionToMaster();
+
+#ifdef RONDELL
+    initRondell();
+#else
+    initSide();
+#endif
+    PRINT_COMMAND("CALIBRATED")
+
+    /* region init message buffer*/
+    char *input_buf = malloc(INPUT_BUFFER_LEN);
+    size_t characterCounter;
+    resetMessageBuffer(input_buf, INPUT_BUFFER_LEN, &characterCounter);
+    /* endregion init message buffer*/
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "EndlessLoop"
+    while (true) {
+        // watchdog update needs to be performed frequent, otherwise the device will crash
+        watchdog_update();
+
+        /* region Handle received character */
+
+        uint32_t input = getchar_timeout_us(10000000);
+
+        if (input == PICO_ERROR_TIMEOUT) {
+            PRINT_DEBUG("No command received! Timeout reached.")
+            continue;
+        }
+
+        if (!isAllowedCharacter(input)) {
+            PRINT_DEBUG("Received '%c' which is not allowed. It will be ignored", input)
+            continue;
+        }
+
+        if (isMessageToLong(characterCounter)) {
+            resetMessageBuffer(input_buf, INPUT_BUFFER_LEN, &characterCounter);
+            PRINT_DEBUG("Input too long! Flushed buffer.")
+            continue;
+        }
+
+        if (isLineEnd(input)) {
+            handleMessage(input_buf, INPUT_BUFFER_LEN, &characterCounter);
+            PRINT_COMMAND("READY")
+        } else {
+            storeCharacter(input_buf, &characterCounter, input);
+        }
+
+        /* endregion handle received character */
+    }
+#pragma clang diagnostic pop
+}
+
+/* region HELPER FUNCTIONS */
+
+static void initPico(void) {
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
 
-    stdio_init_all(); // init usb
-    sleep_ms(2500);   // Time to make sure everything is ready
+    stdio_init_all();
 
-    if (waitForUSBConnection) {
-        while ((!stdio_usb_connected())) {
-            // waits for usb connection
+    // Take a break to make sure everything is ready
+    sleep_ms(2500);
+
+    while ((!stdio_usb_connected())) {
+        // waits for usb connection
+    }
+
+    // enables watchdog timer (15s)
+    watchdog_enable(15000, 1);
+}
+
+static void initRondell(void) {
+    initialize_adc(28);
+    dispenser[0] = dispenserCreate(0, SERIAL2);
+    setUpRondell(2, SERIAL2);
+}
+
+static void initSide(void) {
+    // create the dispenser with their address and save them in an array
+    for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
+        dispenser[i] = dispenserCreate(i, SERIAL_UART);
+    }
+}
+
+static void initialize_adc(uint8_t gpio) {
+    uint8_t adcInputPin;
+    switch (gpio) {
+    case 29:
+        adcInputPin = 3;
+        break;
+    case 28:
+        adcInputPin = 2;
+        break;
+    case 27:
+        adcInputPin = 1;
+        break;
+    case 26:
+        adcInputPin = 0;
+        break;
+    default:
+        PRINT_DEBUG("Invalid ADC GPIO")
+        return;
+    }
+
+    adc_init();
+    adc_gpio_init(gpio);
+    adc_select_input(adcInputPin);
+}
+
+static void establishConnectionToMaster(void) {
+    uint32_t input_identifier;
+    volatile bool identified = false;
+
+    while (!identified) {
+        input_identifier = getchar_timeout_us(10000000);
+        if (input_identifier == 'i') {
+            input_identifier = getchar_timeout_us(10000000);
+            if (input_identifier == '\n' || input_identifier == 'n') {
+#ifdef RONDELL
+                PRINT_COMMAND("RONDELL")
+#endif
+#ifdef LEFT
+                PRINT_COMMAND("LEFT")
+#endif
+#ifdef RIGHT
+                PRINT_COMMAND("RIGHT")
+#endif
+                identified = true;
+            }
+        } else {
+            // Did not receive proper string; await new string.
+            PRINT_COMMAND("F")
         }
     }
 }
 
-bool isAllowedCharacter(uint32_t charToCheck) {
+/* region handle message */
+
+static void resetMessageBuffer(char *buffer, size_t bufferSize, size_t *receivedCharacterCount) {
+    memset(buffer, '\0', bufferSize);
+    *receivedCharacterCount = 0;
+}
+
+static bool isAllowedCharacter(uint32_t charToCheck) {
     for (uint32_t i = 0; i < strlen(allowedCharacters); ++i) {
         if (charToCheck == allowedCharacters[i]) {
             return true;
@@ -59,20 +234,15 @@ bool isAllowedCharacter(uint32_t charToCheck) {
     return false;
 }
 
-bool isLineEnd(uint32_t charToCheck) {
+static bool isLineEnd(uint32_t charToCheck) {
     return charToCheck == 'n' || charToCheck == '\n';
 }
 
-bool isMessageToLong(uint16_t numberOfCharacters) {
+static bool isMessageToLong(uint16_t numberOfCharacters) {
     return numberOfCharacters >= INPUT_BUFFER_LEN - 1;
 }
 
-/*! parse a String to fetch the hopper halt timings
- *
- * @param message The received message containing the halt timing
- * @return        The parsed halt timing as an integer or on failure, a Zero
- */
-uint32_t parseInputString(char **message) {
+static uint32_t parseInputString(char **message) {
     // every halt timing command has to end with a ';'
     // the function will search for this char and save its position
     char *semicolonPosition = strchr(*message, ';');
@@ -86,13 +256,10 @@ uint32_t parseInputString(char **message) {
     return delay;
 }
 
-/*! process the received Message (received over Serial)
- *
- * @param message char buffer containing the received Message
- */
-void processMessage(char *message) {
+static void processMessage(char *message, size_t *messageLength) {
     uint16_t dispensersTrigger = 0;
 
+    PRINT_DEBUG("Process message len: %d", *messageLength)
     for (uint8_t i = 0; i < 4; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
 #ifdef RONDELL
@@ -130,124 +297,17 @@ void processMessage(char *message) {
 #endif
 }
 
-/*! This function's purpose is to establish synchronization between the pico
- * and the pi. The pi sends `i\\n` to the pico corresponding and to confirm
- * that the string has been received the pico sends back `[POSITION]\\n`.
- * This function imprisons the program flow in the while loop until
- * synchronization has been established.
- */
-void establishConnectionToMaster(void) {
-    uint32_t input_identifier;
-    volatile bool identified = false;
-
-    while (!identified) {
-        input_identifier = getchar_timeout_us(10000000); // 10 seconds wait
-        if (input_identifier == 'i') {
-            input_identifier = getchar_timeout_us(10000000);
-            if (input_identifier == '\n' || input_identifier == 'n') {
-#ifdef RONDELL
-                PRINT_COMMAND("RONDELL")
-#endif
-#ifdef LEFT
-                PRINT_COMMAND("LEFT")
-#endif
-#ifdef RIGHT
-                PRINT_COMMAND("RIGHT")
-#endif
-                identified = true;
-            }
-        } else {
-            // Did not receive proper string; await new string.
-            input_identifier = 0;
-            PRINT_COMMAND("F")
-        }
-    }
+static void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacterCount) {
+    processMessage(buffer, receivedCharacterCount);
+    resetMessageBuffer(buffer, maxBufferSize, receivedCharacterCount);
 }
 
-/*! initializes the ADC of the MCU for usage with the light sensor
- *
- * @param gpio  GPIO of the Tiny2040 for the ADC input
- */
-void initialize_adc(uint8_t gpio) {
-    uint8_t adcInputPin;
-    switch (gpio) {
-    case 29:
-        adcInputPin = 3;
-        break;
-    case 28:
-        adcInputPin = 2;
-        break;
-    case 27:
-        adcInputPin = 1;
-        break;
-    case 26:
-        adcInputPin = 0;
-        break;
-    default:
-        adcInputPin = 0xFF;
-    }
-
-    adc_init();
-    adc_gpio_init(gpio);
-    adc_select_input(adcInputPin);
+static void storeCharacter(char *buffer, size_t *bufferIndex, char newCharacter) {
+    PRINT_DEBUG("Received: %c (counter: %d)", buffer, bufferIndex)
+    buffer[*bufferIndex] = newCharacter;
+    *bufferIndex = *bufferIndex + 1;
 }
+
+/* endregion Handle message */
 
 /* endregion HELPER FUNCTIONS */
-
-int main() {
-    initPico(false);
-    establishConnectionToMaster();
-
-#ifdef RONDELL
-    initialize_adc(28);
-    dispenser[0] = dispenserCreate(0, SERIAL2);
-    setUpRondell(2, SERIAL2);
-#else
-    // create the dispenser with their address and save them in an array
-    for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-        dispenser[i] = dispenserCreate(i, SERIAL_UART);
-    }
-#endif
-
-    PRINT_COMMAND("CALIBRATED")
-    // Buffer for received Messages
-    char *input_buf = malloc(INPUT_BUFFER_LEN);
-    memset(input_buf, '\0', INPUT_BUFFER_LEN);
-    uint16_t characterCounter = 0;
-
-    // Waits for an input in the form ([0..9];)+[\n|n], each number standing for the wait time of
-    // the corresponding dispenser
-    while (true) {
-
-        uint32_t input = getchar_timeout_us(10000000);
-
-        if (input == PICO_ERROR_TIMEOUT) {
-            continue;
-        }
-
-        if (!isAllowedCharacter(input)) {
-            // ignore the received character if it is not an allowed one
-            PRINT_DEBUG("Received '%c' which is not allowed", input)
-            continue;
-        }
-
-        if (isLineEnd(input)) {
-            // received end character, message should be complete, start with processing
-            PRINT_DEBUG("Process message len: %d", characterCounter)
-            processMessage(input_buf);
-            memset(input_buf, '\0', INPUT_BUFFER_LEN);
-            characterCounter = 0;
-            PRINT_COMMAND("READY")
-        } else if (isMessageToLong(characterCounter)) {
-            // received to many characters -> flushing the uart connection and start over
-            PRINT_DEBUG("Input too long, flushing...")
-            memset(input_buf, '\0', INPUT_BUFFER_LEN);
-            characterCounter = 0;
-        } else {
-            // character is allowed and we did not reach the end
-            PRINT_DEBUG("Received: %c (counter: %d)", input, characterCounter)
-            input_buf[characterCounter] = input;
-            ++characterCounter;
-        }
-    }
-}
