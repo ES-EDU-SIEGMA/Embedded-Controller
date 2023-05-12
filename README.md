@@ -1,46 +1,70 @@
 # Drink Mixing Machine Controller
 
+This repository provides the source code for the RP2040 based stepper driver controller.
+Further documentation of the hardware can be found in the [main](https://git.uni-due.de/embedded-systems/student-projects/ss23-drink-mixing-machine/main) repository.
+
+**The main branch of this repository can be considered stable and should be working all time.**
+
 ## Clone Repository
 
-After cloning the repository it is necessary to import the required submodules to build the targets.
+### Submodules
+
+After cloning the repository it is necessary to import the required submodules to build all targets.
+
+> Required Submodules:
+>
+> - `pico-sdk` for RP2040 hardware support
+> - `unity` for Unit-Tests
+
 This can be accomplished by running:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-Despite this the required tools are:
+inside your console.
 
-* gcc
-* arm-none-eabi-gcc
-* CMake
-* Ninja/Make
+### Toolchain
+
+Despite the submodules the required tools for the toolchain are required:
+
+- gcc (C-Compiler)
+- arm-none-eabi-gcc (ARM C-Compiler)
+- CMake (Build Script Generator)
+- Ninja/Make (Build Tool)
 
 ## Contribution Guidelines
 
-The source code should be formatted according to the in the [.clang-format](.clang-format) file specified style.
+The source code should be formatted according to the style specified in the [.clang-format](.clang-format) file.
+
+There are no direct commits to the main branch allowed.
+If you want to contribute source code feel free to open a merge request with your desired changes.
 
 ### Folder Structure
 
-The source code for the target device can be found under [src](src), whereas the integration test are implemented under [integration](test/integration).
-The unit test aim to be executed on the local machine/server are implemented under [unit](test/unit).
+The source code for the target device can be found under [src](src).
+The [integration](test/integration) folder provides you with the integration tests which also double as an example for the usage of the provided libraries.
+The unit test aim to be executed on the local machine/server and are implemented under [unit](test/unit).
 The [extern](extern) folder contains all external dependencies like git submodules.
 
 ## Troubleshooting
 
-Try with Arduino mega with example code from TMC2209 library each stepper driver
+### Stepper Driver not working
 
-If not working with Arduino, test after taking each of those steps:
-    - Check each connection
-    - Make sure tx and rx are correct
-    - Use different stepper driver
-    - Use different cable to computer
-    - Replace resistor
-    - Try on different computer
-    
-If it works with the arduino, connections are right, try with pico again, but with commit 208c23bc8ce1775b5c6087e88812553b228f1036
-If it works on that commit but not currently the code is probably wrong.
-If it does not work on that commit try:
-    - Replacing the pico
-    - Use different cable to computer
-    - Use different computer
+Try with Arduino mega with example code from TMC2209 library each stepper driver.
+If the stepper driver are still not working, test after taking each of those steps:
+
+- Check each connection
+- Make sure TX and RX are correctly wired
+- Use multiple different stepper driver
+- Use different USB cable to connect your computer
+- Replace resistors
+- Try with a different computer
+
+If it works with the Arduino, the connections are all correct.
+Try again with the pico.
+If it does not work:
+
+- Replace the pico
+- Use different cable to connect your computer
+- Use a different computer
