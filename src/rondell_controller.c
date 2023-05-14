@@ -35,8 +35,6 @@ static void initPico(void);
 
 static void initRondell(void);
 
-static void initSide(void);
-
 /*! initializes the ADC of the MCU
  *
  * @param gpio  GPIO of the Tiny2040 for the ADC input
@@ -82,11 +80,7 @@ int main() {
     initPico();
     establishConnectionToMaster();
 
-#ifdef RONDELL
     initRondell();
-#else
-    initSide();
-#endif
     PRINT_COMMAND("CALIBRATED")
 
     /* region init message buffer*/
@@ -160,13 +154,6 @@ static void initRondell(void) {
     setUpRondell(2, SERIAL2);
 }
 
-static void initSide(void) {
-    // create the dispenser with their address and save them in an array
-    for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-        dispenser[i] = dispenserCreate(i, SERIAL_UART);
-    }
-}
-
 static void initialize_adc(uint8_t gpio) {
     uint8_t adcInputPin;
     switch (gpio) {
@@ -201,15 +188,7 @@ static void establishConnectionToMaster(void) {
         if (input_identifier == 'i') {
             input_identifier = getchar_timeout_us(10000000);
             if (input_identifier == '\n' || input_identifier == 'n') {
-#ifdef RONDELL
                 PRINT_COMMAND("RONDELL")
-#endif
-#ifdef LEFT
-                PRINT_COMMAND("LEFT")
-#endif
-#ifdef RIGHT
-                PRINT_COMMAND("RIGHT")
-#endif
                 identified = true;
             }
         } else {

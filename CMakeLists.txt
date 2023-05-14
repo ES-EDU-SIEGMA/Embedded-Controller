@@ -17,14 +17,6 @@ else ()
         add_definitions(-DDEBUG)
     endif()
 
-    if (LEFT)
-        add_definitions(-DLEFT)
-    elseif (RONDELL)
-        add_definitions(-DRONDELL)
-    elseif (RIGHT)
-        add_definitions(-DRIGHT)
-    endif()
-
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
     include(extern/pico-sdk/pico_sdk_init.cmake)
