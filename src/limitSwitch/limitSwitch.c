@@ -1,7 +1,6 @@
 #define SOURCE_FILE "LIMIT_SWITCH"
 
 #include "limitSwitch.h"
-#include "common.h"
 #include <hardware/gpio.h>
 
 bool limitSwitchIsClosed(limitSwitch_t limitSwitch) {
