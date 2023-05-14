@@ -8,7 +8,6 @@
 #include <string.h>
 
 // Pico SDK
-#include <hardware/adc.h>
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
 #include <pico/stdio.h>
@@ -17,14 +16,17 @@
 
 /* region VARIABLES/DEFINES */
 
-// maximum count of allowed input length
-#define INPUT_BUFFER_LEN 255
+#define SERIAL_UART SERIAL2 /// The uart Pins to be used
+#define NUMBER_OF_DISPENSERS 4
+#define MS_DISPENSERS_ARE_MOVING_UP_0 7700
+#define MS_DISPENSERS_ARE_MOVING_UP_1 7500
+#define MS_DISPENSERS_ARE_MOVING_UP_2 8200
+#define MS_DISPENSERS_ARE_MOVING_UP_3 7900
+#define DISPENSER_SEARCH_TIMEOUT 250
+dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
-// The uart Pins to be used
-#define SERIAL_UART SERIAL2
-
+#define INPUT_BUFFER_LEN 255                       /// maximum count of allowed input length
 const char *allowedCharacters = "0123456789i;\nn"; /// sequence of allowed character
-dispenser_t dispenser[NUMBER_OF_DISPENSERS];       /// Array containing the dispenser
 
 /* endregion VARIABLES/DEFINES */
 
@@ -32,13 +34,7 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS];       /// Array containing the disp
 
 static void initPico(void);
 
-static void initSide(void);
-
-/*! initializes the ADC of the MCU
- *
- * @param gpio  GPIO of the Tiny2040 for the ADC input
- */
-static void initialize_adc(uint8_t gpio);
+static void initDispenser(void);
 
 /*! This function's purpose is to establish synchronization between the pico
  * and the pi. The pi sends `i\\n` to the pico corresponding and to confirm
@@ -79,11 +75,7 @@ int main() {
     initPico();
     establishConnectionToMaster();
 
-#ifdef RONDELL
-    initRondell();
-#else
-    initSide();
-#endif
+    initDispenser();
     PRINT_COMMAND("CALIBRATED")
 
     /* region init message buffer*/
@@ -151,36 +143,15 @@ static void initPico(void) {
     watchdog_enable(15000, 1);
 }
 
-static void initSide(void) {
-    // create the dispenser with their address and save them in an array
-    for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-        dispenser[i] = dispenserCreate(i, SERIAL_UART);
-    }
-}
-
-static void initialize_adc(uint8_t gpio) {
-    uint8_t adcInputPin;
-    switch (gpio) {
-    case 29:
-        adcInputPin = 3;
-        break;
-    case 28:
-        adcInputPin = 2;
-        break;
-    case 27:
-        adcInputPin = 1;
-        break;
-    case 26:
-        adcInputPin = 0;
-        break;
-    default:
-        PRINT_DEBUG("Invalid ADC GPIO")
-        return;
-    }
-
-    adc_init();
-    adc_gpio_init(gpio);
-    adc_select_input(adcInputPin);
+static void initDispenser(void) {
+    dispenser[0] =
+        dispenserCreate(0, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_0, DISPENSER_SEARCH_TIMEOUT);
+    dispenser[1] =
+        dispenserCreate(1, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_1, DISPENSER_SEARCH_TIMEOUT);
+    dispenser[2] =
+        dispenserCreate(2, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_2, DISPENSER_SEARCH_TIMEOUT);
+    dispenser[3] =
+        dispenserCreate(3, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_3, DISPENSER_SEARCH_TIMEOUT);
 }
 
 static void establishConnectionToMaster(void) {
@@ -246,19 +217,6 @@ static void processMessage(char *message, size_t *messageLength) {
     PRINT_DEBUG("Process message len: %d", *messageLength)
     for (uint8_t i = 0; i < 4; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
-#ifdef RONDELL
-        dispenserSetHaltTime(&dispenser[0], dispenserHaltTimes);
-        if (dispenserHaltTimes > 0) {
-            moveToDispenserWithId(i);
-            absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-            do {
-                sleep_until(time);
-                time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-                dispenserDoStep(&dispenser[0]);
-            } while (!dispenserSetAllToSleepState(dispenser, 1));
-        }
-    }
-#else
         if (dispenserHaltTimes > 0) {
             dispensersTrigger++;
         }
@@ -278,7 +236,6 @@ static void processMessage(char *message, size_t *messageLength) {
         }
         // When all dispensers are finished, they are in the state sleep
     } while (!dispenserSetAllToSleepState(dispenser, NUMBER_OF_DISPENSERS));
-#endif
 }
 
 static void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacterCount) {

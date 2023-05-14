@@ -2,6 +2,7 @@
 #define SIEGMA_DISPENSER_INTERNAL_H
 
 #include "dispenser.h"
+#include <stdint.h>
 
 static void resetDispenserPosition(dispenser_t *dispenser);
 

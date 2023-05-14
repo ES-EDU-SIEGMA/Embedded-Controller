@@ -8,47 +8,24 @@
 
 /* region DEFINES */
 
-#if defined(RONDELL)
-#define NUMBER_OF_DISPENSERS 1
-#elif defined(LEFT) || defined(RIGHT)
-#define NUMBER_OF_DISPENSERS 4
-#endif
-
 #define DISPENSER_STEP_TIME_MS 100
 
-#if defined(RONDELL)
-#define MS_DISPENSERS_ARE_MOVING_UP_0 7500
-#elif defined(LEFT)
-#define MS_DISPENSERS_ARE_MOVING_UP_0 8300
-#define MS_DISPENSERS_ARE_MOVING_UP_1 8500
-#define MS_DISPENSERS_ARE_MOVING_UP_2 7500
-#define MS_DISPENSERS_ARE_MOVING_UP_3 7300
-#elif defined(RIGHT)
-#define MS_DISPENSERS_ARE_MOVING_UP_0 7700
-#define MS_DISPENSERS_ARE_MOVING_UP_1 7500
-#define MS_DISPENSERS_ARE_MOVING_UP_2 8200
-#define MS_DISPENSERS_ARE_MOVING_UP_3 7900
-#endif
-
-#if defined(RONDELL)
-#define FIND_TIME 750
-#else
-#define FIND_TIME 250
-#endif
-
-#if NUMBER_OF_DISPENSERS > 4
-#error ONLY 4 DISPENERS AVAILABLE
-#elif NUMBER_OF_DISPENSERS < 1
-#error NO DISPENSER AVAILABLE
-#endif
-
-typedef struct dispenser dispenser_t;
 typedef struct dispenserState dispenserState_t;
+typedef struct dispenser dispenser_t;
+typedef uint8_t dispenserStateCode_t;
+
+enum {
+    DISPENSER_STATE_SLEEP,
+    DISPENSER_STATE_UP,
+    DISPENSER_STATE_TOP,
+    DISPENSER_STATE_DOWN,
+    DISPENSER_STATE_ERROR,
+    DISPENSER_STATE_INVALID,
+};
 
 struct dispenserState {
     struct dispenserState (*function)(dispenser_t *);
 };
-
 /// Dispenser struct holding all important values to control the stepper driver
 struct dispenser {
     SerialAddress_t address;
@@ -60,17 +37,8 @@ struct dispenser {
     Motor_t motor;
     limitSwitch_t limitSwitch;
     serialUart_t uart;
+    uint16_t searchTimeout;
 };
-
-enum {
-    DISPENSER_STATE_SLEEP,
-    DISPENSER_STATE_UP,
-    DISPENSER_STATE_TOP,
-    DISPENSER_STATE_DOWN,
-    DISPENSER_STATE_ERROR,
-    DISPENSER_STATE_INVALID,
-};
-typedef uint8_t dispenserStateCode_t;
 
 /* endregion DEFINES */
 
@@ -82,7 +50,8 @@ typedef uint8_t dispenserStateCode_t;
  * @param uart    which UART pins will be used
  * @return        a initialized Dispenser
  */
-dispenser_t dispenserCreate(SerialAddress_t address, serialUart_t uart);
+dispenser_t dispenserCreate(SerialAddress_t address, serialUart_t uart, uint16_t msToReachTopState,
+                            uint16_t searchTimeout);
 
 /*! Dispenser cycles to the next state
  *

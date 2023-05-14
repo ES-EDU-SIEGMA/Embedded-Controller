@@ -18,14 +18,14 @@
 
 /* region VARIABLES/DEFINES */
 
-// maximum count of allowed input length
-#define INPUT_BUFFER_LEN 255
+#define SERIAL_UART SERIAL2 /// The uart Pins to be used
+#define NUMBER_OF_DISPENSERS 1
+#define MS_DISPENSERS_ARE_MOVING_UP_0 7500
+#define DISPENSER_SEARCH_TIMEOUT 750
+dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser references
 
-// The uart Pins to be used
-#define SERIAL_UART SERIAL2
-
+#define INPUT_BUFFER_LEN 255                       /// maximum count of allowed input length
 const char *allowedCharacters = "0123456789i;\nn"; /// sequence of allowed character
-dispenser_t dispenser[NUMBER_OF_DISPENSERS];       /// Array containing the dispenser
 
 /* endregion VARIABLES/DEFINES */
 
@@ -33,7 +33,7 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS];       /// Array containing the disp
 
 static void initPico(void);
 
-static void initRondell(void);
+static void initDispenser(void);
 
 /*! initializes the ADC of the MCU
  *
@@ -80,7 +80,7 @@ int main() {
     initPico();
     establishConnectionToMaster();
 
-    initRondell();
+    initDispenser();
     PRINT_COMMAND("CALIBRATED")
 
     /* region init message buffer*/
@@ -148,9 +148,10 @@ static void initPico(void) {
     watchdog_enable(15000, 1);
 }
 
-static void initRondell(void) {
+static void initDispenser(void) {
     initialize_adc(28);
-    dispenser[0] = dispenserCreate(0, SERIAL2);
+    dispenser[0] =
+        dispenserCreate(0, SERIAL2, MS_DISPENSERS_ARE_MOVING_UP_0, DISPENSER_SEARCH_TIMEOUT);
     setUpRondell(2, SERIAL2);
 }
 
@@ -242,7 +243,6 @@ static void processMessage(char *message, size_t *messageLength) {
     PRINT_DEBUG("Process message len: %d", *messageLength)
     for (uint8_t i = 0; i < 4; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
-#ifdef RONDELL
         dispenserSetHaltTime(&dispenser[0], dispenserHaltTimes);
         if (dispenserHaltTimes > 0) {
             moveToDispenserWithId(i);
@@ -254,27 +254,6 @@ static void processMessage(char *message, size_t *messageLength) {
             } while (!dispenserSetAllToSleepState(dispenser, 1));
         }
     }
-#else
-        if (dispenserHaltTimes > 0) {
-            dispensersTrigger++;
-        }
-        dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
-    }
-    for (int i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-        dispenser[i].othersTriggered = dispensersTrigger;
-    }
-    absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-    do {
-        sleep_until(time);
-        time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-        // Checks for each dispenser if their next state is reached and perform the
-        // according action
-        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            dispenserDoStep(&dispenser[i]);
-        }
-        // When all dispensers are finished, they are in the state sleep
-    } while (!dispenserSetAllToSleepState(dispenser, NUMBER_OF_DISPENSERS));
-#endif
 }
 
 static void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacterCount) {
