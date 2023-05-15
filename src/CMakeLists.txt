@@ -11,7 +11,6 @@ target_link_libraries(left
         limitSwitch_lib
         motor_lib
         )
-target_compile_definitions(left PUBLIC LEFT)
 make_to_output_file(left)
 
 #########################
@@ -27,7 +26,6 @@ target_link_libraries(right
         limitSwitch_lib
         motor_lib
         )
-target_compile_definitions(right PUBLIC RIGHT)
 make_to_output_file(right)
 
 #########################
@@ -44,5 +42,4 @@ target_link_libraries(rondell
         limitSwitch_lib
         motor_lib
         )
-target_compile_definitions(rondell PUBLIC RONDELL)
 make_to_output_file(rondell)
