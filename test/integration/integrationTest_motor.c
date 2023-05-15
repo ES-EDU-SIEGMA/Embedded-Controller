@@ -11,6 +11,7 @@
 #include <pico/time.h>
 
 #define SERIAL_UART SERIAL2
+#define NUMBER_OF_DISPENSERS 4
 
 void initPico(bool waitForUSBConnection) {
     if (watchdog_enable_caused_reboot()) {

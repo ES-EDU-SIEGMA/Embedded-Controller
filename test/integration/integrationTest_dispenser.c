@@ -10,6 +10,12 @@
 #include <pico/time.h>
 
 #define SERIAL_UART SERIAL2
+#define NUMBER_OF_DISPENSERS 4
+#define MS_DISPENSERS_ARE_MOVING_UP_0 7700
+#define MS_DISPENSERS_ARE_MOVING_UP_1 7500
+#define MS_DISPENSERS_ARE_MOVING_UP_2 8200
+#define MS_DISPENSERS_ARE_MOVING_UP_3 7900
+#define DISPENSER_SEARCH_TIMEOUT 250
 
 void initPico(bool waitForUSBConnection) {
     if (watchdog_enable_caused_reboot()) {
@@ -25,6 +31,27 @@ void initPico(bool waitForUSBConnection) {
         while ((!stdio_usb_connected())) {
             // waits for usb connection
         }
+    }
+}
+
+static dispenser_t initDispenser(uint8_t dispenserId) {
+    PRINT("Dispenser %i selected", dispenserId)
+    switch (dispenserId) {
+    case 0:
+        return dispenserCreate(0, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_0,
+                               DISPENSER_SEARCH_TIMEOUT);
+    case 1:
+        return dispenserCreate(1, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_1,
+                               DISPENSER_SEARCH_TIMEOUT);
+    case 2:
+        return dispenserCreate(2, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_2,
+                               DISPENSER_SEARCH_TIMEOUT);
+    case 3:
+        return dispenserCreate(3, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_3,
+                               DISPENSER_SEARCH_TIMEOUT);
+    default:
+        PRINT("Invalid Dispenser")
+        break;
     }
 }
 
@@ -57,8 +84,7 @@ int main() {
         }
         switch (command) {
         case 's':
-            PRINT("Setup dispenser: %lu", id)
-            dispenser[id] = dispenserCreate(id, SERIAL_UART);
+            dispenser[id] = initDispenser(id);
             break;
         case 't':
             PRINT("Set halt time for dispenser %lu:", id)

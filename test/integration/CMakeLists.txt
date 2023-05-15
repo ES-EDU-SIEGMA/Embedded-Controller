@@ -3,12 +3,14 @@
 add_executable(integrationTest-limitSwitches integrationTest_limitSwitch.c)
 target_include_directories(integrationTest-limitSwitches PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(integrationTest-limitSwitches
-        limitSwitch_lib
-        pico_stdlib
-        dispenser_lib
+        pico_time
+        pico_stdio_usb
         serialUART_lib
+        dispenser_lib
         tmc2209_lib
-        motor_lib)
+        motor_lib
+        limitSwitch_lib
+        )
 make_to_output_file(integrationTest-limitSwitches)
 
 ######################################################################
@@ -16,12 +18,13 @@ make_to_output_file(integrationTest-limitSwitches)
 add_executable(integrationTest-motor integrationTest_motor.c)
 target_include_directories(integrationTest-motor PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(integrationTest-motor
+        pico_stdio_usb
+        serialUART_lib
         dispenser_lib
         tmc2209_lib
-        pico_stdlib
-        serialUART_lib
         motor_lib
-        limitSwitch_lib)
+        limitSwitch_lib
+        )
 make_to_output_file(integrationTest-motor)
 
 ######################################################################
@@ -29,10 +32,11 @@ make_to_output_file(integrationTest-motor)
 add_executable(integrationTest-dispenser integrationTest_dispenser.c)
 target_include_directories(integrationTest-dispenser PUBLIC ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(integrationTest-dispenser
+        pico_stdio_usb
+        serialUART_lib
         dispenser_lib
         tmc2209_lib
-        pico_stdlib
-        serialUART_lib
         motor_lib
-        limitSwitch_lib)
+        limitSwitch_lib
+        )
 make_to_output_file(integrationTest-dispenser)
