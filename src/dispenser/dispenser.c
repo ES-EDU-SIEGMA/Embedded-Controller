@@ -13,25 +13,22 @@ static dispenserState_t errorState_t = (dispenserState_t){.function = &errorStat
 
 /* region HEADER FUNCTIONS */
 
-dispenser_t dispenserCreate(SerialAddress_t address, serialUart_t uart, uint16_t msToReachTopState,
-                            uint16_t searchTimeout) {
-    dispenser_t dispenser;
-    dispenser.address = address;
-    dispenser.uart = uart;
-    dispenser.haltSteps = 0;
-    dispenser.stepsDone = 0;
-    dispenser.state = (dispenserState_t){.function = &sleepState};
-    dispenser.motor = createMotor(address, uart);
-    dispenser.limitSwitch = createLimitSwitch(address);
-    dispenser.othersTriggered = 0;
-    dispenser.stepsUp = msToReachTopState / DISPENSER_STEP_TIME_MS;
-    dispenser.searchTimeout = searchTimeout;
+void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
+                     uint16_t msToReachTopState, uint16_t searchTimeout) {
+    dispenser->address = address;
+    dispenser->uart = uart;
+    dispenser->haltSteps = 0;
+    dispenser->stepsDone = 0;
+    dispenser->state = (dispenserState_t){.function = &sleepState};
+    dispenser->motor = createMotor(address, uart);
+    dispenser->limitSwitch = createLimitSwitch(address);
+    dispenser->othersTriggered = 0;
+    dispenser->stepsUp = msToReachTopState / DISPENSER_STEP_TIME_MS;
+    dispenser->searchTimeout = searchTimeout;
 
-    findDirection(&dispenser, 250);
-    resetDispenserPosition(&dispenser);
-    disableMotorByPin(&dispenser.motor);
-
-    return dispenser;
+    findDirection(dispenser, 250);
+    resetDispenserPosition(dispenser);
+    disableMotorByPin(&(dispenser->motor));
 }
 
 dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser) {

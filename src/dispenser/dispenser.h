@@ -50,8 +50,8 @@ struct dispenser {
  * @param uart    which UART pins will be used
  * @return        a initialized Dispenser
  */
-dispenser_t dispenserCreate(SerialAddress_t address, serialUart_t uart, uint16_t msToReachTopState,
-                            uint16_t searchTimeout);
+void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
+                     uint16_t msToReachTopState, uint16_t searchTimeout);
 
 /*! Dispenser cycles to the next state
  *
