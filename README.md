@@ -49,6 +49,13 @@ The [extern](extern) folder contains all external dependencies like git submodul
 
 ## Troubleshooting
 
+### Serial Communication (Debugging)
+
+The application detects the end of a send command by searching for _EOL_ (0x0A) or `\n`. 
+This character is not on the standard keyboard!
+In minicom for example it can be send with `CTRL+J`.
+
+
 ### Stepper Driver not working
 
 Try with Arduino mega with example code from TMC2209 library each stepper driver.

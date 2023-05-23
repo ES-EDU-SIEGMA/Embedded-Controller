@@ -15,15 +15,7 @@ if (UNIT_TEST)
 else ()
     if (DEBUG)
         add_definitions(-DDEBUG)
-    endif()
-
-    if (LEFT)
-        add_definitions(-DLEFT)
-    elseif (RONDELL)
-        add_definitions(-DRONDELL)
-    elseif (RIGHT)
-        add_definitions(-DRIGHT)
-    endif()
+    endif ()
 
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
@@ -45,6 +37,7 @@ else ()
         add_subdirectory(src/limitSwitch)
         add_subdirectory(src/rondell)
         add_subdirectory(src/motor)
+        add_subdirectory(src/hardwareHelper)
 
         # include integration tests
         add_subdirectory(test/integration)

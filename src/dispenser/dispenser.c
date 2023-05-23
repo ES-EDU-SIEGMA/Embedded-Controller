@@ -4,7 +4,6 @@
 #include "common.h"
 #include "dispenser_internal.h"
 #include <pico/time.h>
-#include <stdio.h>
 
 static dispenserState_t sleepState_t = (dispenserState_t){.function = &sleepState};
 static dispenserState_t upState_t = (dispenserState_t){.function = &upState};
@@ -14,42 +13,22 @@ static dispenserState_t errorState_t = (dispenserState_t){.function = &errorStat
 
 /* region HEADER FUNCTIONS */
 
-dispenser_t dispenserCreate(SerialAddress_t address, serialUart_t uart) {
-    dispenser_t dispenser;
-    dispenser.address = address;
-    dispenser.uart = uart;
-    dispenser.haltSteps = 0;
-    dispenser.stepsDone = 0;
-    dispenser.state = (dispenserState_t){.function = &sleepState};
-    dispenser.motor = createMotor(address, uart);
-    dispenser.limitSwitch = createLimitSwitch(address);
-    dispenser.othersTriggered = 0;
+void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
+                     uint16_t msToReachTopState, uint16_t searchTimeout) {
+    dispenser->address = address;
+    dispenser->uart = uart;
+    dispenser->haltSteps = 0;
+    dispenser->stepsDone = 0;
+    dispenser->state = (dispenserState_t){.function = &sleepState};
+    dispenser->motor = createMotor(address, uart);
+    dispenser->limitSwitch = createLimitSwitch(address);
+    dispenser->othersTriggered = 0;
+    dispenser->stepsUp = msToReachTopState / DISPENSER_STEP_TIME_MS;
+    dispenser->searchTimeout = searchTimeout;
 
-    switch (address) {
-    case SERIAL_ADDRESS_0:
-        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_0 / DISPENSER_STEP_TIME_MS;
-        break;
-#ifndef RONDELL
-    case SERIAL_ADDRESS_1:
-        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_1 / DISPENSER_STEP_TIME_MS;
-        break;
-    case SERIAL_ADDRESS_2:
-        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_2 / DISPENSER_STEP_TIME_MS;
-        break;
-    case SERIAL_ADDRESS_3:
-        dispenser.stepsUp = MS_DISPENSERS_ARE_MOVING_UP_3 / DISPENSER_STEP_TIME_MS;
-        break;
-#endif
-    }
-
-    findDirection(&dispenser, 250);
-
-    // Reset Dispenser position
-    resetDispenserPosition(&dispenser);
-
-    disableMotorByPin(&dispenser.motor);
-
-    return dispenser;
+    findDirection(dispenser, 250);
+    resetDispenserPosition(dispenser);
+    disableMotorByPin(&(dispenser->motor));
 }
 
 dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser) {
@@ -83,7 +62,7 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
 }
 
 static void findDirection(dispenser_t *dispenser, uint32_t time) {
-    time = time + FIND_TIME;
+    time = time + dispenser->searchTimeout;
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         PRINT_DEBUG("limitswitch closed")
         moveMotorUp(&dispenser->motor);
@@ -93,13 +72,14 @@ static void findDirection(dispenser_t *dispenser, uint32_t time) {
             return;
         } else {
             moveMotorDown(&dispenser->motor);
-            sleep_ms(time + FIND_TIME);
+            sleep_ms(time + dispenser->searchTimeout);
             if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
                 stopMotor(&dispenser->motor);
                 dispenser->motor.direction = DIRECTION_DOWN;
                 return;
-            } else
-                findDirection(dispenser, time + FIND_TIME);
+            } else {
+                findDirection(dispenser, time + dispenser->searchTimeout);
+            }
         }
     } else {
         PRINT_DEBUG("limitswitch open")
@@ -111,12 +91,13 @@ static void findDirection(dispenser_t *dispenser, uint32_t time) {
             return;
         } else {
             moveMotorUp(&dispenser->motor);
-            sleep_ms(time + FIND_TIME);
+            sleep_ms(time + dispenser->searchTimeout);
             if (limitSwitchIsClosed(dispenser->limitSwitch)) {
                 stopMotor(&dispenser->motor);
                 return;
-            } else
-                findDirection(dispenser, time + FIND_TIME);
+            } else {
+                findDirection(dispenser, time + dispenser->searchTimeout);
+            }
         }
     }
 }
@@ -148,8 +129,9 @@ static dispenserState_t upState(dispenser_t *dispenser) {
         stopMotor(&dispenser->motor);
         return topState_t;
     }
-    if (!limitSwitchIsClosed(dispenser->limitSwitch))
+    if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
         dispenser->stepsDone++;
+    }
     return upState_t;
 }
 
@@ -165,7 +147,7 @@ static dispenserState_t topState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t downState(dispenser_t *dispenser) {
-    PRINT_DEBUG("downState");
+    PRINT_DEBUG("downState")
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(&dispenser->motor);
         disableMotorByPin(&dispenser->motor);
@@ -184,7 +166,7 @@ static dispenserState_t downState(dispenser_t *dispenser) {
 }
 
 void dispenserDoStep(dispenser_t *dispenser) {
-    if (!motorIsCommunicating(&dispenser->motor)) {
+    if (!motorIsCommunicating(&(dispenser->motor))) {
         dispenser->state = errorState_t;
     }
     dispenser->state = dispenser->state.function(dispenser);
@@ -193,13 +175,14 @@ void dispenserDoStep(dispenser_t *dispenser) {
 void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime) {
     dispenser->haltSteps = haltTime / DISPENSER_STEP_TIME_MS;
     dispenser->stepsDone = 0;
-    PRINT_DEBUG("Dispenser %u will stop after %hu steps", dispenser->address, dispenser->haltSteps);
+    PRINT_DEBUG("Dispenser %u will stop after %hu steps", dispenser->address, dispenser->haltSteps)
 }
 
 bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser) {
     for (uint8_t i = 0; i < number_of_dispenser; ++i) {
-        if (dispenser[i].state.function != sleepState_t.function)
+        if (dispenser[i].state.function != sleepState_t.function) {
             return false;
+        }
     }
     return true;
 }

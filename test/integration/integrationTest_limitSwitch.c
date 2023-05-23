@@ -1,13 +1,13 @@
 #define SOURCE_FILE "LIMIT_SWITCH_TEST"
 
 #include "common.h"
-#include "dispenser.h"
 #include "limitSwitch.h"
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
-#include <pico/stdio.h>
 #include <pico/stdio_usb.h>
 #include <pico/time.h>
+
+#define NUMBER_OF_DISPENSERS 4
 
 void initPico(bool waitForUSBConnection) {
     if (watchdog_enable_caused_reboot()) {

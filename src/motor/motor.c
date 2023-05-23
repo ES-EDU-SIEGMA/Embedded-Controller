@@ -4,7 +4,6 @@
 #include "common.h"
 #include <hardware/gpio.h>
 #include <pico/time.h>
-#include <stdio.h>
 
 void setUpEnablePin(Motor_t *motor, SerialAddress_t id) {
     switch (id) {
