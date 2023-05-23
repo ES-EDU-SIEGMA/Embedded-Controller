@@ -147,7 +147,7 @@ static dispenserState_t topState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t downState(dispenser_t *dispenser) {
-    PRINT_DEBUG("downState");
+    PRINT_DEBUG("downState")
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(&dispenser->motor);
         disableMotorByPin(&dispenser->motor);
@@ -166,7 +166,7 @@ static dispenserState_t downState(dispenser_t *dispenser) {
 }
 
 void dispenserDoStep(dispenser_t *dispenser) {
-    if (!motorIsCommunicating(&dispenser->motor)) {
+    if (!motorIsCommunicating(&(dispenser->motor))) {
         dispenser->state = errorState_t;
     }
     dispenser->state = dispenser->state.function(dispenser);
@@ -175,7 +175,7 @@ void dispenserDoStep(dispenser_t *dispenser) {
 void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime) {
     dispenser->haltSteps = haltTime / DISPENSER_STEP_TIME_MS;
     dispenser->stepsDone = 0;
-    PRINT_DEBUG("Dispenser %u will stop after %hu steps", dispenser->address, dispenser->haltSteps);
+    PRINT_DEBUG("Dispenser %u will stop after %hu steps", dispenser->address, dispenser->haltSteps)
 }
 
 bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser) {

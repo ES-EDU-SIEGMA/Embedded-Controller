@@ -1,9 +1,9 @@
+#define SOURCE_FILE "MAIN-RIGHT"
+
 #include "common.h"
 #include "dispenser.h"
 #include "helper.h"
-#include <pico/stdio_usb.h>
-#include <pico/time.h>
-#include <stdio.h>
+#include <pico/stdlib.h> /// must be included -> sets clocks required for watchdog-timer!!
 
 /* region VARIABLES/DEFINES */
 
@@ -23,10 +23,11 @@ char *inputBuffer;
 /* endregion VARIABLES/DEFINES */
 
 int main() {
-    initHardware(false, 30);
-    establishConnectionWithController("LEFT");
+    initHardware(false);
+    establishConnectionWithController("RIGHT");
     initDispenser();
-    initializeMessageHandler(inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
+    initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
+    setUpWatchdog(60);
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
     while (true) {
@@ -35,29 +36,34 @@ int main() {
 
         /* region Handle received character */
 
-        char input = getchar_timeout_us(10000000);
+        int input = getchar_timeout_us(3 * 1000000);
 
-        if ((int)input == PICO_ERROR_TIMEOUT) {
+        PRINT_DEBUG("Start Processing Input!")
+        if (input == PICO_ERROR_TIMEOUT) {
             PRINT_DEBUG("No command received! Timeout reached.")
             continue;
         }
+        PRINT_DEBUG("No timeout reached!")
 
         if (!isAllowedCharacter(input)) {
             PRINT_DEBUG("Received '%c' which is not allowed. It will be ignored", input)
             continue;
         }
+        PRINT_DEBUG("Received valid character")
 
         if (isMessageToLong(characterCounter, INPUT_BUFFER_LEN)) {
             resetMessageBuffer(inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
             PRINT_DEBUG("Input too long! Flushed buffer.")
             continue;
         }
+        PRINT_DEBUG("Message Buffer not full!")
 
         if (isLineEnd(input)) {
             handleMessage(inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
             PRINT_COMMAND("READY")
             continue;
         }
+        PRINT_DEBUG("Message end not reached!")
 
         storeCharacter(inputBuffer, &characterCounter, input);
 
@@ -81,10 +87,11 @@ void initDispenser(void) {
     PRINT_COMMAND("CALIBRATED")
 }
 
-void processMessage(char *message, size_t *messageLength) {
-    uint16_t dispensersTrigger = 0;
+void processMessage(char *message, size_t messageLength) {
+    uint8_t dispensersTrigger = 0;
 
-    PRINT_DEBUG("Process message len: %d", messageLength)
+    PRINT_DEBUG("Process message len: %u", messageLength)
+    PRINT_DEBUG("Message: %s", message)
     for (uint8_t i = 0; i < 4; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
         if (dispenserHaltTimes > 0) {
@@ -97,10 +104,10 @@ void processMessage(char *message, size_t *messageLength) {
     }
     absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
     do {
+        resetWatchdogTimer();
         sleep_until(time);
         time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-        // Checks for each dispenser if their next state is reached and perform the
-        // according action
+        // Checks for each dispenser if their next state is reached and perform the according action
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
             dispenserDoStep(&dispenser[i]);
         }
