@@ -11,10 +11,10 @@
 
 #define SERIAL_UART SERIAL2
 #define NUMBER_OF_DISPENSERS 4
-#define MS_DISPENSERS_ARE_MOVING_UP_0 7700
-#define MS_DISPENSERS_ARE_MOVING_UP_1 7500
-#define MS_DISPENSERS_ARE_MOVING_UP_2 8200
-#define MS_DISPENSERS_ARE_MOVING_UP_3 7900
+#define MS_DISPENSERS_ARE_MOVING_UP_0 4000
+#define MS_DISPENSERS_ARE_MOVING_UP_1 4000
+#define MS_DISPENSERS_ARE_MOVING_UP_2 4000
+#define MS_DISPENSERS_ARE_MOVING_UP_3 4000
 #define DISPENSER_SEARCH_TIMEOUT 250
 
 void initPico(bool waitForUSBConnection) {
@@ -40,15 +40,19 @@ static dispenser_t initDispenser(dispenser_t *dispenser, uint8_t dispenserId) {
     case 0:
         dispenserCreate(dispenser, 0, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_0,
                         DISPENSER_SEARCH_TIMEOUT);
+        break;
     case 1:
         dispenserCreate(dispenser, 1, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_1,
                         DISPENSER_SEARCH_TIMEOUT);
+        break;
     case 2:
         dispenserCreate(dispenser, 2, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_2,
                         DISPENSER_SEARCH_TIMEOUT);
+        break;
     case 3:
         dispenserCreate(dispenser, 3, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_3,
                         DISPENSER_SEARCH_TIMEOUT);
+        break;
     default:
         PRINT("Invalid Dispenser")
         break;
@@ -96,6 +100,7 @@ int main() {
             // P -> 80
             // haltTime/100 == steps
             uint32_t haltTime = getchar_timeout_us(10000000);
+            haltTime = haltTime - 48;
             if (haltTime == PICO_ERROR_TIMEOUT) {
                 PRINT("No halt time received. Set to 10s.")
                 haltTime = 10000;
@@ -119,10 +124,16 @@ int main() {
                 // according action
                 dispenserDoStep(&dispenser[id]);
                 // When all dispensers are finished, they are in the state sleep
-
             } while (DISPENSER_STATE_SLEEP != dispenserGetStateCode(dispenser));
             PRINT("Ready")
             break;
+        case 'h':
+            PRINT("Stop")
+            stopMotor(&dispenser->motor);
+            disableMotorByPin(&dispenser->motor);
+            dispenser->haltSteps = 0;
+            //todo
+            // dispenser->state = (dispenserState_t){.function = &sleepState};
         default:
             PRINT("Invalid command received!")
         }
