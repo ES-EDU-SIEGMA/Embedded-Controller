@@ -9,12 +9,7 @@
 
 #define SERIAL_UART SERIAL2 /// The uart Pins to be used
 #define NUMBER_OF_DISPENSERS 4
-// 4 cl -> 1500 für v=150000
-// 2 cl -> 2000 für v=150000
-#define MS_DISPENSERS_ARE_MOVING_UP_0 2000
-#define MS_DISPENSERS_ARE_MOVING_UP_1 2000
-#define MS_DISPENSERS_ARE_MOVING_UP_2 2000
-#define MS_DISPENSERS_ARE_MOVING_UP_3 2000
+
 #define DISPENSER_SEARCH_TIMEOUT 250
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
@@ -77,13 +72,13 @@ int main() {
 /* region HELPER FUNCTIONS */
 
 void initDispenser(void) {
-    dispenserCreate(&dispenser[0], 0, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_0,
+    dispenserCreate(&dispenser[0], 0, SERIAL_UART, dispenserUpTime(4, MOTOR_UP_SPEED),
                     DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[1], 1, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_1,
+    dispenserCreate(&dispenser[1], 1, SERIAL_UART, dispenserUpTime(4, MOTOR_UP_SPEED),
                     DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[2], 2, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_2,
+    dispenserCreate(&dispenser[2], 2, SERIAL_UART, dispenserUpTime(4, MOTOR_UP_SPEED),
                     DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[3], 3, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_3,
+    dispenserCreate(&dispenser[3], 3, SERIAL_UART, dispenserUpTime(4, MOTOR_UP_SPEED),
                     DISPENSER_SEARCH_TIMEOUT);
 
     PRINT_COMMAND("CALIBRATED")

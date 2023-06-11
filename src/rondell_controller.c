@@ -1,3 +1,5 @@
+#define SOURCE_FILE "RONDELL"
+
 #include "common.h"
 #include "dispenser.h"
 #include "helper.h"
@@ -10,7 +12,6 @@
 
 #define SERIAL_UART SERIAL2 /// The uart Pins to be used
 #define NUMBER_OF_DISPENSERS 1
-#define MS_DISPENSERS_ARE_MOVING_UP_0 7500
 #define DISPENSER_SEARCH_TIMEOUT 750
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
@@ -99,7 +100,7 @@ void initialize_adc(uint8_t gpio) {
 
 void initDispenser(void) {
     initialize_adc(28);
-    dispenserCreate(&dispenser[0], 0, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_0,
+    dispenserCreate(&dispenser[0], 0, SERIAL_UART, dispenserUpTime(4, MOTOR_UP_SPEED),
                     DISPENSER_SEARCH_TIMEOUT);
     setUpRondell(2, SERIAL2);
 

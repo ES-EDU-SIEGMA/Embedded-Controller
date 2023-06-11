@@ -9,6 +9,8 @@
 /* region DEFINES */
 
 #define DISPENSER_STEP_TIME_MS 100
+#define fCLK 12000000
+#define timeVACTUAL pow(2, 24)
 
 typedef struct dispenserState dispenserState_t;
 typedef struct dispenser dispenser_t;
@@ -29,7 +31,7 @@ struct dispenserState {
 /// Dispenser struct holding all important values to control the stepper driver
 struct dispenser {
     SerialAddress_t address;
-    uint8_t othersTriggered;
+    uint8_t othersTriggered; // How many Dispenser have halt-times > 0
     uint16_t stepsDone;
     uint16_t stepsUp;
     uint16_t haltSteps;
@@ -43,6 +45,14 @@ struct dispenser {
 /* endregion DEFINES */
 
 /* region FUNCTION PROTOTYPES */
+
+/*! Calculate the time a dispenser needs to reach TopState
+ *
+ * @param dispenserCL 2Cl or 4Cl Dispenser
+ * @param motorSpeed Speed of the Motor
+ * @return        Time that a dispenser needs to reach TopState
+ */
+uint16_t dispenserUpTime(uint8_t dispenserCL, uint32_t motorSpeed);
 
 /*! initialize a new Dispenser with all of its components (Uart, Limit Switch)
  *

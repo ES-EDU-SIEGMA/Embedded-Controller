@@ -3,6 +3,7 @@
 #include "dispenser.h"
 #include "common.h"
 #include "dispenser_internal.h"
+#include <math.h>
 #include <pico/time.h>
 
 static dispenserState_t sleepState_t = (dispenserState_t){.function = &sleepState};
@@ -12,6 +13,21 @@ static dispenserState_t downState_t = (dispenserState_t){.function = &downState}
 static dispenserState_t errorState_t = (dispenserState_t){.function = &errorState};
 
 /* region HEADER FUNCTIONS */
+
+uint16_t dispenserUpTime(uint8_t dispenserCL, uint32_t motorSpeed){
+    // 4 cl -> 1500 für v=150000
+    // 2 cl -> 2000 für v=150000
+    uint32_t stepsPerSecond = motorSpeed * fCLK / timeVACTUAL;
+    uint32_t stepsToReachTopState4cl = 286104;
+    uint32_t stepsToReachTopState2cl = 0; //todo 2 cl is different to 4 cl because smaller
+
+    if (dispenserCL == 2){
+        return stepsToReachTopState2cl / stepsPerSecond;
+    }
+    else if (dispenserCL == 4){
+        return stepsToReachTopState4cl / stepsPerSecond;
+    }
+}
 
 void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
                      uint16_t msToReachTopState, uint16_t searchTimeout) {
@@ -61,6 +77,7 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
     stopMotor(&dispenser->motor);
 }
 
+//todo If limitswitch is not closed, why driving upwards?
 static void findDirection(dispenser_t *dispenser, uint32_t time) {
     time = time + dispenser->searchTimeout;
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
@@ -84,6 +101,7 @@ static void findDirection(dispenser_t *dispenser, uint32_t time) {
     } else {
         PRINT_DEBUG("limitswitch open")
         moveMotorDown(&dispenser->motor);
+        // Every cycle the time is higher, until the limitswitch is reached
         sleep_ms(time);
         if (limitSwitchIsClosed(dispenser->limitSwitch)) {
             stopMotor(&dispenser->motor);
