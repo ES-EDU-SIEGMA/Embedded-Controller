@@ -113,6 +113,7 @@ void processMessage(char *message, size_t messageLength) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
         dispenserSetHaltTime(&dispenser[0], dispenserHaltTimes);
         if (dispenserHaltTimes > 0) {
+            resetWatchdogTimer();
             moveToDispenserWithId(i);
             absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
             do {
