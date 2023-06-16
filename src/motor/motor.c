@@ -68,13 +68,14 @@ Motor_t createMotor(SerialAddress_t address, serialUart_t uart) {
 }
 
 void moveMotorUp(Motor_t *motor) {
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_SPEED);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_SPEED);
+    //todo Wieso doppelter Aufruf?
+    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
+    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
 }
 
 void moveMotorDown(Motor_t *motor) {
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_SPEED);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_SPEED);
+    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_DOWN_SPEED);
+    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_DOWN_SPEED);
 }
 
 void stopMotor(Motor_t *motor) {
