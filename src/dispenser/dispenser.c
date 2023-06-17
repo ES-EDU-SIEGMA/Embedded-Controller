@@ -6,6 +6,8 @@
 #include <math.h>
 #include <pico/time.h>
 
+//Test
+
 static dispenserState_t sleepState_t = (dispenserState_t){.function = &sleepState};
 static dispenserState_t upState_t = (dispenserState_t){.function = &upState};
 static dispenserState_t topState_t = (dispenserState_t){.function = &topState};
