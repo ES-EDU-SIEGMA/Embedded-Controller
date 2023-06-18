@@ -68,7 +68,7 @@ Motor_t createMotor(SerialAddress_t address, serialUart_t uart) {
 }
 
 void moveMotorUp(Motor_t *motor) {
-    //todo Wieso doppelter Aufruf?
+    // TODO: Why double function calls?
     TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
     TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
 }
