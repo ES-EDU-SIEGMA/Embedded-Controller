@@ -51,7 +51,7 @@ struct dispenser {
  * @return        a initialized Dispenser
  */
 void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
-                     uint16_t msToReachTopState, uint16_t searchTimeout);
+                     uint8_t dispenserCL, uint16_t searchTimeout);
 
 /*! Dispenser cycles to the next state
  *
@@ -76,14 +76,6 @@ bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispe
 void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime);
 
 dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser);
-
-/*! Calculate the time a dispenser needs to reach TopState
- *
- * @param dispenserCL 2Cl or 4Cl Dispenser
- * @param motorSpeed Speed of the Motor
- * @return        Time that a dispenser needs to reach TopState
- */
-uint16_t dispenserUpTime(uint8_t dispenserCL);
 
 /* endregion FUNCTION PROTOTYPES */
 
