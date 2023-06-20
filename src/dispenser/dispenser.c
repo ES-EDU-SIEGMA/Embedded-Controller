@@ -3,7 +3,6 @@
 #include "dispenser.h"
 #include "common.h"
 #include "dispenser_internal.h"
-#include <math.h>
 #include <pico/time.h>
 
 //Test
@@ -13,7 +12,6 @@ static dispenserState_t upState_t = (dispenserState_t){.function = &upState};
 static dispenserState_t topState_t = (dispenserState_t){.function = &topState};
 static dispenserState_t downState_t = (dispenserState_t){.function = &downState};
 static dispenserState_t errorState_t = (dispenserState_t){.function = &errorState};
-static uint16_t dispenserUpTime(uint8_t dispenserCL);
 
 static uint32_t fCLK = 12000000;
 static uint32_t timeVACTUAL = 1<<24;
