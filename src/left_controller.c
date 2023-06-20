@@ -72,13 +72,13 @@ int main() {
 /* region HELPER FUNCTIONS */
 
 void initDispenser(void) {
-    dispenserCreate(&dispenser[0], 0, SERIAL_UART, dispenserUpTime(4, MOTOR_UP_SPEED),
+    dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4,
                     DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[1], 1, SERIAL_UART, dispenserUpTime(4, MOTOR_UP_SPEED),
+    dispenserCreate(&dispenser[1], 1, SERIAL_UART, 4,
                     DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[2], 2, SERIAL_UART, dispenserUpTime(4, MOTOR_UP_SPEED),
+    dispenserCreate(&dispenser[2], 2, SERIAL_UART, 4,
                     DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[3], 3, SERIAL_UART, dispenserUpTime(4, MOTOR_UP_SPEED),
+    dispenserCreate(&dispenser[3], 3, SERIAL_UART, 4,
                     DISPENSER_SEARCH_TIMEOUT);
 
     PRINT_COMMAND("CALIBRATED")

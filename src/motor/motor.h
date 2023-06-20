@@ -10,11 +10,10 @@
 #define MOTOR_ENABLE_PINT_2 6
 #define MOTOR_ENABLE_PINT_3 7
 
-//todo With the Dispenser-Holder construction right now only 120000 is possible, with higher speeds the Dispenser cant
+//! current hardware only allows '>=120000', without deformation
 #define MOTOR_UP_SPEED 120000
-//Down speed max 100000, with higher speed the dispensers will not be filled reliably
+//! current dispenser only allows '>=100000', without problems with refilling
 #define MOTOR_DOWN_SPEED 100000
-
 #define DIRECTION_UP 1
 #define DIRECTION_DOWN (-1)
 

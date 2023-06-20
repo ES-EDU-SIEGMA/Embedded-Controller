@@ -100,7 +100,7 @@ void initialize_adc(uint8_t gpio) {
 
 void initDispenser(void) {
     initialize_adc(28);
-    dispenserCreate(&dispenser[0], 0, SERIAL_UART, dispenserUpTime(4, MOTOR_UP_SPEED),
+    dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4,
                     DISPENSER_SEARCH_TIMEOUT);
     setUpRondell(2, SERIAL2);
 

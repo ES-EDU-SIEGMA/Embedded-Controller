@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "dispenser.h"
+#include "dispenser_internal.h"
 #include "serialUART.h"
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
@@ -127,13 +128,14 @@ int main() {
             } while (DISPENSER_STATE_SLEEP != dispenserGetStateCode(dispenser));
             PRINT("Ready")
             break;
+
+        // TODO:  Test if this works
         case 'h':
             PRINT("Stop")
             stopMotor(&dispenser->motor);
             disableMotorByPin(&dispenser->motor);
             dispenser->haltSteps = 0;
-            //todo
-            // dispenser->state = (dispenserState_t){.function = &sleepState};
+            dispenser->state = (dispenserState_t){.function = &sleepState};
         default:
             PRINT("Invalid command received!")
         }
