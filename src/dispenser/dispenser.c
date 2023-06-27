@@ -28,7 +28,7 @@ void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart
     dispenser->motor = createMotor(address, uart);
     dispenser->limitSwitch = createLimitSwitch(address);
     dispenser->othersTriggered = 0;
-    dispenser->stepsUp = dispenserUpTime(dispenserCL) / DISPENSER_STEP_TIME_MS;
+    dispenser->stepsUp = dispenserUpTimeMS(dispenserCL) / DISPENSER_STEP_TIME_MS;
     dispenser->searchTimeout = searchTimeout;
 
     findDirection(dispenser, 250);
@@ -194,18 +194,19 @@ bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispe
     return true;
 }
 
-static uint16_t dispenserUpTime(uint8_t dispenserCL){
-    // 4 cl -> 1500 für v=150000
-    // 2 cl -> 2000 für v=150000
+static uint16_t dispenserUpTimeMS(uint8_t dispenserCL){
+    // 4 cl -> 1500 ms für v=150000
+    // 2 cl -> 2000 ms für v=150000
+    // Steps per seconds for Speed = 50000 -> 35762
     uint32_t stepsPerSecond = MOTOR_UP_SPEED * fCLK / timeVACTUAL;
     uint32_t stepsToReachTopState4cl = 286104;
     uint32_t stepsToReachTopState2cl = 0; //todo 2 cl is different to 4 cl because smaller
 
     if (dispenserCL == 2){
-        return stepsToReachTopState2cl / stepsPerSecond;
+        return 1000 * stepsToReachTopState2cl / stepsPerSecond;
     }
     else if (dispenserCL == 4){
-        return stepsToReachTopState4cl / stepsPerSecond;
+        return 1000 * stepsToReachTopState4cl / stepsPerSecond;
     }
 }
 
