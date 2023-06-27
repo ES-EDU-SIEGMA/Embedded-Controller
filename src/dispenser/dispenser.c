@@ -15,6 +15,10 @@ static dispenserState_t errorState_t = (dispenserState_t){.function = &errorStat
 
 static uint32_t fCLK = 12000000;
 static uint32_t timeVACTUAL = 1<<24;
+static uint32_t motorUpSpeedSlow = 100000;
+static uint32_t motorUpSpeedFast = 150000;
+static uint32_t timeForSlowSpeed;
+
 
 /* region HEADER FUNCTIONS */
 
@@ -57,7 +61,7 @@ dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser) {
 /* region STATIC FUNCTIONS */
 
 static void resetDispenserPosition(dispenser_t *dispenser) {
-    moveMotorUp(&dispenser->motor);
+    moveMotorUp(&dispenser->motor, motorUpSpeedSlow);
     while (limitSwitchIsClosed(dispenser->limitSwitch))
         ;
     moveMotorDown(&dispenser->motor);
@@ -71,7 +75,7 @@ static void findDirection(dispenser_t *dispenser, uint32_t time) {
     time = time + dispenser->searchTimeout;
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         PRINT_DEBUG("limitswitch closed")
-        moveMotorUp(&dispenser->motor);
+        moveMotorUp(&dispenser->motor, motorUpSpeedSlow);
         sleep_ms(time);
         if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
             stopMotor(&dispenser->motor);
@@ -97,7 +101,7 @@ static void findDirection(dispenser_t *dispenser, uint32_t time) {
             dispenser->motor.direction = DIRECTION_UP;
             return;
         } else {
-            moveMotorUp(&dispenser->motor);
+            moveMotorUp(&dispenser->motor, motorUpSpeedSlow);
             sleep_ms(time + dispenser->searchTimeout);
             if (limitSwitchIsClosed(dispenser->limitSwitch)) {
                 stopMotor(&dispenser->motor);
@@ -122,7 +126,7 @@ static dispenserState_t errorState(dispenser_t *dispenser) {
 static dispenserState_t sleepState(dispenser_t *dispenser) {
     if (dispenser->haltSteps > 0) {
         enableMotorByPin(&dispenser->motor);
-        moveMotorUp(&dispenser->motor);
+        moveMotorUp(&dispenser->motor, motorUpSpeedSlow);
         return upState_t;
     }
     return sleepState_t;
@@ -138,6 +142,9 @@ static dispenserState_t upState(dispenser_t *dispenser) {
     }
     if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
         dispenser->stepsDone++;
+        if(dispenser->stepsDone == (timeForSlowSpeed * DISPENSER_STEP_TIME_MS)){
+            moveMotorUp(&dispenser->motor, motorUpSpeedFast);
+        }
     }
     return upState_t;
 }
@@ -198,15 +205,18 @@ static uint16_t dispenserUpTimeMS(uint8_t dispenserCL){
     // 4 cl -> 1500 ms für v=150000
     // 2 cl -> 2000 ms für v=150000
     // Steps per seconds for Speed = 50000 -> 35762
-    uint32_t stepsPerSecond = MOTOR_UP_SPEED * fCLK / timeVACTUAL;
-    uint32_t stepsToReachTopState4cl = 286104;
-    uint32_t stepsToReachTopState2cl = 0; //todo 2 cl is different to 4 cl because smaller
+    uint32_t stepsPerSecondSlow = motorUpSpeedSlow * fCLK / timeVACTUAL;
+    uint32_t stepsPerSecondFast = motorUpSpeedFast * fCLK / timeVACTUAL;
+    //uint32_t stepsToReachTopState4cl = 286104;
+    uint32_t stepsToReachHalfTopState4cl = 143052;
+    uint32_t stepsToReachTopState2cl = 0; // TODO: 2 cl is different to 4 cl because smaller
+    timeForSlowSpeed = 1000 * stepsToReachHalfTopState4cl / stepsPerSecondSlow;
 
     if (dispenserCL == 2){
-        return 1000 * stepsToReachTopState2cl / stepsPerSecond;
+        // TODO: return for 2 cl
     }
     else if (dispenserCL == 4){
-        return 1000 * stepsToReachTopState4cl / stepsPerSecond;
+        return 1000 * ((stepsToReachHalfTopState4cl / stepsPerSecondSlow) + (stepsToReachHalfTopState4cl / stepsPerSecondFast));
     }
 }
 

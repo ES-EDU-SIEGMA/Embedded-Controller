@@ -11,7 +11,10 @@
 #define MOTOR_ENABLE_PINT_3 7
 
 //! current hardware only allows '>=120000', without deformation
-#define MOTOR_UP_SPEED 120000
+#define MOTOR_UP_SPEED_SLOW 100000
+#define MOTOR_UP_SPEED_FAST 150000
+#define MOTOR_MAX_SPEED 120000
+#define MOTOR_ACCEL_SPEED 20000
 //! current dispenser only allows '>=100000', without problems with refilling
 #define MOTOR_DOWN_SPEED 100000
 #define DIRECTION_UP 1
@@ -48,8 +51,9 @@ void disableMotorByPin(Motor_t *motor);
 /*! Move the motor up
  *
  * @param motor motor to be moved
+ * @param motorSpeed motorspeed
  */
-void moveMotorUp(Motor_t *motor);
+void moveMotorUp(Motor_t *motor, uint32_t motorSpeed);
 
 /*! Move the motor down
  *
