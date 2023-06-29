@@ -13,7 +13,7 @@
 //! current hardware only allows '>=120000', without deformation
 #define MOTOR_UP_SPEED 120000
 //! current dispenser only allows '>=100000', without problems with refilling
-#define MOTOR_DOWN_SPEED 100000
+#define MOTOR_DOWN_SPEED 120000
 #define DIRECTION_UP 1
 #define DIRECTION_DOWN (-1)
 

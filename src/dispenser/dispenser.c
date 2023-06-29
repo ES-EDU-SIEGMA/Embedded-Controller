@@ -194,10 +194,10 @@ bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispe
     return true;
 }
 
-static uint16_t dispenserUpTime(uint8_t dispenserCL){
+static uint32_t dispenserUpTime(uint8_t dispenserCL){
     // 4 cl -> 1500 für v=150000
     // 2 cl -> 2000 für v=150000
-    uint32_t stepsPerSecond = MOTOR_UP_SPEED * fCLK / timeVACTUAL;
+    uint32_t stepsPerSecond = (uint64_t)MOTOR_UP_SPEED * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
     uint32_t stepsToReachTopState4cl = 286104;
     uint32_t stepsToReachTopState2cl = 0; //todo 2 cl is different to 4 cl because smaller
 
@@ -205,7 +205,7 @@ static uint16_t dispenserUpTime(uint8_t dispenserCL){
         return stepsToReachTopState2cl / stepsPerSecond;
     }
     else if (dispenserCL == 4){
-        return stepsToReachTopState4cl / stepsPerSecond;
+        return (stepsToReachTopState4cl / stepsPerSecond) * 1000;
     }
 }
 
