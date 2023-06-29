@@ -48,6 +48,6 @@ static dispenserState_t errorState(dispenser_t *dispenser);
  * @param dispenserCL 2Cl or 4Cl Dispenser
  * @return        Time that a dispenser needs to reach TopState
  */
-static uint16_t dispenserUpTime(uint8_t dispenserCL);
+static uint32_t dispenserUpTime(uint8_t dispenserCL);
 
 #endif // SIEGMA_DISPENSER_INTERNAL_H
