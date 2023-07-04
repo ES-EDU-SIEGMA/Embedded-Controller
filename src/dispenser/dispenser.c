@@ -205,8 +205,8 @@ static uint16_t dispenserUpTimeMS(uint8_t dispenserCL){
     // 4 cl -> 1500 ms für v=150000
     // 2 cl -> 2000 ms für v=150000
     // Steps per seconds for Speed = 50000 -> 35762
-    uint32_t stepsPerSecondSlow = motorUpSpeedSlow * fCLK / timeVACTUAL;
-    uint32_t stepsPerSecondFast = motorUpSpeedFast * fCLK / timeVACTUAL;
+    uint32_t stepsPerSecondSlow = (uint64_t)motorUpSpeedSlow * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
+    uint32_t stepsPerSecondFast = (uint64_t)motorUpSpeedFast * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
     //uint32_t stepsToReachTopState4cl = 286104;
     uint32_t stepsToReachHalfTopState4cl = 143052;
     uint32_t stepsToReachTopState2cl = 0; // TODO: 2 cl is different to 4 cl because smaller
