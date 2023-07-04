@@ -15,8 +15,8 @@ static dispenserState_t errorState_t = (dispenserState_t){.function = &errorStat
 
 static uint32_t fCLK = 12000000;
 static uint32_t timeVACTUAL = 1<<24;
-static uint32_t motorUpSpeedSlow = 100000;
-static uint32_t motorUpSpeedFast = 150000;
+static uint32_t motorUpSpeedSlow = 150000;
+static uint32_t motorUpSpeedFast = 180000;
 static uint32_t timeForSlowSpeed;
 
 
@@ -142,9 +142,11 @@ static dispenserState_t upState(dispenser_t *dispenser) {
     }
     if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
         dispenser->stepsDone++;
-        if(dispenser->stepsDone == (timeForSlowSpeed * DISPENSER_STEP_TIME_MS)){
+        if(dispenser->stepsDone == (timeForSlowSpeed / DISPENSER_STEP_TIME_MS)){
+            PRINT_DEBUG("FastMode")
             moveMotorUp(&dispenser->motor, motorUpSpeedFast);
         }
+        else PRINT_DEBUG("SlowMode")
     }
     return upState_t;
 }
@@ -207,16 +209,16 @@ static uint16_t dispenserUpTimeMS(uint8_t dispenserCL){
     // Steps per seconds for Speed = 50000 -> 35762
     uint32_t stepsPerSecondSlow = (uint64_t)motorUpSpeedSlow * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
     uint32_t stepsPerSecondFast = (uint64_t)motorUpSpeedFast * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
-    //uint32_t stepsToReachTopState4cl = 286104;
-    uint32_t stepsToReachHalfTopState4cl = 143052;
+    uint32_t stepsSlowSpeed = 150000;
+    uint32_t stepsFastSpeed = 150000 - stepsSlowSpeed;    // 286104
     uint32_t stepsToReachTopState2cl = 0; // TODO: 2 cl is different to 4 cl because smaller
-    timeForSlowSpeed = 1000 * stepsToReachHalfTopState4cl / stepsPerSecondSlow;
+    timeForSlowSpeed = 1000 * stepsSlowSpeed / stepsPerSecondSlow;
 
     if (dispenserCL == 2){
         // TODO: return for 2 cl
     }
     else if (dispenserCL == 4){
-        return 1000 * ((stepsToReachHalfTopState4cl / stepsPerSecondSlow) + (stepsToReachHalfTopState4cl / stepsPerSecondFast));
+        return 1000 * ((stepsSlowSpeed / stepsPerSecondSlow) + (stepsFastSpeed / stepsPerSecondFast));
     }
 }
 
