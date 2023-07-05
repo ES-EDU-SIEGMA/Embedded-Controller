@@ -2,7 +2,6 @@
 
 #include "common.h"
 #include "dispenser.h"
-#include "dispenser_internal.h"
 #include "serialUART.h"
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
@@ -12,10 +11,6 @@
 
 #define SERIAL_UART SERIAL2
 #define NUMBER_OF_DISPENSERS 4
-#define MS_DISPENSERS_ARE_MOVING_UP_0 4000
-#define MS_DISPENSERS_ARE_MOVING_UP_1 4000
-#define MS_DISPENSERS_ARE_MOVING_UP_2 4000
-#define MS_DISPENSERS_ARE_MOVING_UP_3 4000
 #define DISPENSER_SEARCH_TIMEOUT 250
 
 void initPico(bool waitForUSBConnection) {
@@ -39,20 +34,16 @@ static dispenser_t initDispenser(dispenser_t *dispenser, uint8_t dispenserId) {
     PRINT("Dispenser %i selected", dispenserId)
     switch (dispenserId) {
     case 0:
-        dispenserCreate(dispenser, 0, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_0,
-                        DISPENSER_SEARCH_TIMEOUT);
+        dispenserCreate(dispenser, 0, SERIAL_UART, 4, DISPENSER_SEARCH_TIMEOUT);
         break;
     case 1:
-        dispenserCreate(dispenser, 1, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_1,
-                        DISPENSER_SEARCH_TIMEOUT);
+        dispenserCreate(dispenser, 1, SERIAL_UART, 4, DISPENSER_SEARCH_TIMEOUT);
         break;
     case 2:
-        dispenserCreate(dispenser, 2, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_2,
-                        DISPENSER_SEARCH_TIMEOUT);
+        dispenserCreate(dispenser, 2, SERIAL_UART, 4, DISPENSER_SEARCH_TIMEOUT);
         break;
     case 3:
-        dispenserCreate(dispenser, 3, SERIAL_UART, MS_DISPENSERS_ARE_MOVING_UP_3,
-                        DISPENSER_SEARCH_TIMEOUT);
+        dispenserCreate(dispenser, 3, SERIAL_UART, 4, DISPENSER_SEARCH_TIMEOUT);
         break;
     default:
         PRINT("Invalid Dispenser")
@@ -128,14 +119,9 @@ int main() {
             } while (DISPENSER_STATE_SLEEP != dispenserGetStateCode(dispenser));
             PRINT("Ready")
             break;
-
-        // TODO:  Test if this works
         case 'h':
             PRINT("Stop")
-            stopMotor(&dispenser->motor);
-            disableMotorByPin(&dispenser->motor);
-            dispenser->haltSteps = 0;
-            dispenser->state = (dispenserState_t){.function = &sleepState};
+            dispenserEmergencyStop(dispenser);
         default:
             PRINT("Invalid command received!")
         }
