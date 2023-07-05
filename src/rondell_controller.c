@@ -100,8 +100,7 @@ void initialize_adc(uint8_t gpio) {
 
 void initDispenser(void) {
     initialize_adc(28);
-    dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4,
-                    DISPENSER_SEARCH_TIMEOUT);
+    dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4, DISPENSER_SEARCH_TIMEOUT);
     setUpRondell(2, SERIAL2);
 
     PRINT_COMMAND("CALIBRATED")
