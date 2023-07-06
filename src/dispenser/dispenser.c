@@ -5,8 +5,6 @@
 #include "dispenser_internal.h"
 #include <pico/time.h>
 
-//Test
-
 static dispenserState_t sleepState_t = (dispenserState_t){.function = &sleepState};
 static dispenserState_t upState_t = (dispenserState_t){.function = &upState};
 static dispenserState_t topState_t = (dispenserState_t){.function = &topState};
@@ -15,7 +13,7 @@ static dispenserState_t errorState_t = (dispenserState_t){.function = &errorStat
 
 static uint32_t fCLK = 12000000;
 static uint32_t timeVACTUAL = 1<<24;
-static uint32_t motorUpSpeedSlow = 150000;
+static uint32_t motorUpSpeedSlow = 120000;
 static uint32_t motorUpSpeedFast = 180000;
 static uint32_t timeForSlowSpeed;
 
@@ -209,9 +207,7 @@ static uint16_t dispenserUpTimeMS(uint8_t dispenserCL){
     //! If only one speed is required, set stepsFastSpeed = 0
     uint32_t stepsSlowSpeed = 286104;
     uint32_t stepsFastSpeed = 0; // 140000 - stepsSlowSpeed;
-    uint32_t stepsToReachTopState2cl = 0; // TODO: 2 cl is different to 4 cl because smaller
     timeForSlowSpeed = 1000 * stepsSlowSpeed / stepsPerSecondSlow;
-
     if (dispenserCL == 2){
         // TODO: return for 2 cl
     }
