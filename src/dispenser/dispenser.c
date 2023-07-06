@@ -204,13 +204,11 @@ bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispe
 }
 
 static uint16_t dispenserUpTimeMS(uint8_t dispenserCL){
-    // 4 cl -> 1500 ms für v=150000
-    // 2 cl -> 2000 ms für v=150000
-    // Steps per seconds for Speed = 50000 -> 35762
     uint32_t stepsPerSecondSlow = (uint64_t)motorUpSpeedSlow * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
     uint32_t stepsPerSecondFast = (uint64_t)motorUpSpeedFast * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
-    uint32_t stepsSlowSpeed = 150000;
-    uint32_t stepsFastSpeed = 150000 - stepsSlowSpeed;    // 286104
+    //! If only one speed is required, set stepsFastSpeed = 0
+    uint32_t stepsSlowSpeed = 286104;
+    uint32_t stepsFastSpeed = 0; // 140000 - stepsSlowSpeed;
     uint32_t stepsToReachTopState2cl = 0; // TODO: 2 cl is different to 4 cl because smaller
     timeForSlowSpeed = 1000 * stepsSlowSpeed / stepsPerSecondSlow;
 
