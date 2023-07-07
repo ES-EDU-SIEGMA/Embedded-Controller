@@ -293,4 +293,8 @@ void TMC2209_disable(TMC2209_t *tmc2209);
 
 void TMC2209_setHoldCurrent(TMC2209_t *tmc2209, uint8_t percent);
 
+uint16_t TMC2209_getStallGuardResult(TMC2209_t *tmc2209);
+
+void TMC2209_setStallGuardThreshold(TMC2209_t *tmc2209,uint8_t stall_guard_threshold);
+
 #endif

@@ -136,6 +136,7 @@ static dispenserState_t sleepState(dispenser_t *dispenser) {
 
 static dispenserState_t upState(dispenser_t *dispenser) {
     PRINT_DEBUG("upState")
+    PRINT_DEBUG("Torque: %i", TMC2209_getStallGuardResult(&dispenser->motor.tmc2209))
     PRINT_DEBUG("%i", dispenser->stepsDone)
     PRINT_DEBUG("%i", dispenser->stepsUp + 2 * dispenser->othersTriggered)
     if (dispenser->stepsDone > dispenser->stepsUp + 2 * dispenser->othersTriggered) {
@@ -204,7 +205,7 @@ static uint32_t dispenserUpTime(uint8_t dispenserCL) {
     // 4 cl -> 1500 für v=150000
     // 2 cl -> 2000 für v=150000
     uint32_t stepsPerSecond = (uint64_t)MOTOR_UP_SPEED * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
-    uint32_t stepsToReachTopState4cl = 286104;
+    uint32_t stepsToReachTopState4cl = 300000;
     uint32_t stepsToReachTopState2cl = 0; // todo 2 cl is different to 4 cl because smaller
 
     if (dispenserCL == 2) {
