@@ -86,7 +86,7 @@ static void createRondell(SerialAddress_t address, serialUart_t uart) {
 }
 
 static void moveRondellCounterClockwise(void) {
-    moveMotorUp(&rondell.motor);
+    moveMotorUp(&rondell.motor, MOTOR_UP_SPEED);
     rondell.state = RONDELL_MOVING_COUNTER_CLOCKWISE;
     sleep_ms(200);
 }

@@ -11,10 +11,9 @@
 #define MOTOR_ENABLE_PINT_3 7
 
 //! current hardware only allows '>=120000', without deformation
-#define MOTOR_UP_SPEED_SLOW 100000
+#define MOTOR_UP_SPEED 120000
+//! MOTOR_UP_SPEED_FAST only needed if two different speeds are required for up moving
 #define MOTOR_UP_SPEED_FAST 150000
-#define MOTOR_MAX_SPEED 120000
-#define MOTOR_ACCEL_SPEED 20000
 //! current dispenser only allows '>=100000', without problems with refilling
 #define MOTOR_DOWN_SPEED 120000
 #define DIRECTION_UP 1

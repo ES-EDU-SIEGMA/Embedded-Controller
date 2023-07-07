@@ -64,7 +64,7 @@ int main() {
             break;
         case 'u':
             PRINT("Move dispenser up: %lu", id)
-            moveMotorUp(&motor[id]);
+            moveMotorUp(&motor[id], MOTOR_UP_SPEED_FAST);
             break;
         case 'd':
             PRINT("Move dispenser down: %lu", id)

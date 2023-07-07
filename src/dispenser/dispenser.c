@@ -13,9 +13,8 @@ static dispenserState_t errorState_t = (dispenserState_t){.function = &errorStat
 
 static uint32_t fCLK = 12000000;
 static uint32_t timeVACTUAL = 1<<24;
-static uint32_t motorUpSpeedSlow = 120000;
-static uint32_t motorUpSpeedFast = 180000;
-static uint32_t timeForSlowSpeed;
+static uint32_t timeForNormalSpeed;
+static uint32_t maxSteps;
 
 
 /* region HEADER FUNCTIONS */
@@ -59,7 +58,7 @@ dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser) {
 /* region STATIC FUNCTIONS */
 
 static void resetDispenserPosition(dispenser_t *dispenser) {
-    moveMotorUp(&dispenser->motor, motorUpSpeedSlow);
+    moveMotorUp(&dispenser->motor, MOTOR_UP_SPEED);
     while (limitSwitchIsClosed(dispenser->limitSwitch))
         ;
     moveMotorDown(&dispenser->motor);
@@ -73,7 +72,7 @@ static void findDirection(dispenser_t *dispenser, uint32_t time) {
     time = time + dispenser->searchTimeout;
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         PRINT_DEBUG("limitswitch closed")
-        moveMotorUp(&dispenser->motor, motorUpSpeedSlow);
+        moveMotorUp(&dispenser->motor, MOTOR_UP_SPEED);
         sleep_ms(time);
         if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
             stopMotor(&dispenser->motor);
@@ -99,7 +98,7 @@ static void findDirection(dispenser_t *dispenser, uint32_t time) {
             dispenser->motor.direction = DIRECTION_UP;
             return;
         } else {
-            moveMotorUp(&dispenser->motor, motorUpSpeedSlow);
+            moveMotorUp(&dispenser->motor, MOTOR_UP_SPEED);
             sleep_ms(time + dispenser->searchTimeout);
             if (limitSwitchIsClosed(dispenser->limitSwitch)) {
                 stopMotor(&dispenser->motor);
@@ -124,7 +123,7 @@ static dispenserState_t errorState(dispenser_t *dispenser) {
 static dispenserState_t sleepState(dispenser_t *dispenser) {
     if (dispenser->haltSteps > 0) {
         enableMotorByPin(&dispenser->motor);
-        moveMotorUp(&dispenser->motor, motorUpSpeedSlow);
+        moveMotorUp(&dispenser->motor, MOTOR_UP_SPEED);
         return upState_t;
     }
     return sleepState_t;
@@ -140,9 +139,9 @@ static dispenserState_t upState(dispenser_t *dispenser) {
     }
     if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
         dispenser->stepsDone++;
-        if(dispenser->stepsDone == (timeForSlowSpeed / DISPENSER_STEP_TIME_MS)){
+        if(dispenser->stepsDone == (timeForNormalSpeed / DISPENSER_STEP_TIME_MS)){
             PRINT_DEBUG("FastMode")
-            moveMotorUp(&dispenser->motor, motorUpSpeedFast);
+            moveMotorUp(&dispenser->motor, MOTOR_UP_SPEED_FAST);
         }
         else PRINT_DEBUG("SlowMode")
     }
@@ -202,17 +201,18 @@ bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispe
 }
 
 static uint16_t dispenserUpTimeMS(uint8_t dispenserCL){
-    uint32_t stepsPerSecondSlow = (uint64_t)motorUpSpeedSlow * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
-    uint32_t stepsPerSecondFast = (uint64_t)motorUpSpeedFast * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
-    //! If only one speed is required, set stepsFastSpeed = 0
-    uint32_t stepsSlowSpeed = 286104;
-    uint32_t stepsFastSpeed = 0; // 140000 - stepsSlowSpeed;
-    timeForSlowSpeed = 1000 * stepsSlowSpeed / stepsPerSecondSlow;
+    uint32_t stepsPerSecondNormal = (uint64_t)MOTOR_UP_SPEED * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
+    uint32_t stepsPerSecondFast = (uint64_t)MOTOR_UP_SPEED_FAST * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
+    //! If only one speed is required, set stepsNormalSpeed = maxSteps
+    //! If a second speed is required, set stepsNormalSpeed to how many steps are needed until the speed change
+    uint32_t stepsNormalSpeed = maxSteps;
+    uint32_t stepsFastSpeed = maxSteps - stepsNormalSpeed;
+    timeForNormalSpeed = 1000 * stepsNormalSpeed / stepsPerSecondNormal;
     if (dispenserCL == 2){
         // TODO: return for 2 cl
     }
     else if (dispenserCL == 4){
-        return 1000 * ((stepsSlowSpeed / stepsPerSecondSlow) + (stepsFastSpeed / stepsPerSecondFast));
+        return 1000 * ((stepsNormalSpeed / stepsPerSecondNormal) + (stepsFastSpeed / stepsPerSecondFast));
     }
 }
 
