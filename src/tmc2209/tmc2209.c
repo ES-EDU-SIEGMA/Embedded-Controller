@@ -452,3 +452,11 @@ void TMC2209_writeStoredPwmConfig(TMC2209_t *tmc2209) {
 uint32_t TMC2209_readPwmConfigBytes(TMC2209_t *tmc2209) {
     return TMC2209_read(tmc2209, ADDRESS_PWMCONF);
 }
+
+uint16_t TMC2209_getStallGuardResult(TMC2209_t *tmc2209) {
+    return TMC2209_read(tmc2209, ADDRESS_SG_RESULT);
+}
+
+void TMC2209_setStallGuardThreshold(TMC2209_t *tmc2209,uint8_t stall_guard_threshold) {
+    TMC2209_write(tmc2209, ADDRESS_SGTHRS, stall_guard_threshold);
+}
