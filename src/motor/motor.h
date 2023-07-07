@@ -10,10 +10,14 @@
 #define MOTOR_ENABLE_PINT_2 6
 #define MOTOR_ENABLE_PINT_3 7
 
+#ifndef MOTOR_UP_SPEED
 //! current hardware only allows '>=120000', without deformation
 #define MOTOR_UP_SPEED 120000
+#endif
+#ifndef MOTOR_DOWN_SPEED
 //! current dispenser only allows '>=100000', without problems with refilling
 #define MOTOR_DOWN_SPEED 120000
+#endif
 #define DIRECTION_UP 1
 #define DIRECTION_DOWN (-1)
 

@@ -1,7 +1,13 @@
 #define SOURCE_FILE "RONDELL"
 
+/// required so that the rondell motor works on slower rate than the dispenser
+#define MOTOR_UP_SPEED 50000
+/// required so that the rondell motor works on slower rate than the dispenser
+#define MOTOR_DOWN_SPEED 50000
+
 #include "rondell.h"
 #include "common.h"
+#include "motor.h"
 #include "rondell_internal.h"
 #include "serialUART.h"
 #include "tmc2209.h"
@@ -301,6 +307,6 @@ static void moveRondellToKeyPosition(void) {
     default:
         break;
     }
-    }
+}
 
 /* endregion STATIC FUNCTION IMPLEMENTATIONS */

@@ -5,7 +5,7 @@
 #include "dispenser_internal.h"
 #include <pico/time.h>
 
-//Test
+// Test
 
 static dispenserState_t sleepState_t = (dispenserState_t){.function = &sleepState};
 static dispenserState_t upState_t = (dispenserState_t){.function = &upState};
@@ -14,7 +14,7 @@ static dispenserState_t downState_t = (dispenserState_t){.function = &downState}
 static dispenserState_t errorState_t = (dispenserState_t){.function = &errorState};
 
 static uint32_t fCLK = 12000000;
-static uint32_t timeVACTUAL = 1<<24;
+static uint32_t timeVACTUAL = 1 << 24;
 
 /* region HEADER FUNCTIONS */
 
@@ -52,6 +52,12 @@ dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser) {
     }
 }
 
+void dispenserEmergencyStop(dispenser_t *dispenser) {
+    stopMotor(&dispenser->motor);
+    disableMotorByPin(&dispenser->motor);
+    dispenser->haltSteps = 0;
+    dispenser->state = (dispenserState_t){.function = &sleepState};
+}
 /* endregion HEADER FUNCTIONS */
 
 /* region STATIC FUNCTIONS */
@@ -194,17 +200,16 @@ bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispe
     return true;
 }
 
-static uint32_t dispenserUpTime(uint8_t dispenserCL){
+static uint32_t dispenserUpTime(uint8_t dispenserCL) {
     // 4 cl -> 1500 für v=150000
     // 2 cl -> 2000 für v=150000
     uint32_t stepsPerSecond = (uint64_t)MOTOR_UP_SPEED * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
     uint32_t stepsToReachTopState4cl = 286104;
-    uint32_t stepsToReachTopState2cl = 0; //todo 2 cl is different to 4 cl because smaller
+    uint32_t stepsToReachTopState2cl = 0; // todo 2 cl is different to 4 cl because smaller
 
-    if (dispenserCL == 2){
+    if (dispenserCL == 2) {
         return stepsToReachTopState2cl / stepsPerSecond;
-    }
-    else if (dispenserCL == 4){
+    } else if (dispenserCL == 4) {
         return (stepsToReachTopState4cl / stepsPerSecond) * 1000;
     }
 }

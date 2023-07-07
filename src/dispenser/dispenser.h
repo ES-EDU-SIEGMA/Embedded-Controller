@@ -77,6 +77,12 @@ void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime);
 
 dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser);
 
+/*! Halt the dispenser motor immedeatly
+ *
+ * @param dispenser dispenser to stop
+ */
+void dispenserEmergencyStop(dispenser_t *dispenser);
+
 /* endregion FUNCTION PROTOTYPES */
 
 #endif // SIEGMA_DISPENSER_H
