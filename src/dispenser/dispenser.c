@@ -139,6 +139,10 @@ static dispenserState_t upState(dispenser_t *dispenser) {
     PRINT_DEBUG("Torque: %i", TMC2209_getStallGuardResult(&dispenser->motor.tmc2209))
     PRINT_DEBUG("%i", dispenser->stepsDone)
     PRINT_DEBUG("%i", dispenser->stepsUp + 2 * dispenser->othersTriggered)
+    if (TMC2209_getStallGuardResult(&dispenser->motor.tmc2209) < 20){
+        stopMotor(&dispenser->motor);
+        return topState_t;
+    }
     if (dispenser->stepsDone > dispenser->stepsUp + 2 * dispenser->othersTriggered) {
         stopMotor(&dispenser->motor);
         return topState_t;
