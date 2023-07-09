@@ -3,6 +3,7 @@
 
 #include "limitSwitch.h"
 #include "motor.h"
+#include "tmc2209.h"
 #include "serialUART.h"
 #include <stdint.h>
 
