@@ -101,6 +101,7 @@ void processMessage(char *message, size_t messageLength) {
     }
     absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
     do {
+        PRINT_DEBUG("Torque: %i", TMC2209_getStallGuardResult(&dispenser->motor.tmc2209))
         resetWatchdogTimer();
         sleep_until(time);
         time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);

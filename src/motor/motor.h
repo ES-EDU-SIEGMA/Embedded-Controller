@@ -11,12 +11,13 @@
 #define MOTOR_ENABLE_PINT_3 7
 
 #ifndef MOTOR_UP_SPEED
-//! current hardware only allows '>=120000', without deformation
-#define MOTOR_UP_SPEED 100000
+//! current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
+//! for 3 cl Dispenser '>=100000' is allowed, without deformation
+#define MOTOR_UP_SPEED 120000
 #endif
 #ifndef MOTOR_DOWN_SPEED
-//! current dispenser only allows '>=100000', without problems with refilling
-#define MOTOR_DOWN_SPEED 100000
+//! current dispenser only allows '>=80000', without problems with refilling
+#define MOTOR_DOWN_SPEED 80000
 #endif
 #define DIRECTION_UP 1
 #define DIRECTION_DOWN (-1)
