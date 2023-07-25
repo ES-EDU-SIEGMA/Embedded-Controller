@@ -16,6 +16,9 @@ static dispenserState_t errorState_t = (dispenserState_t){.function = &errorStat
 static uint32_t fCLK = 12000000;
 static uint32_t timeVACTUAL = 1 << 24;
 
+static uint8_t counterTorque = 0;
+static uint16_t torque = 0;
+
 /* region HEADER FUNCTIONS */
 
 void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
@@ -135,14 +138,24 @@ static dispenserState_t sleepState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t upState(dispenser_t *dispenser) {
+    torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
     PRINT_DEBUG("upState")
-    PRINT_DEBUG("Torque: %i", TMC2209_getStallGuardResult(&dispenser->motor.tmc2209))
+    PRINT_DEBUG("Torque: %i", torque)
     PRINT_DEBUG("%i", dispenser->stepsDone)
     PRINT_DEBUG("%i", dispenser->stepsUp + 2 * dispenser->othersTriggered)
-    if (TMC2209_getStallGuardResult(&dispenser->motor.tmc2209) < 20){
-        stopMotor(&dispenser->motor);
-        return topState_t;
+
+    // If the torque is below 10 twice in a row, stop
+    if (torque < 10){
+        counterTorque++;
+        if (counterTorque == 2){
+            PRINT_DEBUG("detect Top Position")
+            stopMotor(&dispenser->motor);
+            counterTorque = 0;
+            return topState_t;
+        }
     }
+    else counterTorque = 0;
+
     if (dispenser->stepsDone > dispenser->stepsUp + 2 * dispenser->othersTriggered) {
         stopMotor(&dispenser->motor);
         return topState_t;
@@ -167,13 +180,6 @@ static dispenserState_t topState(dispenser_t *dispenser) {
 static dispenserState_t downState(dispenser_t *dispenser) {
     PRINT_DEBUG("downState")
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
-        stopMotor(&dispenser->motor);
-        disableMotorByPin(&dispenser->motor);
-        dispenser->haltSteps = 0;
-        return sleepState_t;
-    }
-    if (dispenser->stepsDone >
-        2 * dispenser->stepsUp + 2 * dispenser->othersTriggered + dispenser->haltSteps + 10) {
         stopMotor(&dispenser->motor);
         disableMotorByPin(&dispenser->motor);
         dispenser->haltSteps = 0;
