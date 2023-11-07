@@ -31,7 +31,7 @@ void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart
     dispenser->motor = createMotor(address, uart);
     dispenser->limitSwitch = createLimitSwitch(address);
     dispenser->othersTriggered = 0;
-    dispenser->stepsUp = dispenserUpTime(dispenserCL) / DISPENSER_STEP_TIME_MS;
+    // dispenser->stepsUp = dispenserUpTime(dispenserCL) / DISPENSER_STEP_TIME_MS;
     dispenser->searchTimeout = searchTimeout;
 
     findDirection(dispenser, 250);
@@ -142,7 +142,6 @@ static dispenserState_t upState(dispenser_t *dispenser) {
     PRINT_DEBUG("upState")
     PRINT_DEBUG("Torque: %i", torque)
     PRINT_DEBUG("%i", dispenser->stepsDone)
-    PRINT_DEBUG("%i", dispenser->stepsUp + 2 * dispenser->othersTriggered)
 
     // If the torque is below 10 twice in a row, stop
     if (torque < 10){
@@ -151,15 +150,12 @@ static dispenserState_t upState(dispenser_t *dispenser) {
             PRINT_DEBUG("detect Top Position")
             stopMotor(&dispenser->motor);
             counterTorque = 0;
+            dispenser->stepsUp = dispenser->stepsDone;
             return topState_t;
         }
     }
     else counterTorque = 0;
 
-    if (dispenser->stepsDone > dispenser->stepsUp + 2 * dispenser->othersTriggered) {
-        stopMotor(&dispenser->motor);
-        return topState_t;
-    }
     if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
         dispenser->stepsDone++;
     }
@@ -209,20 +205,6 @@ bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispe
         }
     }
     return true;
-}
-
-static uint32_t dispenserUpTime(uint8_t dispenserCL) {
-    // 4 cl -> 1500 für v=150000
-    // 2 cl -> 2000 für v=150000
-    uint32_t stepsPerSecond = (uint64_t)MOTOR_UP_SPEED * (uint64_t)fCLK / (uint64_t)timeVACTUAL;
-    uint32_t stepsToReachTopState4cl = 300000;
-    uint32_t stepsToReachTopState2cl = 0; // todo 2 cl is different to 4 cl because smaller
-
-    if (dispenserCL == 2) {
-        return stepsToReachTopState2cl / stepsPerSecond;
-    } else if (dispenserCL == 4) {
-        return (stepsToReachTopState4cl / stepsPerSecond) * 1000;
-    }
 }
 
 /* endregion STATIC FUNCTIONS */
