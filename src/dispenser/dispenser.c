@@ -71,49 +71,6 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
     stopMotor(&dispenser->motor);
 }
 
-// TODO: Why driving upwards, when the limitswitch is closed?
-static void findDirection(dispenser_t *dispenser, uint32_t time) {
-    time = time + dispenser->searchTimeout;
-    if (limitSwitchIsClosed(dispenser->limitSwitch)) {
-        PRINT_DEBUG("limitswitch closed")
-        moveMotorUp(&dispenser->motor);
-        sleep_ms(time);
-        if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
-            stopMotor(&dispenser->motor);
-            return;
-        } else {
-            moveMotorDown(&dispenser->motor);
-            sleep_ms(time + dispenser->searchTimeout);
-            if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
-                stopMotor(&dispenser->motor);
-                dispenser->motor.direction = DIRECTION_DOWN;
-                return;
-            } else {
-                findDirection(dispenser, time + dispenser->searchTimeout);
-            }
-        }
-    } else {
-        PRINT_DEBUG("limitswitch open")
-        moveMotorDown(&dispenser->motor);
-        // Every cycle the time is higher, until the limitswitch is reached
-        sleep_ms(time);
-        if (limitSwitchIsClosed(dispenser->limitSwitch)) {
-            stopMotor(&dispenser->motor);
-            dispenser->motor.direction = DIRECTION_UP;
-            return;
-        } else {
-            moveMotorUp(&dispenser->motor);
-            sleep_ms(time + dispenser->searchTimeout);
-            if (limitSwitchIsClosed(dispenser->limitSwitch)) {
-                stopMotor(&dispenser->motor);
-                return;
-            } else {
-                findDirection(dispenser, time + dispenser->searchTimeout);
-            }
-        }
-    }
-}
-
 static dispenserState_t errorState(dispenser_t *dispenser) {
     setUpMotor(&dispenser->motor, dispenser->address, dispenser->uart);
     if (motorIsCommunicating(&dispenser->motor)) {
