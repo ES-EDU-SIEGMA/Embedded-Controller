@@ -5,7 +5,7 @@
 #include "helper.h"
 #include <pico/stdlib.h> /// must be included -> sets clocks required for watchdog-timer!!
 #include <stdio.h>
-#include <time.h>
+// #include <time.h>
 
 /* region VARIABLES/DEFINES */
 
@@ -113,17 +113,17 @@ void processMessage(char *message, size_t messageLength) {
         // Checks for each dispenser if their next state is reached and perform the
         // according action
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            clock_t start_time, end_time;
-            start_time = clock();
+//            clock_t start_time, end_time;
+//            start_time = clock();
             if (triggeredDispensers[i] == true) {
                 dispenserDoStep(&dispenser[i]);
                 if (dispenserGetStateCode(&dispenser[i]) == DISPENSER_STATE_SLEEP) {
                     triggeredDispensers[i] = false;
                 }
             }
-            end_time = clock();
-            double execution_time = (double)(end_time - start_time) * 1000.0 / CLOCKS_PER_SEC;
-            PRINT_DEBUG("[Dispenser][%d]Execution time: %f ms", i, execution_time);
+//            end_time = clock();
+//            double execution_time = (double)(end_time - start_time) * 1000.0 / CLOCKS_PER_SEC;
+//            PRINT_DEBUG("[Dispenser][%d]Execution time: %f ms", i, execution_time);
         }
 
         // When all dispensers are finished, they are in the state sleep
