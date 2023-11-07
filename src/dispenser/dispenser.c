@@ -65,9 +65,6 @@ void dispenserEmergencyStop(dispenser_t *dispenser) {
 /* region STATIC FUNCTIONS */
 
 static void resetDispenserPosition(dispenser_t *dispenser) {
-    moveMotorUp(&dispenser->motor);
-    while (limitSwitchIsClosed(dispenser->limitSwitch))
-        ;
     moveMotorDown(&dispenser->motor);
     while (!limitSwitchIsClosed(dispenser->limitSwitch))
         ;
