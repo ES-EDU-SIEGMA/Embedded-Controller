@@ -34,7 +34,6 @@ void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart
     // dispenser->stepsUp = dispenserUpTime(dispenserCL) / DISPENSER_STEP_TIME_MS;
     dispenser->searchTimeout = searchTimeout;
 
-    findDirection(dispenser, 250);
     resetDispenserPosition(dispenser);
     disableMotorByPin(&(dispenser->motor));
 }
