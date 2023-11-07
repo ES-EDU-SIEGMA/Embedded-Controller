@@ -34,7 +34,6 @@ void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart
     // dispenser->stepsUp = dispenserUpTime(dispenserCL) / DISPENSER_STEP_TIME_MS;
     dispenser->searchTimeout = searchTimeout;
 
-    findDirection(dispenser, 250);
     resetDispenserPosition(dispenser);
     disableMotorByPin(&(dispenser->motor));
 }
@@ -66,9 +65,6 @@ void dispenserEmergencyStop(dispenser_t *dispenser) {
 /* region STATIC FUNCTIONS */
 
 static void resetDispenserPosition(dispenser_t *dispenser) {
-    moveMotorUp(&dispenser->motor);
-    while (limitSwitchIsClosed(dispenser->limitSwitch))
-        ;
     moveMotorDown(&dispenser->motor);
     while (!limitSwitchIsClosed(dispenser->limitSwitch))
         ;
