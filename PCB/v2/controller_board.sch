@@ -10077,21 +10077,19 @@ Block, Siemens and generic&lt;p&gt;
 <pinref part="M1_TMC" gate="G$1" pin="MS1"/>
 <wire x1="31.5" y1="61.26" x2="31.5" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="31.5" y1="60.96" x2="27.94" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="M1_TMC" gate="G$1" pin="!EN"/>
-<wire x1="31.5" y1="73.96" x2="31.5" y2="73.66" width="0.1524" layer="91"/>
-<wire x1="31.5" y1="73.66" x2="27.94" y2="73.66" width="0.1524" layer="91"/>
 <junction x="27.94" y="60.96"/>
-<wire x1="27.94" y1="73.66" x2="27.94" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="27.94" y1="60.96" x2="27.94" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="17.78" y1="88.9" x2="27.94" y2="88.9" width="0.1524" layer="91"/>
 <wire x1="27.94" y1="88.9" x2="27.94" y2="73.66" width="0.1524" layer="91"/>
 <junction x="17.78" y="88.9"/>
 <label x="15.24" y="88.9" size="1.778" layer="95" rot="R180" xref="yes"/>
+<pinref part="M1_TMC" gate="G$1" pin="!EN"/>
+<wire x1="27.94" y1="73.66" x2="27.94" y2="60.96" width="0.1524" layer="91"/>
+<wire x1="27.94" y1="73.66" x2="31.5" y2="73.66" width="0.1524" layer="91"/>
+<wire x1="31.5" y1="73.66" x2="31.5" y2="73.96" width="0.1524" layer="91"/>
+<junction x="27.94" y="73.66"/>
 </segment>
 <segment>
-<pinref part="M2_TMC" gate="G$1" pin="MS2"/>
-<wire x1="211.84" y1="206.84" x2="198.12" y2="206.84" width="0.1524" layer="91"/>
-<wire x1="198.12" y1="206.84" x2="198.12" y2="220.98" width="0.1524" layer="91"/>
 <wire x1="198.12" y1="220.98" x2="198.12" y2="236.22" width="0.1524" layer="91"/>
 <wire x1="198.12" y1="236.22" x2="195.58" y2="236.22" width="0.1524" layer="91"/>
 <pinref part="M2_TMC" gate="G$1" pin="!EN"/>
@@ -10101,8 +10099,13 @@ Block, Siemens and generic&lt;p&gt;
 <pinref part="M2_TMC" gate="G$1" pin="GND"/>
 <wire x1="247.4" y1="194.14" x2="247.4" y2="187.96" width="0.1524" layer="91"/>
 <wire x1="247.4" y1="187.96" x2="198.12" y2="187.96" width="0.1524" layer="91"/>
-<wire x1="198.12" y1="187.96" x2="198.12" y2="206.84" width="0.1524" layer="91"/>
+<wire x1="198.12" y1="187.96" x2="198.12" y2="205.74" width="0.1524" layer="91"/>
 <label x="195.58" y="236.22" size="1.778" layer="95" rot="R180" xref="yes"/>
+<wire x1="198.12" y1="205.74" x2="198.12" y2="220.98" width="0.1524" layer="91"/>
+<junction x="198.12" y="205.74"/>
+<pinref part="M2_TMC" gate="G$1" pin="MS2"/>
+<wire x1="198.12" y1="205.74" x2="211.84" y2="205.74" width="0.1524" layer="91"/>
+<wire x1="211.84" y1="205.74" x2="211.84" y2="206.84" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="M3_TMC" gate="G$1" pin="GND"/>
@@ -10123,14 +10126,16 @@ Block, Siemens and generic&lt;p&gt;
 <junction x="198.12" y="160.02"/>
 </segment>
 <segment>
-<wire x1="215.9" y1="91.44" x2="203.2" y2="91.44" width="0.1524" layer="91"/>
-<wire x1="203.2" y1="91.44" x2="203.2" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="106.68" x2="200.66" y2="106.68" width="0.1524" layer="91"/>
 <label x="200.66" y="106.68" size="1.778" layer="95" rot="R180" xref="yes"/>
 <pinref part="M4_TMC" gate="G$1" pin="GND"/>
 <wire x1="252.48" y1="63.66" x2="252.48" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="252.48" y1="58.42" x2="203.2" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="58.42" x2="203.2" y2="91.44" width="0.1524" layer="91"/>
+<pinref part="M4_TMC" gate="G$1" pin="!EN"/>
+<wire x1="203.2" y1="91.44" x2="203.2" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="216.92" y1="91.6" x2="216.92" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="216.92" y1="91.44" x2="203.2" y2="91.44" width="0.1524" layer="91"/>
 <junction x="203.2" y="91.44"/>
 </segment>
 <segment>
@@ -10624,40 +10629,6 @@ Block, Siemens and generic&lt;p&gt;
 <wire x1="170.18" y1="50.8" x2="170.18" y2="68.58" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$26" class="0">
-<segment>
-<pinref part="L1" gate="G$1" pin="1"/>
-<wire x1="88.9" y1="93.98" x2="78.74" y2="93.98" width="0.1524" layer="91"/>
-<pinref part="M1_TMC" gate="G$1" pin="M1A"/>
-<wire x1="67.06" y1="66.34" x2="78.74" y2="66.34" width="0.1524" layer="91"/>
-<wire x1="78.74" y1="66.34" x2="78.74" y2="93.98" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$21" class="0">
-<segment>
-<pinref part="M1_TMC" gate="G$1" pin="M1B"/>
-<pinref part="L3" gate="G$1" pin="1"/>
-<wire x1="67.06" y1="61.26" x2="67.06" y2="60.96" width="0.1524" layer="91"/>
-<wire x1="67.06" y1="60.96" x2="88.9" y2="60.96" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$27" class="0">
-<segment>
-<pinref part="M1_TMC" gate="G$1" pin="M2B"/>
-<pinref part="L4" gate="G$1" pin="1"/>
-<wire x1="67.06" y1="58.72" x2="67.06" y2="50.8" width="0.1524" layer="91"/>
-<wire x1="67.06" y1="50.8" x2="88.9" y2="50.8" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$19" class="0">
-<segment>
-<pinref part="M1_TMC" gate="G$1" pin="M2A"/>
-<wire x1="67.06" y1="63.8" x2="81.28" y2="63.8" width="0.1524" layer="91"/>
-<wire x1="81.28" y1="63.8" x2="81.28" y2="83.82" width="0.1524" layer="91"/>
-<pinref part="L2" gate="G$1" pin="1"/>
-<wire x1="81.28" y1="83.82" x2="88.9" y2="83.82" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="N$5" class="0">
 <segment>
 <pinref part="VR3" gate="1" pin="1"/>
@@ -10920,44 +10891,94 @@ Block, Siemens and generic&lt;p&gt;
 </net>
 <net name="N$36" class="0">
 <segment>
-<pinref part="M4_TMC" gate="G$1" pin="M1A"/>
-<wire x1="252.48" y1="83.98" x2="261.62" y2="83.98" width="0.1524" layer="91"/>
-<wire x1="261.62" y1="83.98" x2="261.62" y2="109.22" width="0.1524" layer="91"/>
 <pinref part="L13" gate="G$1" pin="1"/>
+<wire x1="261.62" y1="86.36" x2="261.62" y2="109.22" width="0.1524" layer="91"/>
 <wire x1="261.62" y1="109.22" x2="271.78" y2="109.22" width="0.1524" layer="91"/>
+<pinref part="M4_TMC" gate="G$1" pin="M1A"/>
+<wire x1="261.62" y1="86.36" x2="261.62" y2="83.98" width="0.1524" layer="91"/>
+<wire x1="261.62" y1="83.98" x2="252.48" y2="83.98" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$37" class="0">
 <segment>
-<pinref part="M4_TMC" gate="G$1" pin="M2A"/>
-<wire x1="252.48" y1="81.44" x2="264.16" y2="81.44" width="0.1524" layer="91"/>
-<wire x1="264.16" y1="81.44" x2="264.16" y2="99.06" width="0.1524" layer="91"/>
 <pinref part="L14" gate="G$1" pin="1"/>
+<wire x1="264.16" y1="83.82" x2="264.16" y2="99.06" width="0.1524" layer="91"/>
 <wire x1="264.16" y1="99.06" x2="271.78" y2="99.06" width="0.1524" layer="91"/>
+<pinref part="M4_TMC" gate="G$1" pin="M2A"/>
+<wire x1="264.16" y1="83.82" x2="264.16" y2="81.44" width="0.1524" layer="91"/>
+<wire x1="264.16" y1="81.44" x2="252.48" y2="81.44" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$38" class="0">
 <segment>
-<pinref part="M4_TMC" gate="G$1" pin="M2B"/>
-<wire x1="252.48" y1="76.36" x2="261.62" y2="76.36" width="0.1524" layer="91"/>
-<wire x1="261.62" y1="76.36" x2="261.62" y2="66.04" width="0.1524" layer="91"/>
 <pinref part="L16" gate="G$1" pin="1"/>
+<wire x1="261.62" y1="73.66" x2="261.62" y2="66.04" width="0.1524" layer="91"/>
 <wire x1="261.62" y1="66.04" x2="271.78" y2="66.04" width="0.1524" layer="91"/>
+<pinref part="M4_TMC" gate="G$1" pin="M2B"/>
+<wire x1="261.62" y1="73.66" x2="261.62" y2="76.36" width="0.1524" layer="91"/>
+<wire x1="261.62" y1="76.36" x2="252.48" y2="76.36" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$39" class="0">
 <segment>
-<pinref part="M4_TMC" gate="G$1" pin="M1B"/>
-<wire x1="252.48" y1="78.9" x2="252.48" y2="78.74" width="0.1524" layer="91"/>
-<wire x1="252.48" y1="78.74" x2="264.16" y2="78.74" width="0.1524" layer="91"/>
-<wire x1="264.16" y1="78.74" x2="264.16" y2="76.2" width="0.1524" layer="91"/>
+<wire x1="264.16" y1="78.9" x2="264.16" y2="76.2" width="0.1524" layer="91"/>
 <pinref part="L15" gate="G$1" pin="1"/>
 <wire x1="264.16" y1="76.2" x2="271.78" y2="76.2" width="0.1524" layer="91"/>
+<pinref part="M4_TMC" gate="G$1" pin="M1B"/>
+<wire x1="264.16" y1="78.9" x2="252.48" y2="78.9" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$19" class="0">
+<segment>
+<pinref part="M1_TMC" gate="G$1" pin="M2A"/>
+<wire x1="67.06" y1="63.8" x2="81.28" y2="63.8" width="0.1524" layer="91"/>
+<wire x1="81.28" y1="63.8" x2="81.28" y2="83.82" width="0.1524" layer="91"/>
+<pinref part="L2" gate="G$1" pin="1"/>
+<wire x1="81.28" y1="83.82" x2="88.9" y2="83.82" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$22" class="0">
+<segment>
+<pinref part="M1_TMC" gate="G$1" pin="M1A"/>
+<wire x1="67.06" y1="66.34" x2="78.74" y2="66.34" width="0.1524" layer="91"/>
+<wire x1="78.74" y1="66.34" x2="78.74" y2="93.98" width="0.1524" layer="91"/>
+<pinref part="L1" gate="G$1" pin="1"/>
+<wire x1="78.74" y1="93.98" x2="88.9" y2="93.98" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$21" class="0">
+<segment>
+<pinref part="M1_TMC" gate="G$1" pin="M1B"/>
+<pinref part="L3" gate="G$1" pin="1"/>
+<wire x1="67.06" y1="61.26" x2="67.06" y2="60.96" width="0.1524" layer="91"/>
+<wire x1="67.06" y1="60.96" x2="88.9" y2="60.96" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$26" class="0">
+<segment>
+<pinref part="M1_TMC" gate="G$1" pin="M2B"/>
+<pinref part="L4" gate="G$1" pin="1"/>
+<wire x1="67.06" y1="58.72" x2="67.06" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="67.06" y1="50.8" x2="88.9" y2="50.8" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
 </sheet>
 </sheets>
+<errors>
+<approved hash="202,1,31.5,66.34,M1_TMC,DIR,,,,"/>
+<approved hash="202,1,31.5,68.88,M1_TMC,STEP,,,,"/>
+<approved hash="202,1,31.5,56.18,M1_TMC,SPRD,,,,"/>
+<approved hash="202,1,211.84,214.46,M2_TMC,DIR,,,,"/>
+<approved hash="202,1,211.84,217,M2_TMC,STEP,,,,"/>
+<approved hash="202,1,211.84,204.3,M2_TMC,SPRD,,,,"/>
+<approved hash="202,1,211.84,151.76,M3_TMC,DIR,,,,"/>
+<approved hash="202,1,211.84,154.3,M3_TMC,STEP,,,,"/>
+<approved hash="202,1,211.84,141.6,M3_TMC,SPRD,,,,"/>
+<approved hash="202,1,216.92,83.98,M4_TMC,DIR,,,,"/>
+<approved hash="202,1,216.92,86.52,M4_TMC,STEP,,,,"/>
+<approved hash="202,1,216.92,73.82,M4_TMC,SPRD,,,,"/>
+</errors>
 </schematic>
 </drawing>
 <compatibility>
