@@ -5,7 +5,6 @@
 #include "helper.h"
 #include <pico/stdlib.h> /// must be included -> sets clocks required for watchdog-timer!!
 #include <stdio.h>
-// #include <time.h>
 
 /* region VARIABLES/DEFINES */
 
@@ -104,28 +103,17 @@ void processMessage(char *message, size_t messageLength) {
             dispenser[i].othersTriggered = dispensersTrigger;
         }
     }
-    // absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
+
     do {
-        // PRINT_DEBUG("Torque: %i", TMC2209_getStallGuardResult(&dispenser->motor.tmc2209))
         resetWatchdogTimer();
-        // sleep_until(time);
-        // time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-        // Checks for each dispenser if their next state is reached and perform the
-        // according action
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-//            clock_t start_time, end_time;
-//            start_time = clock();
             if (triggeredDispensers[i] == true) {
                 dispenserDoStep(&dispenser[i]);
                 if (dispenserGetStateCode(&dispenser[i]) == DISPENSER_STATE_SLEEP) {
                     triggeredDispensers[i] = false;
                 }
             }
-//            end_time = clock();
-//            double execution_time = (double)(end_time - start_time) * 1000.0 / CLOCKS_PER_SEC;
-//            PRINT_DEBUG("[Dispenser][%d]Execution time: %f ms", i, execution_time);
         }
-
         // When all dispensers are finished, they are in the state sleep
     } while (!dispenserSetAllToSleepState(dispenser, NUMBER_OF_DISPENSERS));
 }
