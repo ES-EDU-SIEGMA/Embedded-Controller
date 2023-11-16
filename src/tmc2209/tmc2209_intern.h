@@ -15,6 +15,14 @@ void TMC2209_setOperationModeToSerial(TMC2209_t *tmc2209, serialUart_t seral, lo
 
 void TMC2209_setRegistersToDefaults(TMC2209_t *tmc2209);
 
+/*! SENDDELAY for read access (time until TMC starts sending replies)
+ *
+ *  @register NODECONF
+ *  @address  0x03
+ *  @details SEND_DELAY is declared in tmc2209.h
+ */
+void TMC2209_setSendDelay(TMC2209_t *tmc2209);
+
 void TMC2209_readAndStoreRegisters(TMC2209_t *tmc2209);
 
 uint8_t TMC2209_getVersion(TMC2209_t *tmc2209);

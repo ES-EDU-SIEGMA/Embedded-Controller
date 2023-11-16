@@ -63,6 +63,7 @@ void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, uint32_t serial_baud
 
     TMC2209_setOperationModeToSerial(tmc2209, serial, serial_baud_rate, serial_address);
     TMC2209_setRegistersToDefaults(tmc2209);
+    TMC2209_setSendDelay(tmc2209);
     TMC2209_readAndStoreRegisters(tmc2209);
     TMC2209_minimizeMotorCurrent(tmc2209);
     TMC2209_disable(tmc2209);
@@ -211,6 +212,13 @@ void TMC2209_setRegistersToDefaults(TMC2209_t *tmc2209) {
     TMC2209_write(tmc2209, ADDRESS_TCOOLTHRS, TCOOLTHRS_DEFAULT);
     TMC2209_write(tmc2209, ADDRESS_SGTHRS, SGTHRS_DEFAULT);
     TMC2209_write(tmc2209, ADDRESS_COOLCONF, COOLCONF_DEFAULT);
+}
+
+void TMC2209_setSendDelay(TMC2209_t *tmc2209) {
+    TMC2209_SendDelay_t send_delay_data;
+    send_delay_data.bytes = 0;
+    send_delay_data.senddelay = SEND_DELAY;
+    TMC2209_write(tmc2209, ADDRESS_SENDDELAY, send_delay_data.bytes);
 }
 
 void TMC2209_readAndStoreRegisters(TMC2209_t *tmc2209) {
@@ -397,14 +405,8 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
         read_reply_datagram.bytes |= (byte << (byte_count++ * BITS_PER_BYTE));
     }
 
-    // this unfortunate code was found to be necessary after testing on hardware
-    uint32_t post_read_delay_repeat = POST_READ_DELAY_NUMERATOR / tmc2209->serial_baud_rate;
-    for (uint32_t i = 0; i < post_read_delay_repeat; ++i) {
-        sleep_us(POST_READ_DELAY_INC_MICROSECONDS);
-    }
-
     // Make sure UART is free again
-    sleep_ms(10);
+    sleep_ms(1);
 
     return TMC2209_reverseData(read_reply_datagram.data);
 }
