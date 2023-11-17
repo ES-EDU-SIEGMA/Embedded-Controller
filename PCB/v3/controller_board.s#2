@@ -6068,14 +6068,6 @@ DIN A3, landscape with location and doc. field</description>
 <label x="261.62" y="180.34" size="1.778" layer="95" xref="yes"/>
 </segment>
 <segment>
-<pinref part="3V3_FUSE1" gate="G$1" pin="2"/>
-<pinref part="D1" gate="G$1" pin="C"/>
-<wire x1="81.28" y1="203.2" x2="81.28" y2="195.58" width="0.1524" layer="91"/>
-<junction x="81.28" y="203.2"/>
-<wire x1="81.28" y1="203.2" x2="86.36" y2="203.2" width="0.1524" layer="91"/>
-<pinref part="R11" gate="G$1" pin="2"/>
-</segment>
-<segment>
 <pinref part="R10" gate="G$1" pin="2"/>
 <wire x1="261.62" y1="236.22" x2="238.76" y2="236.22" width="0.1524" layer="91"/>
 <wire x1="238.76" y1="236.22" x2="238.76" y2="246.38" width="0.1524" layer="91"/>
@@ -6540,6 +6532,16 @@ DIN A3, landscape with location and doc. field</description>
 <wire x1="203.2" y1="68.74" x2="203.2" y2="83.82" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="83.82" x2="190.5" y2="83.82" width="0.1524" layer="91"/>
 <label x="190.5" y="83.82" size="1.778" layer="95" rot="R180" xref="yes"/>
+</segment>
+</net>
+<net name="3V3" class="0">
+<segment>
+<pinref part="3V3_FUSE1" gate="G$1" pin="2"/>
+<pinref part="D1" gate="G$1" pin="C"/>
+<wire x1="81.28" y1="203.2" x2="81.28" y2="195.58" width="0.1524" layer="91"/>
+<junction x="81.28" y="203.2"/>
+<wire x1="81.28" y1="203.2" x2="86.36" y2="203.2" width="0.1524" layer="91"/>
+<pinref part="R11" gate="G$1" pin="2"/>
 </segment>
 </net>
 </nets>

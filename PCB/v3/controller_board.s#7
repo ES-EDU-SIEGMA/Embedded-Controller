@@ -6319,34 +6319,29 @@ DIN A3, landscape with location and doc. field</description>
 <wire x1="93.98" y1="127.3" x2="93.98" y2="137.16" width="0.1524" layer="91"/>
 <pinref part="D4" gate="G$1" pin="C"/>
 <wire x1="93.98" y1="139.7" x2="99.06" y2="139.7" width="0.1524" layer="91"/>
-<pinref part="M1" gate="G$1" pin="1"/>
-<wire x1="144.78" y1="127" x2="139.7" y2="127" width="0.1524" layer="91"/>
-<wire x1="139.7" y1="127" x2="139.7" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="139.7" y1="137.16" x2="93.98" y2="137.16" width="0.1524" layer="91"/>
 <junction x="93.98" y="137.16"/>
 <wire x1="93.98" y1="139.7" x2="93.98" y2="137.16" width="0.1524" layer="91"/>
+<pinref part="M1" gate="G$1" pin="1"/>
+<wire x1="139.7" y1="137.16" x2="144.78" y2="127" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$19" class="0">
 <segment>
 <pinref part="D7" gate="G$1" pin="C"/>
-<pinref part="M1" gate="G$1" pin="4"/>
 <wire x1="93.98" y1="109.22" x2="99.06" y2="109.22" width="0.1524" layer="91"/>
-<wire x1="144.78" y1="119.38" x2="139.7" y2="119.38" width="0.1524" layer="91"/>
-<wire x1="139.7" y1="119.38" x2="139.7" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="139.7" y1="106.68" x2="93.98" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="93.98" y1="106.68" x2="93.98" y2="109.22" width="0.1524" layer="91"/>
 <junction x="93.98" y="109.22"/>
 <pinref part="M1_TMC" gate="G$1" pin="M2B"/>
 <wire x1="84.84" y1="119.68" x2="93.98" y2="119.68" width="0.1524" layer="91"/>
 <wire x1="93.98" y1="119.68" x2="93.98" y2="109.22" width="0.1524" layer="91"/>
+<pinref part="M1" gate="G$1" pin="4"/>
+<wire x1="139.7" y1="106.68" x2="144.78" y2="119.38" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$26" class="0">
 <segment>
-<pinref part="M1" gate="G$1" pin="2"/>
-<wire x1="144.78" y1="124.46" x2="137.16" y2="124.46" width="0.1524" layer="91"/>
-<wire x1="137.16" y1="124.46" x2="137.16" y2="132.08" width="0.1524" layer="91"/>
 <pinref part="M1_TMC" gate="G$1" pin="M2A"/>
 <wire x1="84.84" y1="124.76" x2="96.52" y2="124.76" width="0.1524" layer="91"/>
 <wire x1="96.52" y1="124.76" x2="96.52" y2="132.08" width="0.1524" layer="91"/>
@@ -6355,6 +6350,8 @@ DIN A3, landscape with location and doc. field</description>
 <wire x1="96.52" y1="129.54" x2="99.06" y2="129.54" width="0.1524" layer="91"/>
 <wire x1="137.16" y1="132.08" x2="96.52" y2="132.08" width="0.1524" layer="91"/>
 <junction x="96.52" y="132.08"/>
+<pinref part="M1" gate="G$1" pin="3"/>
+<wire x1="137.16" y1="132.08" x2="144.78" y2="121.92" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$4" class="0">
@@ -6364,14 +6361,11 @@ DIN A3, landscape with location and doc. field</description>
 <wire x1="96.52" y1="122.22" x2="96.52" y2="119.38" width="0.1524" layer="91"/>
 <pinref part="D6" gate="G$1" pin="C"/>
 <wire x1="96.52" y1="119.38" x2="99.06" y2="119.38" width="0.1524" layer="91"/>
-<pinref part="M1" gate="G$1" pin="3"/>
-<wire x1="144.78" y1="121.92" x2="137.16" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="137.16" y1="121.92" x2="137.16" y2="116.84" width="0.1524" layer="91"/>
-<wire x1="137.16" y1="116.84" x2="101.6" y2="116.84" width="0.1524" layer="91"/>
-<wire x1="101.6" y1="116.84" x2="99.06" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="137.16" y1="116.84" x2="96.52" y2="116.84" width="0.1524" layer="91"/>
 <wire x1="96.52" y1="119.38" x2="96.52" y2="116.84" width="0.1524" layer="91"/>
-<wire x1="96.52" y1="116.84" x2="99.06" y2="116.84" width="0.1524" layer="91"/>
 <junction x="96.52" y="119.38"/>
+<pinref part="M1" gate="G$1" pin="2"/>
+<wire x1="137.16" y1="116.84" x2="144.78" y2="124.46" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$5" class="0">
@@ -6560,20 +6554,6 @@ DIN A3, landscape with location and doc. field</description>
 </nets>
 </sheet>
 </sheets>
-<errors>
-<approved hash="202,1,31.5,66.34,M1_TMC,DIR,,,,"/>
-<approved hash="202,1,31.5,68.88,M1_TMC,STEP,,,,"/>
-<approved hash="202,1,31.5,56.18,M1_TMC,SPRD,,,,"/>
-<approved hash="202,1,211.84,214.46,M2_TMC,DIR,,,,"/>
-<approved hash="202,1,211.84,217,M2_TMC,STEP,,,,"/>
-<approved hash="202,1,211.84,204.3,M2_TMC,SPRD,,,,"/>
-<approved hash="202,1,211.84,151.76,M3_TMC,DIR,,,,"/>
-<approved hash="202,1,211.84,154.3,M3_TMC,STEP,,,,"/>
-<approved hash="202,1,211.84,141.6,M3_TMC,SPRD,,,,"/>
-<approved hash="202,1,216.92,83.98,M4_TMC,DIR,,,,"/>
-<approved hash="202,1,216.92,86.52,M4_TMC,STEP,,,,"/>
-<approved hash="202,1,216.92,73.82,M4_TMC,SPRD,,,,"/>
-</errors>
 </schematic>
 </drawing>
 <compatibility>

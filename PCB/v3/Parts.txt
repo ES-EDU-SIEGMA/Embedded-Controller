@@ -1,0 +1,60 @@
+Partlist
+
+Exported from controller_board.sch at 17.11.23 21:35
+
+EAGLE Version 9.6.2 Copyright (c) 1988-2020 Autodesk, Inc.
+
+Assembly variant: 
+
+Part            Value                   Device                  Package                        Library                 Sheet
+
+3V3_FUSE1       4628                    4628                    FUSE_4628                      4628                    1
+5V_FUSE         4628                    4628                    FUSE_4628                      4628                    1
+24V_FUSE        4628                    4628                    FUSE_4628                      4628                    1
+CONTROLLER      TINY2040_HEADER         TINY2040_HEADER         TINY2040_HEADER                tiny2040_headerd        1
+D1              PTVS3V3S1UR             PTVS3V3S1UR             TVS_PTVS3V3S1UR                PTVS3V3S1UR             1
+D2              PTVS5V0S1UR             PTVS5V0S1UR             TVS_PTVS5V0S1UR                PTVS5V0S1UR             1
+D3              PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D4              PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D5              PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D6              PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D7              PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D8              PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D9              PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D10             PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D11             PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D12             PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D13             PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D14             PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D15             PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D16             PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D17             PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D18             PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+D19             PTVS24VS1UR             PTVS24VS1UR             TVS_PTVS24VS1UR                PTVS24VS1UR             1
+LED             B2B-PH-K-S(LF)(SN)      B2B-PH-K-S(LF)(SN)      JST_B2B-PH-K-S(LF)(SN)         B2B-PH-K-S_LF__SN_      1
+M1              B4B-PH-K-S(LF)(SN)      B4B-PH-K-S(LF)(SN)      JST_B4B-PH-K-S(LF)(SN)         B4B-PH-K-S_LF__SN_      1
+M1_TMC          TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK MODULE_TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK 1
+M2              B4B-PH-K-S(LF)(SN)      B4B-PH-K-S(LF)(SN)      JST_B4B-PH-K-S(LF)(SN)         B4B-PH-K-S_LF__SN_      1
+M2_TMC          TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK MODULE_TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK 1
+M3              B4B-PH-K-S(LF)(SN)      B4B-PH-K-S(LF)(SN)      JST_B4B-PH-K-S(LF)(SN)         B4B-PH-K-S_LF__SN_      1
+M3_TMC          TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK MODULE_TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK 1
+M4              B4B-PH-K-S(LF)(SN)      B4B-PH-K-S(LF)(SN)      JST_B4B-PH-K-S(LF)(SN)         B4B-PH-K-S_LF__SN_      1
+M4_TMC          TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK MODULE_TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK 1
+POWER_CONNECTOR B4B-PH-K-S(LF)(SN)      B4B-PH-K-S(LF)(SN)      JST_B4B-PH-K-S(LF)(SN)         B4B-PH-K-S_LF__SN_      1
+R1              10kR                    R-EU_R0805              R0805                          rcl                     1
+R2              10kR                    R-EU_R0805              R0805                          rcl                     1
+R3              10kR                    R-EU_R0805              R0805                          rcl                     1
+R4              10kR                    R-EU_R0805              R0805                          rcl                     1
+R5              10kR                    R-EU_R0805              R0805                          rcl                     1
+R6              100R +-5%               R-EU_R0805              R0805                          rcl                     1
+R7              0R                      R-EU_R0805              R0805                          rcl                     1
+R8              0R                      R-EU_R0805              R0805                          rcl                     1
+R9              0R                      R-EU_R0805              R0805                          rcl                     1
+R10             0R                      R-EU_R0805              R0805                          rcl                     1
+R11             0R                      R-EU_R0805              R0805                          rcl                     1
+S1              B2B-PH-K-S(LF)(SN)      B2B-PH-K-S(LF)(SN)      JST_B2B-PH-K-S(LF)(SN)         B2B-PH-K-S_LF__SN_      1
+S2              B2B-PH-K-S(LF)(SN)      B2B-PH-K-S(LF)(SN)      JST_B2B-PH-K-S(LF)(SN)         B2B-PH-K-S_LF__SN_      1
+S3              B2B-PH-K-S(LF)(SN)      B2B-PH-K-S(LF)(SN)      JST_B2B-PH-K-S(LF)(SN)         B2B-PH-K-S_LF__SN_      1
+S4              B2B-PH-K-S(LF)(SN)      B2B-PH-K-S(LF)(SN)      JST_B2B-PH-K-S(LF)(SN)         B2B-PH-K-S_LF__SN_      1
+SPI_I2C         B4B-PH-K-S(LF)(SN)      B4B-PH-K-S(LF)(SN)      JST_B4B-PH-K-S(LF)(SN)         B4B-PH-K-S_LF__SN_      1
+UART_1          B2B-PH-K-S(LF)(SN)      B2B-PH-K-S(LF)(SN)      JST_B2B-PH-K-S(LF)(SN)         B2B-PH-K-S_LF__SN_      1
