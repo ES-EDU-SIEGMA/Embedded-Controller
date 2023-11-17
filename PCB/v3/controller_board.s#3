@@ -5473,6 +5473,8 @@ DIN A3, landscape with location and doc. field</description>
 <classes>
 <class number="0" name="default" width="0" drill="0">
 </class>
+<class number="1" name="GROUND" width="0" drill="0">
+</class>
 </classes>
 <parts>
 <part name="M1_TMC" library="TMC2209_SILENTSTEPSTICK" library_urn="urn:adsk.eagle:library:40997366" deviceset="TMC2209_SILENTSTEPSTICK" device="" package3d_urn="urn:adsk.eagle:package:40997369/1"/>
@@ -5488,8 +5490,7 @@ DIN A3, landscape with location and doc. field</description>
 <part name="R6" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="100R +-5%"/>
 <part name="5V_FUSE" library="4628" library_urn="urn:adsk.eagle:library:41102850" deviceset="4628" device="" package3d_urn="urn:adsk.eagle:package:41102853/1"/>
 <part name="24V_FUSE" library="4628" library_urn="urn:adsk.eagle:library:41102850" deviceset="4628" device="" package3d_urn="urn:adsk.eagle:package:41102853/1"/>
-<part name="I2C_1" library="B2B-PH-K-S_LF__SN_" library_urn="urn:adsk.eagle:library:41002042" deviceset="B2B-PH-K-S(LF)(SN)" device="" package3d_urn="urn:adsk.eagle:package:41002045/1"/>
-<part name="SPI" library="B4B-PH-K-S_LF__SN_" library_urn="urn:adsk.eagle:library:41002053" deviceset="B4B-PH-K-S(LF)(SN)" device="" package3d_urn="urn:adsk.eagle:package:41002056/1"/>
+<part name="SPI_I2C" library="B4B-PH-K-S_LF__SN_" library_urn="urn:adsk.eagle:library:41002053" deviceset="B4B-PH-K-S(LF)(SN)" device="" package3d_urn="urn:adsk.eagle:package:41002056/1"/>
 <part name="S2" library="B2B-PH-K-S_LF__SN_" library_urn="urn:adsk.eagle:library:41002042" deviceset="B2B-PH-K-S(LF)(SN)" device="" package3d_urn="urn:adsk.eagle:package:41002045/1"/>
 <part name="R3" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="10kR"/>
 <part name="S3" library="B2B-PH-K-S_LF__SN_" library_urn="urn:adsk.eagle:library:41002042" deviceset="B2B-PH-K-S(LF)(SN)" device="" package3d_urn="urn:adsk.eagle:package:41002045/1"/>
@@ -5584,11 +5585,7 @@ DIN A3, landscape with location and doc. field</description>
 <attribute name="NAME" x="73.66" y="241.3" size="1.27" layer="95"/>
 <attribute name="VALUE" x="68.58" y="236.22" size="1.27" layer="96"/>
 </instance>
-<instance part="I2C_1" gate="G$1" x="353.06" y="198.12" smashed="yes">
-<attribute name="NAME" x="350.515640625" y="201.42766875" size="1.78105" layer="95"/>
-<attribute name="VALUE" x="350.515409375" y="190.486240625" size="1.781209375" layer="96"/>
-</instance>
-<instance part="SPI" gate="G$1" x="353.06" y="238.76" smashed="yes">
+<instance part="SPI_I2C" gate="G$1" x="353.06" y="238.76" smashed="yes">
 <attribute name="NAME" x="350.51818125" y="244.860359375" size="1.77926875" layer="95"/>
 <attribute name="VALUE" x="350.51705" y="228.5882" size="1.780059375" layer="96"/>
 </instance>
@@ -5748,42 +5745,31 @@ DIN A3, landscape with location and doc. field</description>
 <label x="177.8" y="231.14" size="1.778" layer="95" xref="yes"/>
 </segment>
 <segment>
-<wire x1="35.56" y1="149.86" x2="33.02" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="35.56" y1="144.78" x2="33.02" y2="144.78" width="0.1524" layer="91"/>
 <pinref part="M1_TMC" gate="G$1" pin="GND"/>
 <wire x1="84.84" y1="106.98" x2="84.84" y2="101.6" width="0.1524" layer="91"/>
 <wire x1="84.84" y1="101.6" x2="35.56" y2="101.6" width="0.1524" layer="91"/>
-<wire x1="35.56" y1="101.6" x2="35.56" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="35.56" y1="101.6" x2="35.56" y2="119.38" width="0.1524" layer="91"/>
+<label x="33.02" y="144.78" size="1.778" layer="95" rot="R180" xref="yes"/>
 <pinref part="M1_TMC" gate="G$1" pin="MS2"/>
+<wire x1="35.56" y1="119.38" x2="35.56" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="35.56" y1="121.92" x2="35.56" y2="144.78" width="0.1524" layer="91"/>
 <wire x1="49.28" y1="119.68" x2="49.28" y2="119.38" width="0.1524" layer="91"/>
-<wire x1="49.28" y1="119.38" x2="45.72" y2="119.38" width="0.1524" layer="91"/>
+<wire x1="49.28" y1="119.38" x2="35.56" y2="119.38" width="0.1524" layer="91"/>
+<junction x="35.56" y="119.38"/>
 <pinref part="M1_TMC" gate="G$1" pin="MS1"/>
 <wire x1="49.28" y1="122.22" x2="49.28" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="49.28" y1="121.92" x2="45.72" y2="121.92" width="0.1524" layer="91"/>
-<junction x="45.72" y="121.92"/>
-<wire x1="45.72" y1="121.92" x2="45.72" y2="119.38" width="0.1524" layer="91"/>
-<wire x1="35.56" y1="149.86" x2="45.72" y2="149.86" width="0.1524" layer="91"/>
-<wire x1="45.72" y1="149.86" x2="45.72" y2="134.62" width="0.1524" layer="91"/>
-<junction x="35.56" y="149.86"/>
-<label x="33.02" y="149.86" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="M1_TMC" gate="G$1" pin="!EN"/>
-<wire x1="45.72" y1="134.62" x2="45.72" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="45.72" y1="134.62" x2="49.28" y2="134.62" width="0.1524" layer="91"/>
-<wire x1="49.28" y1="134.62" x2="49.28" y2="134.92" width="0.1524" layer="91"/>
-<junction x="45.72" y="134.62"/>
+<wire x1="49.28" y1="121.92" x2="35.56" y2="121.92" width="0.1524" layer="91"/>
+<junction x="35.56" y="121.92"/>
 </segment>
 <segment>
-<wire x1="38.1" y1="71.12" x2="38.1" y2="86.36" width="0.1524" layer="91"/>
-<wire x1="38.1" y1="86.36" x2="35.56" y2="86.36" width="0.1524" layer="91"/>
-<pinref part="M2_TMC" gate="G$1" pin="!EN"/>
-<wire x1="51.82" y1="72.22" x2="51.82" y2="71.12" width="0.1524" layer="91"/>
-<wire x1="51.82" y1="71.12" x2="38.1" y2="71.12" width="0.1524" layer="91"/>
-<junction x="38.1" y="71.12"/>
+<wire x1="38.1" y1="81.28" x2="35.56" y2="81.28" width="0.1524" layer="91"/>
 <pinref part="M2_TMC" gate="G$1" pin="GND"/>
 <wire x1="87.38" y1="44.28" x2="87.38" y2="38.1" width="0.1524" layer="91"/>
 <wire x1="87.38" y1="38.1" x2="38.1" y2="38.1" width="0.1524" layer="91"/>
 <wire x1="38.1" y1="38.1" x2="38.1" y2="55.88" width="0.1524" layer="91"/>
-<label x="35.56" y="86.36" size="1.778" layer="95" rot="R180" xref="yes"/>
-<wire x1="38.1" y1="55.88" x2="38.1" y2="71.12" width="0.1524" layer="91"/>
+<label x="35.56" y="81.28" size="1.778" layer="95" rot="R180" xref="yes"/>
+<wire x1="38.1" y1="55.88" x2="38.1" y2="81.28" width="0.1524" layer="91"/>
 <junction x="38.1" y="55.88"/>
 <pinref part="M2_TMC" gate="G$1" pin="MS2"/>
 <wire x1="38.1" y1="55.88" x2="51.82" y2="55.88" width="0.1524" layer="91"/>
@@ -5794,31 +5780,21 @@ DIN A3, landscape with location and doc. field</description>
 <wire x1="239.78" y1="106.04" x2="239.78" y2="99.06" width="0.1524" layer="91"/>
 <wire x1="239.78" y1="99.06" x2="190.5" y2="99.06" width="0.1524" layer="91"/>
 <wire x1="190.5" y1="99.06" x2="190.5" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="190.5" y1="121.92" x2="190.5" y2="134.62" width="0.1524" layer="91"/>
-<wire x1="190.5" y1="134.62" x2="190.5" y2="149.86" width="0.1524" layer="91"/>
-<wire x1="190.5" y1="149.86" x2="187.96" y2="149.86" width="0.1524" layer="91"/>
-<label x="187.96" y="149.86" size="1.778" layer="95" rot="R180" xref="yes"/>
+<wire x1="190.5" y1="121.92" x2="190.5" y2="144.78" width="0.1524" layer="91"/>
+<wire x1="190.5" y1="144.78" x2="187.96" y2="144.78" width="0.1524" layer="91"/>
+<label x="187.96" y="144.78" size="1.778" layer="95" rot="R180" xref="yes"/>
 <pinref part="M3_TMC" gate="G$1" pin="MS1"/>
 <wire x1="204.22" y1="121.28" x2="204.22" y2="121.92" width="0.1524" layer="91"/>
 <wire x1="204.22" y1="121.92" x2="190.5" y2="121.92" width="0.1524" layer="91"/>
 <junction x="190.5" y="121.92"/>
-<pinref part="M3_TMC" gate="G$1" pin="!EN"/>
-<wire x1="204.22" y1="133.98" x2="204.22" y2="134.62" width="0.1524" layer="91"/>
-<wire x1="204.22" y1="134.62" x2="190.5" y2="134.62" width="0.1524" layer="91"/>
-<junction x="190.5" y="134.62"/>
 </segment>
 <segment>
-<wire x1="193.04" y1="83.82" x2="190.5" y2="83.82" width="0.1524" layer="91"/>
-<label x="190.5" y="83.82" size="1.778" layer="95" rot="R180" xref="yes"/>
+<wire x1="193.04" y1="78.74" x2="190.5" y2="78.74" width="0.1524" layer="91"/>
+<label x="190.5" y="78.74" size="1.778" layer="95" rot="R180" xref="yes"/>
 <pinref part="M4_TMC" gate="G$1" pin="GND"/>
 <wire x1="242.32" y1="40.8" x2="242.32" y2="35.56" width="0.1524" layer="91"/>
 <wire x1="242.32" y1="35.56" x2="193.04" y2="35.56" width="0.1524" layer="91"/>
-<wire x1="193.04" y1="35.56" x2="193.04" y2="68.58" width="0.1524" layer="91"/>
-<pinref part="M4_TMC" gate="G$1" pin="!EN"/>
-<wire x1="193.04" y1="68.58" x2="193.04" y2="83.82" width="0.1524" layer="91"/>
-<wire x1="206.76" y1="68.74" x2="206.76" y2="68.58" width="0.1524" layer="91"/>
-<wire x1="206.76" y1="68.58" x2="193.04" y2="68.58" width="0.1524" layer="91"/>
-<junction x="193.04" y="68.58"/>
+<wire x1="193.04" y1="35.56" x2="193.04" y2="78.74" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="S4" gate="G$1" pin="1"/>
@@ -6190,29 +6166,9 @@ DIN A3, landscape with location and doc. field</description>
 <label x="203.2" y="45.72" size="1.778" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
-<net name="SDA" class="0">
-<segment>
-<pinref part="I2C_1" gate="G$1" pin="1"/>
-<wire x1="327.66" y1="198.12" x2="345.44" y2="198.12" width="0.1524" layer="91"/>
-<label x="330.2" y="198.12" size="1.778" layer="95"/>
-<wire x1="327.66" y1="198.12" x2="327.66" y2="226.06" width="0.1524" layer="91"/>
-<wire x1="327.66" y1="226.06" x2="320.04" y2="226.06" width="0.1524" layer="91"/>
-<pinref part="CONTROLLER" gate="G$1" pin="6"/>
-</segment>
-</net>
-<net name="SCL" class="0">
-<segment>
-<pinref part="I2C_1" gate="G$1" pin="2"/>
-<label x="330.2" y="195.58" size="1.778" layer="95"/>
-<wire x1="325.12" y1="195.58" x2="345.44" y2="195.58" width="0.1524" layer="91"/>
-<wire x1="325.12" y1="195.58" x2="325.12" y2="223.52" width="0.1524" layer="91"/>
-<wire x1="325.12" y1="223.52" x2="320.04" y2="223.52" width="0.1524" layer="91"/>
-<pinref part="CONTROLLER" gate="G$1" pin="7"/>
-</segment>
-</net>
 <net name="RX" class="0">
 <segment>
-<pinref part="SPI" gate="G$1" pin="1"/>
+<pinref part="SPI_I2C" gate="G$1" pin="1"/>
 <label x="330.2" y="241.3" size="1.778" layer="95"/>
 <wire x1="320.04" y1="241.3" x2="345.44" y2="241.3" width="0.1524" layer="91"/>
 <pinref part="CONTROLLER" gate="G$1" pin="0"/>
@@ -6220,7 +6176,7 @@ DIN A3, landscape with location and doc. field</description>
 </net>
 <net name="CS" class="0">
 <segment>
-<pinref part="SPI" gate="G$1" pin="2"/>
+<pinref part="SPI_I2C" gate="G$1" pin="2"/>
 <label x="330.2" y="238.76" size="1.778" layer="95"/>
 <wire x1="320.04" y1="238.76" x2="345.44" y2="238.76" width="0.1524" layer="91"/>
 <pinref part="CONTROLLER" gate="G$1" pin="1"/>
@@ -6228,7 +6184,7 @@ DIN A3, landscape with location and doc. field</description>
 </net>
 <net name="SCK" class="0">
 <segment>
-<pinref part="SPI" gate="G$1" pin="3"/>
+<pinref part="SPI_I2C" gate="G$1" pin="3"/>
 <label x="330.2" y="236.22" size="1.778" layer="95"/>
 <wire x1="320.04" y1="236.22" x2="345.44" y2="236.22" width="0.1524" layer="91"/>
 <pinref part="CONTROLLER" gate="G$1" pin="2"/>
@@ -6236,7 +6192,7 @@ DIN A3, landscape with location and doc. field</description>
 </net>
 <net name="TX" class="0">
 <segment>
-<pinref part="SPI" gate="G$1" pin="4"/>
+<pinref part="SPI_I2C" gate="G$1" pin="4"/>
 <label x="330.2" y="233.68" size="1.778" layer="95"/>
 <wire x1="320.04" y1="233.68" x2="345.44" y2="233.68" width="0.1524" layer="91"/>
 <pinref part="CONTROLLER" gate="G$1" pin="3"/>
@@ -6537,6 +6493,43 @@ DIN A3, landscape with location and doc. field</description>
 <wire x1="50.8" y1="238.76" x2="50.8" y2="228.6" width="0.1524" layer="91"/>
 <pinref part="POWER_CONNECTOR" gate="G$1" pin="3"/>
 <wire x1="50.8" y1="228.6" x2="45.72" y2="228.6" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="TMC_EN" class="0">
+<segment>
+<pinref part="CONTROLLER" gate="G$1" pin="7"/>
+<wire x1="320.04" y1="223.52" x2="322.58" y2="223.52" width="0.1524" layer="91"/>
+<wire x1="322.58" y1="223.52" x2="322.58" y2="200.66" width="0.1524" layer="91"/>
+<wire x1="322.58" y1="200.66" x2="358.14" y2="200.66" width="0.1524" layer="91"/>
+<label x="358.14" y="200.66" size="1.778" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="M1_TMC" gate="G$1" pin="!EN"/>
+<wire x1="49.28" y1="134.92" x2="45.72" y2="134.92" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="134.92" x2="45.72" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="149.86" x2="33.02" y2="149.86" width="0.1524" layer="91"/>
+<label x="33.02" y="149.86" size="1.778" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="M2_TMC" gate="G$1" pin="!EN"/>
+<wire x1="51.82" y1="72.22" x2="48.26" y2="72.22" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="72.22" x2="48.26" y2="86.36" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="86.36" x2="35.56" y2="86.36" width="0.1524" layer="91"/>
+<label x="35.56" y="86.36" size="1.778" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="M3_TMC" gate="G$1" pin="!EN"/>
+<wire x1="204.22" y1="133.98" x2="200.66" y2="133.98" width="0.1524" layer="91"/>
+<wire x1="200.66" y1="133.98" x2="200.66" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="200.66" y1="149.86" x2="187.96" y2="149.86" width="0.1524" layer="91"/>
+<label x="187.96" y="149.86" size="1.778" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="M4_TMC" gate="G$1" pin="!EN"/>
+<wire x1="206.76" y1="68.74" x2="203.2" y2="68.74" width="0.1524" layer="91"/>
+<wire x1="203.2" y1="68.74" x2="203.2" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="203.2" y1="83.82" x2="190.5" y2="83.82" width="0.1524" layer="91"/>
+<label x="190.5" y="83.82" size="1.778" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 </nets>

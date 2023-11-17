@@ -5748,16 +5748,6 @@ DIN A3, landscape with location and doc. field</description>
 <label x="177.8" y="231.14" size="1.778" layer="95" xref="yes"/>
 </segment>
 <segment>
-<wire x1="12.7" y1="215.9" x2="12.7" y2="238.76" width="0.1524" layer="91"/>
-<label x="45.72" y="238.76" size="1.778" layer="95" xref="yes"/>
-<wire x1="12.7" y1="238.76" x2="45.72" y2="238.76" width="0.1524" layer="91"/>
-<pinref part="POWER_CONNECTOR" gate="G$1" pin="1"/>
-<wire x1="12.7" y1="215.9" x2="45.72" y2="215.9" width="0.1524" layer="91"/>
-<wire x1="45.72" y1="215.9" x2="45.72" y2="223.52" width="0.1524" layer="91"/>
-<pinref part="POWER_CONNECTOR" gate="G$1" pin="4"/>
-<wire x1="45.72" y1="231.14" x2="45.72" y2="238.76" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <wire x1="35.56" y1="149.86" x2="33.02" y2="149.86" width="0.1524" layer="91"/>
 <pinref part="M1_TMC" gate="G$1" pin="GND"/>
 <wire x1="84.84" y1="106.98" x2="84.84" y2="101.6" width="0.1524" layer="91"/>
@@ -5962,6 +5952,18 @@ DIN A3, landscape with location and doc. field</description>
 <wire x1="271.78" y1="43.18" x2="284.48" y2="43.18" width="0.1524" layer="91"/>
 <label x="284.48" y="43.18" size="1.778" layer="95" xref="yes"/>
 </segment>
+<segment>
+<pinref part="POWER_CONNECTOR" gate="G$1" pin="4"/>
+<wire x1="45.72" y1="231.14" x2="45.72" y2="246.38" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="246.38" x2="99.06" y2="246.38" width="0.1524" layer="91"/>
+<label x="99.06" y="246.38" size="1.778" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="POWER_CONNECTOR" gate="G$1" pin="1"/>
+<wire x1="45.72" y1="223.52" x2="45.72" y2="187.96" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="187.96" x2="99.06" y2="187.96" width="0.1524" layer="91"/>
+<label x="99.06" y="187.96" size="1.778" layer="95" xref="yes"/>
+</segment>
 </net>
 <net name="A1" class="0">
 <segment>
@@ -6137,14 +6139,6 @@ DIN A3, landscape with location and doc. field</description>
 <pinref part="M4_TMC" gate="G$1" pin="VM"/>
 <wire x1="242.32" y1="73.82" x2="248.92" y2="73.82" width="0.1524" layer="91"/>
 <wire x1="248.92" y1="73.82" x2="248.92" y2="93.98" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$25" class="0">
-<segment>
-<pinref part="POWER_CONNECTOR" gate="G$1" pin="3"/>
-<pinref part="24V_FUSE" gate="G$1" pin="1"/>
-<wire x1="45.72" y1="228.6" x2="66.04" y2="228.6" width="0.1524" layer="91"/>
-<wire x1="66.04" y1="228.6" x2="66.04" y2="238.76" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$17" class="0">
@@ -6534,6 +6528,15 @@ DIN A3, landscape with location and doc. field</description>
 <junction x="259.08" y="53.34"/>
 <pinref part="M4" gate="G$1" pin="1"/>
 <wire x1="294.64" y1="50.8" x2="307.34" y2="60.96" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$22" class="0">
+<segment>
+<pinref part="24V_FUSE" gate="G$1" pin="1"/>
+<wire x1="66.04" y1="238.76" x2="50.8" y2="238.76" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="238.76" x2="50.8" y2="228.6" width="0.1524" layer="91"/>
+<pinref part="POWER_CONNECTOR" gate="G$1" pin="3"/>
+<wire x1="50.8" y1="228.6" x2="45.72" y2="228.6" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
