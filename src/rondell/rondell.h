@@ -45,12 +45,13 @@ typedef struct Rondell Rondell_t;
  * https://github.com/janelia-arduino/TMC2209
  * @param uart    Further UART configuration
  */
-void setUpRondell(SerialAddress_t address, serialUart_t uart);
+void createRondell(SerialAddress_t address, serialUart_t uart);
 
 /*! This is the core-function of the rondell; it moves the rondell to the desired dispenser.
  *
  * @param positionToDriveTo rondellPosition Position that should be driven to.
  */
 void moveToDispenserWithId(rondellPosition_t positionToDriveTo);
+bool initRondellDispenser(void);
 
 #endif // SIEGMA_RONDELL_H

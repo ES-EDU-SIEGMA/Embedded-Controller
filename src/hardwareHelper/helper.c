@@ -67,6 +67,11 @@ void establishConnectionWithController(char *identifier) {
     }
 }
 
+void initAndConnect(bool waitForConnection, char *identifier){
+    initHardware(waitForConnection);
+    establishConnectionWithController(identifier);
+}
+
 void initializeMessageHandler(char **buffer, size_t bufferLength, size_t *characterCounter) {
     *buffer = malloc(bufferLength);
     resetMessageBuffer(*buffer, bufferLength, characterCounter);
@@ -108,7 +113,25 @@ uint32_t parseInputString(char **message) {
     return delay;
 }
 
+bool isIdentifier(char *buffer){
+    char string[] = "LEFT";
+    char string1[] = "RIGHT";
+    char string2[] = "ROUNDEL";
+    if (strcmp(string, buffer) == 0){
+        return true;
+    }
+    if (strcmp(string1, buffer) == 0){
+        return true;
+    }
+    if (strcmp(string2, buffer) == 0){
+        return true;
+    }
+    return false;
+}
 void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacterCount) {
+    if(isIdentifier(buffer)){
+        establishConnectionWithController(buffer);
+    }
     processMessage(buffer, *receivedCharacterCount);
     resetMessageBuffer(buffer, maxBufferSize, receivedCharacterCount);
 }

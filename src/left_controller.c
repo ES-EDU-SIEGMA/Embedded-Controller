@@ -18,11 +18,15 @@ size_t characterCounter;
 char *inputBuffer;
 
 /* endregion VARIABLES/DEFINES */
-
+bool calibratedLeft = false;
 int main() {
     initHardware(false);
-    establishConnectionWithController("LEFT");
-    initDispenser();
+    calibratedLeft = initDispenser();
+    if(!calibratedLeft){
+        if(initDispenser()){
+            calibratedLeft = true;
+        }
+    }//maybe should be moved to dispenser
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
 #pragma clang diagnostic push
@@ -32,7 +36,7 @@ int main() {
         resetWatchdogTimer();
 
         /* region Handle received character */
-
+        establishConnectionWithController("LEFT");
         int input = getchar_timeout_us(3 * 1000000);
 
         PRINT_DEBUG("Start Processing Input!")
@@ -71,7 +75,7 @@ int main() {
 
 /* region HELPER FUNCTIONS */
 
-void initDispenser(void) {
+bool initDispenser(void) {
     dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4,
                     DISPENSER_SEARCH_TIMEOUT);
     dispenserCreate(&dispenser[1], 1, SERIAL_UART, 4,
@@ -80,8 +84,8 @@ void initDispenser(void) {
                     DISPENSER_SEARCH_TIMEOUT);
     dispenserCreate(&dispenser[3], 3, SERIAL_UART, 4,
                     DISPENSER_SEARCH_TIMEOUT);
-
-    PRINT_COMMAND("CALIBRATED")
+    return true;
+    //PRINT_COMMAND("CALIBRATED")
 }
 
 void processMessage(char *message, size_t messageLength) {
@@ -108,14 +112,14 @@ void processMessage(char *message, size_t messageLength) {
         resetWatchdogTimer();
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
             if (triggeredDispensers[i] == true) {
-                dispenserDoStep(&dispenser[i]);
-                if (dispenserGetStateCode(&dispenser[i]) == DISPENSER_STATE_SLEEP) {
+                motorDoStep(&dispenser[i]);
+                if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_SLEEP) {
                     triggeredDispensers[i] = false;
                 }
             }
         }
         // When all dispensers are finished, they are in the state sleep
-    } while (!dispenserSetAllToSleepState(dispenser, NUMBER_OF_DISPENSERS));
+    } while (!dispenserAllInSleepState(dispenser, NUMBER_OF_DISPENSERS));
 }
 
 /* endregion HELPER FUNCTIONS */

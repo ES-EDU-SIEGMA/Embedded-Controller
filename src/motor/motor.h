@@ -4,6 +4,7 @@
 #include "serialUART.h"
 #include "tmc2209.h"
 #include <stdint.h>
+#include <dispenser.h>
 
 #define MOTOR_ENABLE_PINT_0 2
 #define MOTOR_ENABLE_PINT_1 3
@@ -42,6 +43,60 @@ void setUpMotor(Motor_t *motor, SerialAddress_t address, serialUart_t uart);
  *
  * @param motor motor to be enabled
  */
+
+/*! Dispenser cycles to the next state
+ *
+ * @param dispenser the Dispenser to take action on
+ */
+void motorDoStep(dispenser_t *dispenser);
+/*! Change dispenser state to the sleep state (wait for new command)
+ *
+ * @param dispenser dispenser to be set
+ * @return          new state (sleep state) of the dispenser
+ */
+static dispenserState_t sleepState(dispenser_t *dispenser);
+
+/*! Change dispenser state to the up state (drive upwards)
+ *
+ * @param dispenser dispenser to be set
+ * @return          new state (up state) of the dispenser
+ */
+static dispenserState_t upState(dispenser_t *dispenser);
+
+/*! Change dispenser state to the top state (stay in the up position)
+ *
+ * @param dispenser dispenser to be set
+ * @return          new state (top state) of the dispenser
+ */
+static dispenserState_t topState(dispenser_t *dispenser);
+
+/*! Change dispenser state to the down state (drive downwards)
+ *
+ * @param dispenser dispenser to be set
+ * @return          new state (down state) of the dispenser
+ */
+static dispenserState_t downState(dispenser_t *dispenser);
+
+/*! Change dispenser state to the error state (no connection to the tmc -> try again)
+ *
+ * @param dispenser dispenser to be set
+ * @return          new state (error state) of the dispenser
+ */
+static dispenserState_t errorState(dispenser_t *dispenser);
+
+/*! Calculate the time a dispenser needs to reach TopState
+ *
+ * @param dispenserCL 2Cl or 4Cl Dispenser
+ * @return        Time that a dispenser needs to reach TopState
+ */
+
+/*! Check if all Dispenser are sleeping
+ *
+ * @param dispenser           an array holding a reference to all dispenser
+ * @param number_of_dispenser the amount of initialized dispenser
+ * @return true if all Dispenser are in a sleeping state
+ */
+bool dispenserAllInSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser);
 void enableMotorByPin(Motor_t *motor);
 
 /*! Disable the motor

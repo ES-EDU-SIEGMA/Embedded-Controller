@@ -38,7 +38,7 @@ struct dispenser {
     Motor_t motor;
     limitSwitch_t limitSwitch;
     serialUart_t uart;
-    uint16_t searchTimeout;
+    uint16_t searchTimeout;//never accessed
 };
 
 /* endregion DEFINES */
@@ -54,20 +54,6 @@ struct dispenser {
 void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
                      uint8_t dispenserCL, uint16_t searchTimeout);
 
-/*! Dispenser cycles to the next state
- *
- * @param dispenser the Dispenser to take action on
- */
-void dispenserDoStep(dispenser_t *dispenser);
-
-/*! Check if all Dispenser are sleeping
- *
- * @param dispenser           an array holding a reference to all dispenser
- * @param number_of_dispenser the amount of initialized dispenser
- * @return true if all Dispenser are in a sleeping state
- */
-bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser);
-
 /*! Set the halt time for the dispenser to wait at the "top"
  *
  * @param dispenser dispenser to be set
@@ -76,7 +62,7 @@ bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispe
  */
 void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime);
 
-dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser);
+dispenserStateCode_t getDispenserState(dispenser_t *dispenser);
 
 /*! Halt the dispenser motor immedeatly
  *

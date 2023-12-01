@@ -106,10 +106,10 @@ void processMessage(char *message, size_t messageLength) {
         time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
         // Checks for each dispenser if their next state is reached and perform the according action
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            dispenserDoStep(&dispenser[i]);
+            motorDoStep(&dispenser[i]);
         }
         // When all dispensers are finished, they are in the state sleep
-    } while (!dispenserSetAllToSleepState(dispenser, NUMBER_OF_DISPENSERS));
+    } while (!dispenserAllInSleepState(dispenser, NUMBER_OF_DISPENSERS));
 }
 
 /* endregion HELPER FUNCTIONS */

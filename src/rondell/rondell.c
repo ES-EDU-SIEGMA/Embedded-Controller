@@ -23,8 +23,8 @@ static Rondell_t rondell;
 
 /* region HEADER FUNCTIONS */
 
-void setUpRondell(SerialAddress_t address, serialUart_t uart) {
-    createRondell(address, uart);
+void createRondell(SerialAddress_t address, serialUart_t uart) {
+    setUpRondell(address, uart);
     setExtrema();
 }
 
@@ -80,7 +80,7 @@ void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
-static void createRondell(SerialAddress_t address, serialUart_t uart) {
+static void setUpRondell(SerialAddress_t address, serialUart_t uart) {
     rondell.address = address;
     rondell.uart = uart;
     rondell.position = UNDEFINED;
