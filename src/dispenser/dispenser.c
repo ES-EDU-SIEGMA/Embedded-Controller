@@ -19,6 +19,7 @@ static uint32_t timeVACTUAL = 1 << 24;
 static uint8_t counterTorque = 0;
 static uint16_t torque = 0;
 
+
 /* region HEADER FUNCTIONS */
 
 void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
@@ -69,6 +70,18 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
     while (!limitSwitchIsClosed(dispenser->limitSwitch))
         ;
     stopMotor(&dispenser->motor);
+    moveMotorUp(&dispenser->motor);
+
+    while (counterTorque < 2){
+        torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
+        if (torque < 250){
+            counterTorque++;
+        }
+        else counterTorque = 0;
+    };
+    stopMotor(&dispenser->motor);
+    PRINT_DEBUG("Dipsenser Position detected")
+    counterTorque = 0;
 }
 
 static dispenserState_t errorState(dispenser_t *dispenser) {
