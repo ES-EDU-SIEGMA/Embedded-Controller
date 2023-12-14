@@ -86,6 +86,7 @@ void initDispenser(void) {
 
 void processMessage(char *message, size_t messageLength) {
     uint8_t dispensersTrigger = 0;
+    bool triggeredDispensers[NUMBER_OF_DISPENSERS]={false};
 
     PRINT_DEBUG("Process message len: %u", messageLength)
     PRINT_DEBUG("Message: %s", message)
@@ -93,20 +94,25 @@ void processMessage(char *message, size_t messageLength) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
         if (dispenserHaltTimes > 0) {
             dispensersTrigger++;
+            triggeredDispensers[i] = true;
         }
         dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
     }
     for (int i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-        dispenser[i].othersTriggered = dispensersTrigger;
+        if (triggeredDispensers[i] == true) {
+            dispenser[i].othersTriggered = dispensersTrigger;
+        }
     }
-    absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
+
     do {
         resetWatchdogTimer();
-        sleep_until(time);
-        time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-        // Checks for each dispenser if their next state is reached and perform the according action
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            dispenserDoStep(&dispenser[i]);
+            if (triggeredDispensers[i] == true) {
+                dispenserDoStep(&dispenser[i]);
+                if (dispenserGetStateCode(&dispenser[i]) == DISPENSER_STATE_SLEEP) {
+                    triggeredDispensers[i] = false;
+                }
+            }
         }
         // When all dispensers are finished, they are in the state sleep
     } while (!dispenserSetAllToSleepState(dispenser, NUMBER_OF_DISPENSERS));
