@@ -71,14 +71,13 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
         ;
     stopMotor(&dispenser->motor);
     moveMotorUp(&dispenser->motor);
-
     while (counterTorque < 2){
         torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
         if (torque < 250){
             counterTorque++;
         }
         else counterTorque = 0;
-    };
+    }
     stopMotor(&dispenser->motor);
     PRINT_DEBUG("Dipsenser Position detected")
     counterTorque = 0;
@@ -143,6 +142,17 @@ static dispenserState_t downState(dispenser_t *dispenser) {
     PRINT_DEBUG("downState")
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(&dispenser->motor);
+        moveMotorUp(&dispenser->motor);
+        while (counterTorque < 2){
+            torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
+            if (torque < 250){
+                counterTorque++;
+            }
+            else counterTorque = 0;
+        }
+        stopMotor(&dispenser->motor);
+        PRINT_DEBUG("Dipsenser Position detected")
+        counterTorque = 0;
         disableMotorByPin(&dispenser->motor);
         dispenser->haltSteps = 0;
         return sleepState_t;
