@@ -20,6 +20,7 @@ static uint8_t counterTorque = 0;
 static uint16_t torque = 0;
 
 
+
 /* region HEADER FUNCTIONS */
 
 void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
@@ -34,6 +35,7 @@ void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart
     dispenser->othersTriggered = 0;
     // dispenser->stepsUp = dispenserUpTime(dispenserCL) / DISPENSER_STEP_TIME_MS;
     dispenser->searchTimeout = searchTimeout;
+    dispenser->switchClosed = 0;
 
     resetDispenserPosition(dispenser);
     disableMotorByPin(&(dispenser->motor));
@@ -71,9 +73,10 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
         ;
     stopMotor(&dispenser->motor);
     moveMotorUp(&dispenser->motor);
+    PRINT_DEBUG("Torque")
     while (counterTorque < 2){
         torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
-        if (torque < 250){
+        if (torque < 260){
             counterTorque++;
         }
         else counterTorque = 0;
@@ -105,7 +108,7 @@ static dispenserState_t sleepState(dispenser_t *dispenser) {
 static dispenserState_t upState(dispenser_t *dispenser) {
     torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
     PRINT_DEBUG("upState")
-    PRINT_DEBUG("Torque: %i", torque)
+   // PRINT_DEBUG("Torque: %i", torque)
     PRINT_DEBUG("%i", dispenser->stepsDone)
 
     // If the torque is below 10 twice in a row, stop
@@ -143,20 +146,31 @@ static dispenserState_t downState(dispenser_t *dispenser) {
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(&dispenser->motor);
         moveMotorUp(&dispenser->motor);
-        while (counterTorque < 2){
+        dispenser->switchClosed  = 1;
+        PRINT_DEBUG("isClosed")
+    }
+
+    if (dispenser->switchClosed){
+        PRINT_DEBUG("Torque")
+        while (dispenser->counterTorque2 < 2){
             torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
-            if (torque < 250){
-                counterTorque++;
+            if (torque < 260){
+                dispenser->counterTorque2++;
             }
-            else counterTorque = 0;
+            else dispenser->counterTorque2 = 0;
         }
         stopMotor(&dispenser->motor);
         PRINT_DEBUG("Dipsenser Position detected")
-        counterTorque = 0;
+        dispenser->counterTorque2 = 0;
+
+
         disableMotorByPin(&dispenser->motor);
         dispenser->haltSteps = 0;
+        dispenser->switchClosed  = 0;
         return sleepState_t;
     }
+
+
     dispenser->stepsDone++;
     return downState_t;
 }
