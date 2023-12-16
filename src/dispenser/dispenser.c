@@ -22,17 +22,14 @@ static uint16_t torque = 0;
 /* region HEADER FUNCTIONS */
 
 void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
-                     uint8_t dispenserCL, uint16_t searchTimeout) {
+                     uint8_t dispenserCL) {
     dispenser->address = address;
     dispenser->uart = uart;
-    dispenser->haltSteps = 0;
-    dispenser->stepsDone = 0;
     dispenser->state = (dispenserState_t){.function = &sleepState};
     dispenser->motor = createMotor(address, uart);
     dispenser->limitSwitch = createLimitSwitch(address);
-    dispenser->othersTriggered = 0;
     // dispenser->stepsUp = dispenserUpTime(dispenserCL) / DISPENSER_STEP_TIME_MS;
-    dispenser->searchTimeout = searchTimeout;
+    dispenser->haltTime = 0;
 
     resetDispenserPosition(dispenser);
     disableMotorByPin(&(dispenser->motor));
@@ -57,7 +54,7 @@ dispenserStateCode_t dispenserGetStateCode(dispenser_t *dispenser) {
 void dispenserEmergencyStop(dispenser_t *dispenser) {
     stopMotor(&dispenser->motor);
     disableMotorByPin(&dispenser->motor);
-    dispenser->haltSteps = 0;
+    dispenserSetHaltTime(dispenser, 0);
     dispenser->state = (dispenserState_t){.function = &sleepState};
 }
 /* endregion HEADER FUNCTIONS */
@@ -75,14 +72,14 @@ static dispenserState_t errorState(dispenser_t *dispenser) {
     setUpMotor(&dispenser->motor, dispenser->address, dispenser->uart);
     if (motorIsCommunicating(&dispenser->motor)) {
         disableMotorByPin(&dispenser->motor);
-        dispenser->haltSteps = 0;
+        dispenserSetHaltTime(dispenser, 0);
         return sleepState_t;
     }
     return errorState_t;
 }
 
 static dispenserState_t sleepState(dispenser_t *dispenser) {
-    if (dispenser->haltSteps > 0) {
+    if (dispenser->haltTime > 0) {
         enableMotorByPin(&dispenser->motor);
         moveMotorUp(&dispenser->motor);
         return upState_t;
@@ -94,7 +91,6 @@ static dispenserState_t upState(dispenser_t *dispenser) {
     torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
     PRINT_DEBUG("upState")
     PRINT_DEBUG("Torque: %i", torque)
-    PRINT_DEBUG("%i", dispenser->stepsDone)
 
     // If the torque is below 10 twice in a row, stop
     if (torque < 10){
@@ -103,27 +99,25 @@ static dispenserState_t upState(dispenser_t *dispenser) {
             PRINT_DEBUG("detect Top Position")
             stopMotor(&dispenser->motor);
             counterTorque = 0;
-            dispenser->stepsUp = dispenser->stepsDone;
             return topState_t;
         }
     }
     else counterTorque = 0;
 
-    if (!limitSwitchIsClosed(dispenser->limitSwitch)) {
-        dispenser->stepsDone++;
-    }
     return upState_t;
 }
 
 static dispenserState_t topState(dispenser_t *dispenser) {
     PRINT_DEBUG("topState")
-    if (dispenser->stepsDone >
-        dispenser->stepsUp + 2 * dispenser->othersTriggered + dispenser->haltSteps) {
-        moveMotorDown(&dispenser->motor);
-        return downState_t;
+    if (dispenser->haltTime > 0) {
+        sleep_ms(TOP_TIME_SLOT);
+        dispenser->haltTime = dispenser->haltTime - TOP_TIME_SLOT;
+        return topState_t;
     }
-    dispenser->stepsDone++;
-    return topState_t;
+    // reset to 0 when change to down state.
+    dispenserSetHaltTime(dispenser, 0);
+    moveMotorDown(&dispenser->motor);
+    return downState_t;
 }
 
 static dispenserState_t downState(dispenser_t *dispenser) {
@@ -131,10 +125,9 @@ static dispenserState_t downState(dispenser_t *dispenser) {
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(&dispenser->motor);
         disableMotorByPin(&dispenser->motor);
-        dispenser->haltSteps = 0;
+        dispenserSetHaltTime(dispenser, 0);
         return sleepState_t;
     }
-    dispenser->stepsDone++;
     return downState_t;
 }
 
@@ -146,9 +139,7 @@ void dispenserDoStep(dispenser_t *dispenser) {
 }
 
 void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime) {
-    dispenser->haltSteps = haltTime / DISPENSER_STEP_TIME_MS;
-    dispenser->stepsDone = 0;
-    PRINT_DEBUG("Dispenser %u will stop after %hu steps", dispenser->address, dispenser->haltSteps)
+     dispenser->haltTime = haltTime;
 }
 
 bool dispenserSetAllToSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser) {
