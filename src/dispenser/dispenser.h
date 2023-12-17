@@ -39,6 +39,8 @@ struct dispenser {
     limitSwitch_t limitSwitch;
     serialUart_t uart;
     uint16_t searchTimeout;
+    bool switchClosed;
+    uint8_t counterTorque;
 };
 
 /* endregion DEFINES */
