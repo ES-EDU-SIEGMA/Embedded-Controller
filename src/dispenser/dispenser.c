@@ -72,7 +72,7 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
     while (!limitSwitchIsClosed(dispenser->limitSwitch))
         ;
     stopMotor(&dispenser->motor);
-    moveMotorUp(&dispenser->motor);
+    moveMotorUpHighSpeed(&dispenser->motor);
     PRINT_DEBUG("Torque")
     while (counterTorque < 2){
         torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
@@ -145,7 +145,7 @@ static dispenserState_t downState(dispenser_t *dispenser) {
     PRINT_DEBUG("downState")
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(&dispenser->motor);
-        moveMotorUp(&dispenser->motor);
+        moveMotorUpHighSpeed(&dispenser->motor);
         dispenser->switchClosed  = 1;
         PRINT_DEBUG("isClosed")
     }
