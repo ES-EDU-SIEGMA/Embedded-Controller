@@ -55,12 +55,13 @@ add_test(unit-test_limitSwitch unit-test_limitSwitch)
 # hardware helper
 add_executable(unit-test_hardwareHelper
         ${CMAKE_CURRENT_LIST_DIR}/test_hardwareHelper.c
+        dummies/hardwareHelper/helper.c
 )
 target_include_directories(unit-test_hardwareHelper PUBLIC
         ${CMAKE_SOURCE_DIR}/src/hardwareHelper
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/hardwareHelper
 )
 target_link_libraries(unit-test_hardwareHelper
         unity
-        helper
 )
 add_test(unit-test_hardwareHelper unit-test_hardwareHelper)

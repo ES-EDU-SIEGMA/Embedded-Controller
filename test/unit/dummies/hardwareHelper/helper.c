@@ -11,3 +11,11 @@ bool isAllowedCharacter(char charToCheck) {
     }
     return false;
 }
+
+bool isLineEnd(char charToCheck) {
+    return charToCheck == '\n';
+}
+
+bool isMessageToLong(size_t numberOfCharacters, size_t bufferLength) {
+    return numberOfCharacters >= bufferLength - 1;
+}
