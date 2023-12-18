@@ -292,6 +292,8 @@ typedef struct TMC2209 {
 void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, uint32_t serial_baud_rate,
                    SerialAddress_t serial_address);
 
+void TMC2209_setupByMotor(TMC2209_t *tmc2209,SerialAddress_t serial_address);
+
 // check to make sure TMC2209 is properly setup and communicating
 bool TMC2209_isSetupAndCommunicating(TMC2209_t *tmc2209);
 

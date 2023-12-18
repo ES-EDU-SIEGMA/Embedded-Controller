@@ -114,7 +114,7 @@ int main() {
                 time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
                 // Checks for each dispenser if their next state is reached and perform the
                 // according action
-                motorDoStep(&dispenser[id]);
+                dispenserChangeStates(&dispenser[id]);
                 // When all dispensers are finished, they are in the state sleep
             } while (DISPENSER_STATE_SLEEP != getDispenserState(dispenser));
             PRINT("Ready")

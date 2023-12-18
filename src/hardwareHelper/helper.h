@@ -44,7 +44,6 @@ bool isAllowedCharacter(char charToCheck);
 bool isLineEnd(char charToCheck);
 
 bool isMessageToLong(size_t numberOfCharacters, size_t bufferLength);
-bool isIdentifier(char *buffer);
 
 void storeCharacter(char *buffer, size_t *bufferIndex, char newCharacter);
 

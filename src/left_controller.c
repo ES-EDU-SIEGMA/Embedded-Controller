@@ -8,7 +8,7 @@
 
 /* region VARIABLES/DEFINES */
 
-#define SERIAL_UART SERIAL2 /// The uart Pins to be used
+//#define SERIAL_UART SERIAL2 /// The uart Pins to be used
 #define NUMBER_OF_DISPENSERS 4
 #define DISPENSER_SEARCH_TIMEOUT 250
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
@@ -16,17 +16,15 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
 size_t characterCounter;
 char *inputBuffer;
-
-/* endregion VARIABLES/DEFINES */
 bool calibratedLeft = false;
+/* endregion VARIABLES/DEFINES */
 int main() {
     initHardware(false);
     calibratedLeft = initDispenser();
+
     if(!calibratedLeft){
-        if(initDispenser()){
-            calibratedLeft = true;
-        }
-    }//maybe should be moved to dispenser
+        initDispenser();
+    }
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
 #pragma clang diagnostic push
@@ -74,18 +72,16 @@ int main() {
 }
 
 /* region HELPER FUNCTIONS */
-
 bool initDispenser(void) {
-    dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4,
+    dispenserCreate(&dispenser[0], 0,4,
                     DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[1], 1, SERIAL_UART, 4,
+    dispenserCreate(&dispenser[1], 1,4,
                     DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[2], 2, SERIAL_UART, 4,
+    dispenserCreate(&dispenser[2], 2,4,
                     DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[3], 3, SERIAL_UART, 4,
+    dispenserCreate(&dispenser[3], 3,4,
                     DISPENSER_SEARCH_TIMEOUT);
     return true;
-    //PRINT_COMMAND("CALIBRATED")
 }
 
 void processMessage(char *message, size_t messageLength) {
@@ -112,7 +108,7 @@ void processMessage(char *message, size_t messageLength) {
         resetWatchdogTimer();
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
             if (triggeredDispensers[i] == true) {
-                motorDoStep(&dispenser[i]);
+                dispenserChangeStates(&dispenser[i]);
                 if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_SLEEP) {
                     triggeredDispensers[i] = false;
                 }
