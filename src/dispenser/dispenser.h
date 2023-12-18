@@ -9,6 +9,7 @@
 
 /* region DEFINES */
 
+#define DISPENSER_STEP_TIME_MS 100
 #define TOP_TIME_SLOT 1
 
 typedef struct dispenserState dispenserState_t;
@@ -49,7 +50,7 @@ struct dispenser {
  * @return        a initialized Dispenser
  */
 void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
-                     uint8_t dispenserCL);
+                     uint8_t dispenserCL, uint16_t searchTimeout);
 
 /*! Dispenser cycles to the next state
  *

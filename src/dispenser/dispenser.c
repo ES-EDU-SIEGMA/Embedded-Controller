@@ -22,7 +22,7 @@ static uint16_t torque = 0;
 /* region HEADER FUNCTIONS */
 
 void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
-                     uint8_t dispenserCL) {
+                     uint8_t dispenserCL, uint16_t searchTimeout) {
     dispenser->address = address;
     dispenser->uart = uart;
     dispenser->state = (dispenserState_t){.function = &sleepState};

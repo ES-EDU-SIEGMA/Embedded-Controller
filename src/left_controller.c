@@ -10,6 +10,7 @@
 
 #define SERIAL_UART SERIAL2 /// The uart Pins to be used
 #define NUMBER_OF_DISPENSERS 4
+#define DISPENSER_SEARCH_TIMEOUT 250
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
@@ -71,10 +72,14 @@ int main() {
 /* region HELPER FUNCTIONS */
 
 void initDispenser(void) {
-    dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4);
-    dispenserCreate(&dispenser[1], 1, SERIAL_UART, 4);
-    dispenserCreate(&dispenser[2], 2, SERIAL_UART, 4);
-    dispenserCreate(&dispenser[3], 3, SERIAL_UART, 4);
+    dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4,
+                    DISPENSER_SEARCH_TIMEOUT);
+    dispenserCreate(&dispenser[1], 1, SERIAL_UART, 4,
+                    DISPENSER_SEARCH_TIMEOUT);
+    dispenserCreate(&dispenser[2], 2, SERIAL_UART, 4,
+                    DISPENSER_SEARCH_TIMEOUT);
+    dispenserCreate(&dispenser[3], 3, SERIAL_UART, 4,
+                    DISPENSER_SEARCH_TIMEOUT);
 
     PRINT_COMMAND("CALIBRATED")
 }
