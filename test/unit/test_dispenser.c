@@ -5,7 +5,7 @@
 dispenser_t dispenser;
 
 void setUp() {
-    dispenserCreate(&dispenser, 0, SERIAL, 4, 100);
+//    dispenserCreate(&dispenser, 0, SERIAL, 4, 100);
 }
 
 void tearDown() {}
