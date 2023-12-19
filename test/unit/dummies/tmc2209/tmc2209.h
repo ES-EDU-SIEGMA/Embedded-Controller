@@ -22,9 +22,9 @@ typedef struct TMC2209 {
     uint8_t serial_address;
 } TMC2209_t;
 
-extern uint64_t CURRENT_VELOCITY;
 
-void TMC2209_setup(TMC2209_t *tmc2209, SerialUART_t serial, long serial_baud_rate,
+
+void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, long serial_baud_rate,
                    SerialAddress_t serial_address);
 
 bool TMC2209_isSetupAndCommunicating(TMC2209_t *tmc2209);
@@ -34,6 +34,10 @@ void TMC2209_enable(TMC2209_t *tmc2209);
 bool TMC2209_disabledByInputPin(TMC2209_t *tmc2209);
 
 void TMC2209_setRunCurrent(TMC2209_t *tmc2209, uint8_t percent);
+
+void TMC2209_setHoldCurrent(TMC2209_t *tmc2209, uint8_t percent);
+
+uint16_t TMC2209_getStallGuardResult(TMC2209_t *tmc2209);
 
 void TMC2209_moveAtVelocity(TMC2209_t *tmc2209, int32_t microsteps_per_period);
 
