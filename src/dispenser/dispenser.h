@@ -37,6 +37,7 @@ struct dispenser {
     limitSwitch_t limitSwitch;
     serialUart_t uart;
     uint32_t haltTime;
+    uint8_t othersTriggered;
 };
 
 /* endregion DEFINES */

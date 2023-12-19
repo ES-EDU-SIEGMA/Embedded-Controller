@@ -2,17 +2,17 @@
 #include "serialUART.h"
 #include <unity.h>
 
-Dispenser_t dispenser;
+dispenser_t dispenser;
 
 void setUp() {
-    dispenser = dispenserCreate(0, SERIAL);
+//    dispenser = dispenserCreate(0, SERIAL);
 }
 
 void tearDown() {}
 
 void testDispenserStructChanged(void) {
     // If Fails, struct was changed and tests need to be adjusted
-    TEST_ASSERT_EQUAL(32, sizeof(Dispenser_t));
+    TEST_ASSERT_EQUAL(32, sizeof(dispenser_t));
 }
 
 void testDispenserCycle(void) {

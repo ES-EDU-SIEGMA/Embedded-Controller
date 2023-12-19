@@ -4,9 +4,9 @@
 #define SERIAL serialUart
 #define SERIAL_BAUD_RATE 0
 
-typedef struct SerialUART_t {
-} SerialUART_t;
+typedef struct serialUart_t {
+} serialUart_t;
 
-static SerialUART_t serialUart;
+static serialUart_t serialUart;
 
 #endif // SIEGMA_SERIAL_UART_H
