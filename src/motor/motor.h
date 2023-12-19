@@ -14,7 +14,7 @@
 //! current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
 //! for 3 cl Dispenser '>=100000' is allowed, without deformation
 #define MOTOR_UP_SPEED 120000
-#define MOTOR_UP_SPEED_HIGH 150000
+#define MOTOR_UP_SPEED_HIGH 130000
 #endif
 #ifndef MOTOR_DOWN_SPEED
 //! current dispenser only allows '>=80000', without problems with refilling

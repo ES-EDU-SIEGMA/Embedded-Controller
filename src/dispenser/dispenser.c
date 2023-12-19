@@ -76,7 +76,8 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
     PRINT_DEBUG("Torque")
     while (counterTorque < 2){
         torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
-        if (torque < 260){
+        PRINT_DEBUG("Torque: %i", torque)
+        if (torque < 240){
             counterTorque++;
         }
         else counterTorque = 0;
@@ -154,7 +155,8 @@ static dispenserState_t downState(dispenser_t *dispenser) {
         PRINT_DEBUG("Torque")
         if(dispenser->counterTorque < 2){
             torque = TMC2209_getStallGuardResult(&dispenser->motor.tmc2209);
-            if (torque < 260){
+            PRINT_DEBUG("Torque: %i", torque)
+            if (torque < 240){
                 dispenser->counterTorque++;
             }
             else dispenser->counterTorque = 0;
