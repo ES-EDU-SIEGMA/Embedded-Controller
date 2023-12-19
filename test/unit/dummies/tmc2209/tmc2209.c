@@ -5,6 +5,7 @@
  *** ---------------------------------------------------------------------------- */
 
 #include "tmc2209.h"
+uint64_t CURRENT_VELOCITY;
 
 void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, long serial_baud_rate,
                    SerialAddress_t serial_address) {

@@ -1,5 +1,7 @@
 #include "gpio.h"
 
+bool GPIO_RETURN;
+
 bool gpio_get(uint8_t pin) {
     return GPIO_RETURN;
 }

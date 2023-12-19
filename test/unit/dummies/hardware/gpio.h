@@ -14,7 +14,7 @@ enum gpio_function {
 #define GPIO_OUT 1
 #define GPIO_IN 0
 
-bool GPIO_RETURN;
+
 
 bool gpio_get(uint8_t pin);
 
