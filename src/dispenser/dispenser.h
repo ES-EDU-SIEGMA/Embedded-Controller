@@ -10,6 +10,7 @@
 /* region DEFINES */
 
 #define DISPENSER_STEP_TIME_MS 100
+#define TOP_TIME_SLOT 1
 
 typedef struct dispenserState dispenserState_t;
 typedef struct dispenser dispenser_t;
@@ -30,15 +31,13 @@ struct dispenserState {
 /// Dispenser struct holding all important values to control the stepper driver
 struct dispenser {
     SerialAddress_t address;
-    uint8_t othersTriggered; //! How many Dispenser have halt-times > 0
-    uint16_t stepsDone;
     uint16_t stepsUp;
-    uint16_t haltSteps;
     dispenserState_t state;
     Motor_t motor;
     limitSwitch_t limitSwitch;
     serialUart_t uart;
-    uint16_t searchTimeout;
+    uint32_t haltTime;
+    uint8_t othersTriggered;
 };
 
 /* endregion DEFINES */

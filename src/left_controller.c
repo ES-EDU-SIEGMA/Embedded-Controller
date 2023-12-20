@@ -98,11 +98,6 @@ void processMessage(char *message, size_t messageLength) {
         }
         dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
     }
-    for (int i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-        if (triggeredDispensers[i] == true) {
-            dispenser[i].othersTriggered = dispensersTrigger;
-        }
-    }
 
     do {
         resetWatchdogTimer();
