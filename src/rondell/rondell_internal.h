@@ -5,7 +5,7 @@
 /// number.
 #define MEAN_OF_LDR_VALUES ((rondell.max_ldr_value + rondell.min_ldr_value) / 2)
 
-static void createRondell(SerialAddress_t address, serialUart_t uart);
+static void setUpRondell(SerialAddress_t address, serialUart_t uart);
 
 /*!
  * "setExtrema" is called at startup and its purpose is to set the maximum and minimum ldr value
@@ -64,9 +64,6 @@ static void findLongHoleAndPassIt(void);
  * The decision to not generalize the sleep-duration is based on the need for consistent behaviour.
  * The sleep period should always be the same; therefore the usage of a constant.
  */
-static void passDarkPeriod(uint32_t *counter);
-
-static void passBrightPeriod(void);
 
 /*
 The idea for the algorithm of "identify position" is to determine time differences between certain

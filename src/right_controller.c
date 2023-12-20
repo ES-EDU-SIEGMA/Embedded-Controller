@@ -16,13 +16,16 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
 size_t characterCounter;
 char *inputBuffer;
-
+bool calibratedRight = false;
 /* endregion VARIABLES/DEFINES */
 
 int main() {
     initHardware(false);
     establishConnectionWithController("RIGHT");
-    initDispenser();
+    calibratedRight = initDispenser();
+    if(!calibratedRight){
+        initDispenser();
+    }
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
 #pragma clang diagnostic push
@@ -71,7 +74,7 @@ int main() {
 
 /* region HELPER FUNCTIONS */
 
-void initDispenser(void) {
+bool initDispenser(void) {
     dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4,
                     DISPENSER_SEARCH_TIMEOUT);
     dispenserCreate(&dispenser[1], 1, SERIAL_UART, 4,
@@ -83,7 +86,15 @@ void initDispenser(void) {
 
     PRINT_COMMAND("CALIBRATED")
 }
-
+void initDispenserRightSuccessful(){
+    if(!calibratedRight){
+        PRINT_DEBUG("TRY AGAIN TO INIT DISPENSER")
+        if(initDispenser()){
+            calibratedRight = true;
+            PRINT_DEBUG("DISPENSER INIT SUCCESSFUL")
+        }
+    }
+}
 void processMessage(char *message, size_t messageLength) {
     uint8_t dispensersTrigger = 0;
 
@@ -106,10 +117,10 @@ void processMessage(char *message, size_t messageLength) {
         time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
         // Checks for each dispenser if their next state is reached and perform the according action
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            dispenserDoStep(&dispenser[i]);
+            dispenserChangeStates(&dispenser[i]);
         }
         // When all dispensers are finished, they are in the state sleep
-    } while (!dispenserSetAllToSleepState(dispenser, NUMBER_OF_DISPENSERS));
+    } while (!dispenserAllInSleepState(dispenser, NUMBER_OF_DISPENSERS));
 }
 
 /* endregion HELPER FUNCTIONS */

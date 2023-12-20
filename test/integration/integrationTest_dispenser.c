@@ -114,9 +114,9 @@ int main() {
                 time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
                 // Checks for each dispenser if their next state is reached and perform the
                 // according action
-                dispenserDoStep(&dispenser[id]);
+                dispenserChangeStates(&dispenser[id]);
                 // When all dispensers are finished, they are in the state sleep
-            } while (DISPENSER_STATE_SLEEP != dispenserGetStateCode(dispenser));
+            } while (DISPENSER_STATE_SLEEP != getDispenserState(dispenser));
             PRINT("Ready")
             break;
         case 'h':

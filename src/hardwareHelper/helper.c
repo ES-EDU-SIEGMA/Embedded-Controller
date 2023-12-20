@@ -67,6 +67,11 @@ void establishConnectionWithController(char *identifier) {
     }
 }
 
+void initAndConnect(bool waitForConnection, char *identifier){
+    initHardware(waitForConnection);
+    establishConnectionWithController(identifier);
+}
+
 void initializeMessageHandler(char **buffer, size_t bufferLength, size_t *characterCounter) {
     *buffer = malloc(bufferLength);
     resetMessageBuffer(*buffer, bufferLength, characterCounter);
@@ -107,6 +112,7 @@ uint32_t parseInputString(char **message) {
     *message = semicolonPosition + 1;
     return delay;
 }
+
 
 void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacterCount) {
     processMessage(buffer, *receivedCharacterCount);

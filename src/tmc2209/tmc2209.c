@@ -42,6 +42,7 @@
 #include "serialUART.h"
 #include "tmc2209_intern.h"
 #include <pico/time.h>
+#define SERIAL_UART SERIAL2
 
 #ifndef constrain
 #define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
@@ -74,6 +75,10 @@ void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, uint32_t serial_baud
     if (!TMC2209_isSetupAndCommunicating(tmc2209)) {
         tmc2209->blocking = true;
     }
+}
+
+void TMC2209_setupByMotor(TMC2209_t *tmc2209,SerialAddress_t serial_address){
+    TMC2209_setup(tmc2209, SERIAL_UART, SERIAL_BAUD_RATE, serial_address);
 }
 
 void TMC2209_setHoldCurrent(TMC2209_t *tmc2209, uint8_t percent) {

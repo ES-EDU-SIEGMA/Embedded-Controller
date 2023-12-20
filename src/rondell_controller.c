@@ -20,11 +20,15 @@ size_t characterCounter;
 char *inputBuffer;
 
 /* endregion VARIABLES/DEFINES */
-
+bool calibratedRondell = false;
 int main() {
     initHardware(false);
-    establishConnectionWithController("RONDELL");
-    initDispenser();
+    calibratedRondell = initRondellDispenser();
+    if(!calibratedRondell){
+        if(initDispenser()){
+            calibratedRondell = true;
+        }
+    }
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
 #pragma clang diagnostic push
@@ -34,6 +38,7 @@ int main() {
         resetWatchdogTimer();
 
         /* region Handle received character */
+        establishConnectionWithController("RONDELL");
 
         int input = getchar_timeout_us(3 * 1000000);
 
@@ -98,12 +103,12 @@ void initialize_adc(uint8_t gpio) {
     adc_select_input(adcInputPin);
 }
 
-void initDispenser(void) {
+bool initRondellDispenser(void) {
     initialize_adc(28);
     dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4, DISPENSER_SEARCH_TIMEOUT);
-    setUpRondell(2, SERIAL2);
-
-    PRINT_COMMAND("CALIBRATED")
+    createRondell(2, SERIAL2);
+    return true;
+    //PRINT_COMMAND("CALIBRATED")
 }
 
 void processMessage(char *message, size_t messageLength) {
@@ -120,8 +125,8 @@ void processMessage(char *message, size_t messageLength) {
                 resetWatchdogTimer();
                 sleep_until(time);
                 time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-                dispenserDoStep(&dispenser[0]);
-            } while (!dispenserSetAllToSleepState(dispenser, 1));
+                motorDoStep(&dispenser[0]);
+            } while (!dispenserAllInSleepState(dispenser, 1));
         }
     }
 }
