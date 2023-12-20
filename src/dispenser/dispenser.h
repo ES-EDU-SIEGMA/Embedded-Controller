@@ -8,6 +8,7 @@
 /* region DEFINES */
 
 #define DISPENSER_STEP_TIME_MS 100
+#define TOP_TIME_SLOT 1
 
 enum {
     DISPENSER_STATE_SLEEP,
@@ -29,13 +30,10 @@ struct dispenserState {
 /// Dispenser struct holding all important values to control the stepper driver
 struct dispenser {
     motorAddress_t address;
-    uint8_t othersTriggered; //! How many Dispenser have halt-times > 0
-    uint16_t stepsDone;
     uint16_t stepsUp;
-    uint16_t haltSteps;
     dispenserState_t state;
     limitSwitch_t limitSwitch;
-    uint16_t searchTimeout;//never accessed
+    uint32_t haltTime;
 };
 
 /* endregion DEFINES */
