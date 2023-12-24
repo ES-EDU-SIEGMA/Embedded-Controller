@@ -9,11 +9,8 @@
 #include "common.h"
 #include "motor.h"
 #include "rondell_internal.h"
-#include "serialUART.h"
-#include "tmc2209.h"
 #include <hardware/adc.h>
 #include <pico/time.h>
-#include <stdio.h>
 
 /* region VARIABLES */
 
@@ -23,13 +20,12 @@ static Rondell_t rondell;
 
 /* region HEADER FUNCTIONS */
 
-void createRondell(SerialAddress_t address, serialUart_t uart) {
-    setUpRondell(address, uart);
+void createRondell(motorAddress_t address) {
+    setUpRondell(address);
     setExtrema();
 }
-
 void handleSpecialPosition(void) {
-    PRINT_DEBUG("ENTERED handleSpecialPosition\n");
+    PRINT_DEBUG("ENTERED handleSpecialPosition\n")
     if (rondell.positionToDriveTo == 3 && rondell.position == 0) {
         moveRondellCounterClockwise();
     } else {
@@ -80,32 +76,32 @@ void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
-static void setUpRondell(SerialAddress_t address, serialUart_t uart) {
+static void setUpRondell(motorAddress_t address) {
     rondell.address = address;
-    rondell.uart = uart;
+    //rondell.uart = uart;
     rondell.position = UNDEFINED;
     rondell.state = RONDELL_SLEEP;
     rondell.positionToDriveTo = UNDEFINED;
     rondell.max_ldr_value = 0;
     rondell.min_ldr_value = 4095;
-    rondell.motor = createMotor(address, uart);
+    //rondell.motor = createMotor(address);
 }
 
 static void moveRondellCounterClockwise(void) {
-    moveMotorUp(&rondell.motor);
+    moveMotorUp(rondell.address);
     rondell.state = RONDELL_MOVING_COUNTER_CLOCKWISE;
     sleep_ms(200);
 }
 
 static void moveRondellClockwise(void) {
-    moveMotorDown(&rondell.motor);
+    moveMotorDown(rondell.address);
     rondell.state = RONDELL_MOVING_CLOCKWISE;
     sleep_ms(200);
 }
 
 static void stopRondell(void) {
-    stopMotor(&rondell.motor);
-    disableMotorByPin(&rondell.motor);
+    stopMotor(rondell.address);
+    disableMotorByPin(rondell.address);
 }
 
 static uint8_t specialPositionGiven(void) {
@@ -135,7 +131,7 @@ static uint8_t calculatePositionDifference(void) {
 
 static void setExtrema(void) {
     PRINT_DEBUG("ENTERED setExtrema")
-    enableMotorByPin(&rondell.motor);
+    enableMotorByPin(rondell.address);
     moveRondellClockwise();
     uint16_t dataCollectionTime_ms = 15000;
     uint16_t counter = 0;
@@ -161,7 +157,7 @@ static void setExtrema(void) {
 
 static void startRondellAndDecideDirection(void) {
     PRINT_DEBUG("started rondell and deciding direction")
-    enableMotorByPin(&rondell.motor);
+    enableMotorByPin(rondell.address);
     if (rondell.position != UNDEFINED) {
         uint8_t positionDifference = calculatePositionDifference();
         PRINT_DEBUG("POSITION DIFFERENCE: %u", positionDifference)
