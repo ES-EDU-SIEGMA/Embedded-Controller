@@ -5,7 +5,7 @@
 /// number.
 #define MEAN_OF_LDR_VALUES ((rondell.max_ldr_value + rondell.min_ldr_value) / 2)
 
-static void setUpRondell(SerialAddress_t address, serialUart_t uart);
+static void setUpRondell(motorAddress_t address);
 
 /*!
  * "setExtrema" is called at startup and its purpose is to set the maximum and minimum ldr value
