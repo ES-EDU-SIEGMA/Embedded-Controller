@@ -16,12 +16,11 @@ static dispenserState_t errorState_t = (dispenserState_t){.function = &errorStat
 // Test
 /* region HEADER FUNCTIONS */
 
-void dispenserCreate(dispenser_t *dispenser, motorAddress_t address, uint8_t dispenserCL, uint16_t searchTimeout) {
+void dispenserCreate(dispenser_t *dispenser, motorAddress_t address, uint8_t dispenserCL) {
     dispenser->address = address;
     dispenser->state = (dispenserState_t){.function = &sleepState};
     dispenser->limitSwitch = createLimitSwitch(address);
     // dispenser->stepsUp = dispenserUpTime(dispenserCL) / DISPENSER_STEP_TIME_MS;
-    dispenser->searchTimeout = searchTimeout;
     dispenser->haltTime = 0;
     createMotor(dispenser->address);
     resetDispenserPosition(dispenser);

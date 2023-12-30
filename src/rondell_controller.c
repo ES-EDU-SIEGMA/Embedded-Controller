@@ -105,7 +105,7 @@ void initialize_adc(uint8_t gpio) {
 
 bool initRondellDispenser(void) {
     initialize_adc(28);
-    dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4, DISPENSER_SEARCH_TIMEOUT);
+    dispenserCreate(&dispenser[0], 0, 4);
     createRondell(2, SERIAL2);
     return true;
     //PRINT_COMMAND("CALIBRATED")
@@ -120,12 +120,9 @@ void processMessage(char *message, size_t messageLength) {
         if (dispenserHaltTimes > 0) {
             resetWatchdogTimer();
             moveToDispenserWithId(i);
-            absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
             do {
                 resetWatchdogTimer();
-                sleep_until(time);
-                time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-                motorDoStep(&dispenser[0]);
+                dispenserChangeStates(&dispenser[i]);
             } while (!dispenserAllInSleepState(dispenser, 1));
         }
     }

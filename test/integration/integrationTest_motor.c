@@ -60,19 +60,19 @@ int main() {
         switch (command) {
         case 's':
             PRINT("Setup dispenser: %lu", id)
-            motor[id] = createMotor(id, SERIAL_UART);
+            motor[id] = createMotor(id);
             break;
         case 'u':
             PRINT("Move dispenser up: %lu", id)
-            moveMotorUp(&motor[id]);
+            moveMotorUp(id);
             break;
         case 'd':
             PRINT("Move dispenser down: %lu", id)
-            moveMotorDown(&motor[id]);
+            moveMotorDown(id);
             break;
         case 'h':
             PRINT("Stop dispenser: %lu", id)
-            stopMotor(&motor[id]);
+            stopMotor(id);
             break;
         default:
             PRINT("Invalid command received!")
