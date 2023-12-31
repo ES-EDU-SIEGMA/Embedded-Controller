@@ -102,7 +102,7 @@ void initialize_adc(uint8_t gpio) {
 
 bool initRondellDispenser(void) {
     initialize_adc(28);
-    dispenserCreate(&dispenser[0], 0,4, DISPENSER_SEARCH_TIMEOUT);
+    dispenserCreate(&dispenser[0], 0,4);
     createRondell(2);
     return true;
     //PRINT_COMMAND("CALIBRATED")
