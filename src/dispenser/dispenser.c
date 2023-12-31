@@ -21,7 +21,7 @@ void dispenserCreate(dispenser_t *dispenser, motorAddress_t address, uint8_t dis
     dispenser->state = (dispenserState_t){.function = &sleepState};
     dispenser->limitSwitch = createLimitSwitch(address);
     // dispenser->stepsUp = dispenserUpTime(dispenserCL) / DISPENSER_STEP_TIME_MS;
-    dispenser->searchTimeout = searchTimeout;
+    //dispenser->searchTimeout = searchTimeout;
     dispenser->haltTime = 0;
     createMotor(dispenser->address);
     resetDispenserPosition(dispenser);

@@ -18,16 +18,13 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
 size_t characterCounter;
 char *inputBuffer;
-
-/* endregion VARIABLES/DEFINES */
 bool calibratedRondell = false;
+/* endregion VARIABLES/DEFINES */
 int main() {
     initHardware(false);
     calibratedRondell = initRondellDispenser();
     if(!calibratedRondell){
-        if(initDispenser()){
-            calibratedRondell = true;
-        }
+        initRondellDispenser();
     }
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
@@ -105,8 +102,8 @@ void initialize_adc(uint8_t gpio) {
 
 bool initRondellDispenser(void) {
     initialize_adc(28);
-    dispenserCreate(&dispenser[0], 0, SERIAL_UART, 4, DISPENSER_SEARCH_TIMEOUT);
-    createRondell(2, SERIAL2);
+    dispenserCreate(&dispenser[0], 0,4, DISPENSER_SEARCH_TIMEOUT);
+    createRondell(2);
     return true;
     //PRINT_COMMAND("CALIBRATED")
 }
@@ -125,7 +122,7 @@ void processMessage(char *message, size_t messageLength) {
                 resetWatchdogTimer();
                 sleep_until(time);
                 time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-                motorDoStep(&dispenser[0]);
+                dispenserChangeStates(&dispenser[0]);
             } while (!dispenserAllInSleepState(dispenser, 1));
         }
     }
