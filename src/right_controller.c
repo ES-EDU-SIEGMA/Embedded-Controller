@@ -8,8 +8,9 @@
 
 /* region VARIABLES/DEFINES */
 
-//#define SERIAL_UART SERIAL2 /// The uart Pins to be used
+#define SERIAL_UART SERIAL2 /// The uart Pins to be used
 #define NUMBER_OF_DISPENSERS 4
+
 #define DISPENSER_SEARCH_TIMEOUT 250
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
@@ -21,6 +22,7 @@ bool calibratedRight = false;
 
 int main() {
     initHardware(false);
+    establishConnectionWithController("RIGHT");
     calibratedRight = initDispenser();
     if(!calibratedRight){
         initDispenser();
@@ -34,7 +36,7 @@ int main() {
         resetWatchdogTimer();
 
         /* region Handle received character */
-        establishConnectionWithController("RIGHT");
+
         int input = getchar_timeout_us(3 * 1000000);
 
         PRINT_DEBUG("Start Processing Input!")
@@ -74,17 +76,22 @@ int main() {
 /* region HELPER FUNCTIONS */
 
 bool initDispenser(void) {
-    dispenserCreate(&dispenser[0], 0,4,
-                    DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[1], 1,4,
-                    DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[2], 2,4,
-                    DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[3], 3,4,
-                    DISPENSER_SEARCH_TIMEOUT);
+    dispenserCreate(&dispenser[0], 0, 4);
+    dispenserCreate(&dispenser[1], 1, 4);
+    dispenserCreate(&dispenser[2], 2, 4);
+    dispenserCreate(&dispenser[3], 3, 4);
     return true;
+    PRINT_COMMAND("CALIBRATED")
 }
-
+void initDispenserRightSuccessful(){
+    if(!calibratedRight){
+        PRINT_DEBUG("TRY AGAIN TO INIT DISPENSER")
+        if(initDispenser()){
+            calibratedRight = true;
+            PRINT_DEBUG("DISPENSER INIT SUCCESSFUL")
+        }
+    }
+}
 void processMessage(char *message, size_t messageLength) {
     uint8_t dispensersTrigger = 0;
     bool triggeredDispensers[NUMBER_OF_DISPENSERS]={false};

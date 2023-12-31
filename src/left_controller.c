@@ -73,14 +73,10 @@ int main() {
 
 /* region HELPER FUNCTIONS */
 bool initDispenser(void) {
-    dispenserCreate(&dispenser[0], 0,4,
-                    DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[1], 1,4,
-                    DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[2], 2,4,
-                    DISPENSER_SEARCH_TIMEOUT);
-    dispenserCreate(&dispenser[3], 3,4,
-                    DISPENSER_SEARCH_TIMEOUT);
+    dispenserCreate(&dispenser[0], 0,4);
+    dispenserCreate(&dispenser[1], 1,4);
+    dispenserCreate(&dispenser[2], 2,4);
+    dispenserCreate(&dispenser[3], 3,4);
     return true;
 }
 

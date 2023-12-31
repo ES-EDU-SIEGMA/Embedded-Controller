@@ -117,12 +117,9 @@ void processMessage(char *message, size_t messageLength) {
         if (dispenserHaltTimes > 0) {
             resetWatchdogTimer();
             moveToDispenserWithId(i);
-            absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
             do {
                 resetWatchdogTimer();
-                sleep_until(time);
-                time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-                dispenserChangeStates(&dispenser[0]);
+                dispenserChangeStates(&dispenser[i]);
             } while (!dispenserAllInSleepState(dispenser, 1));
         }
     }

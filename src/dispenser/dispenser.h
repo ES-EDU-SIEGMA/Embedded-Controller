@@ -47,9 +47,9 @@ struct dispenser {
  * @return        a initialized Dispenser
  */
 /*void dispenserCreate(dispenser_t *dispenser, SerialAddress_t address, serialUart_t uart,
-                     uint8_t dispenserCL, uint16_t searchTimeout);*/
+                     uint8_t dispenserCL);*/
 
-void dispenserCreate(dispenser_t *dispenser, motorAddress_t address, uint8_t dispenserCL, uint16_t searchTimeout);
+void dispenserCreate(dispenser_t *dispenser, motorAddress_t address, uint8_t dispenserCL);
 /*! Set the halt time for the dispenser to wait at the "top"
  *
  * @param dispenser dispenser to be set
