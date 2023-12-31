@@ -10,9 +10,7 @@
 
 /* region VARIABLES/DEFINES */
 
-#define SERIAL_UART SERIAL2 /// The uart Pins to be used
 #define NUMBER_OF_DISPENSERS 1
-#define DISPENSER_SEARCH_TIMEOUT 750
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
@@ -23,6 +21,7 @@ bool calibratedRondell = false;
 int main() {
     initHardware(false);
     calibratedRondell = initRondellDispenser();
+
     if(!calibratedRondell){
         initRondellDispenser();
     }
