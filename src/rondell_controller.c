@@ -10,9 +10,7 @@
 
 /* region VARIABLES/DEFINES */
 
-#define SERIAL_UART SERIAL2 /// The uart Pins to be used
 #define NUMBER_OF_DISPENSERS 1
-#define DISPENSER_SEARCH_TIMEOUT 750
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
@@ -23,6 +21,7 @@ bool calibratedRondell = false;
 int main() {
     initHardware(false);
     calibratedRondell = initRondellDispenser();
+
     if(!calibratedRondell){
         initRondellDispenser();
     }
@@ -102,7 +101,7 @@ void initialize_adc(uint8_t gpio) {
 
 bool initRondellDispenser(void) {
     initialize_adc(28);
-    dispenserCreate(&dispenser[0], 0,4, DISPENSER_SEARCH_TIMEOUT);
+    dispenserCreate(&dispenser[0], 0,4);
     createRondell(2);
     return true;
     //PRINT_COMMAND("CALIBRATED")
@@ -117,12 +116,9 @@ void processMessage(char *message, size_t messageLength) {
         if (dispenserHaltTimes > 0) {
             resetWatchdogTimer();
             moveToDispenserWithId(i);
-            absolute_time_t time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
             do {
                 resetWatchdogTimer();
-                sleep_until(time);
-                time = make_timeout_time_ms(DISPENSER_STEP_TIME_MS);
-                dispenserChangeStates(&dispenser[0]);
+                dispenserChangeStates(&dispenser[i]);
             } while (!dispenserAllInSleepState(dispenser, 1));
         }
     }

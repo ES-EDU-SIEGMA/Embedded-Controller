@@ -34,16 +34,16 @@ static dispenser_t initDispenser(dispenser_t *dispenser, uint8_t dispenserId) {
     PRINT("Dispenser %i selected", dispenserId)
     switch (dispenserId) {
     case 0:
-        dispenserCreate(dispenser, 0,4, DISPENSER_SEARCH_TIMEOUT);
+        dispenserCreate(dispenser, 0,4);
         break;
     case 1:
-        dispenserCreate(dispenser, 1,4, DISPENSER_SEARCH_TIMEOUT);
+        dispenserCreate(dispenser, 1,4);
         break;
     case 2:
-        dispenserCreate(dispenser, 2,4, DISPENSER_SEARCH_TIMEOUT);
+        dispenserCreate(dispenser, 2,4);
         break;
     case 3:
-        dispenserCreate(dispenser, 3,4, DISPENSER_SEARCH_TIMEOUT);
+        dispenserCreate(dispenser, 3,4);
         break;
     default:
         PRINT("Invalid Dispenser")
