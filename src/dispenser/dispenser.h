@@ -34,6 +34,8 @@ struct dispenser {
     dispenserState_t state;
     limitSwitch_t limitSwitch;
     uint32_t haltTime;
+    bool switchClosed;
+    uint8_t counterTorque;
 };
 
 /* endregion DEFINES */

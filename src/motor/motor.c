@@ -108,10 +108,15 @@ uint16_t motorGetTorque(motorAddress_t address){
 }
 
 void moveMotorUp(motorAddress_t address) {
-    // TODO: Why double function calls?
     Motor_t *motor = getMotor(address);
     TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
     TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
+}
+
+void moveMotorUpHighSpeed(motorAddress_t address) {
+    Motor_t *motor = getMotor(address);
+    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED_HIGH);
+    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED_HIGH);
 }
 
 void moveMotorDown(motorAddress_t address) {
