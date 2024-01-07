@@ -113,10 +113,10 @@ void moveMotorUp(motorAddress_t address) {
     TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
 }
 
-void moveMotorUpHighSpeed(motorAddress_t address) {
+void moveMotorUpSlowSpeed(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED_HIGH);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED_HIGH);
+    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED_SLOW);
+    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED_SLOW);
 }
 
 void moveMotorDown(motorAddress_t address) {

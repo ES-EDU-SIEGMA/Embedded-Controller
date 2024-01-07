@@ -75,20 +75,40 @@ bool dispenserAllInSleepState(dispenser_t *dispenser, uint8_t number_of_dispense
 
 /* region STATIC FUNCTIONS */
 static void resetDispenserPosition(dispenser_t *dispenser) {
+    int minimum = 1000;
+    int counterMinimum = 0;
+
     moveMotorDown(dispenser->address);
     while (!limitSwitchIsClosed(dispenser->limitSwitch))
         ;
     stopMotor(dispenser->address);
-    moveMotorUpHighSpeed(dispenser->address);
+    moveMotorUpSlowSpeed(dispenser->address);
     PRINT_DEBUG("Torque")
-    while (dispenser->counterTorque < 2){
+/*    while (dispenser->counterTorque < 2){
         torque = motorGetTorque(dispenser->address);
         PRINT_DEBUG("Torque: %i", torque)
         if (torque < 10){
             dispenser->counterTorque++;
         }
         else dispenser->counterTorque = 0;
+    }*/
+    while (dispenser->counterTorque < 20){
+        torque = motorGetTorque(dispenser->address);
+        if ((torque > 100) && (torque < minimum)){
+            minimum = torque;
+
+        }
+        dispenser->counterTorque++;
     }
+    PRINT_DEBUG("Torque Min: %i", minimum)
+    while (counterMinimum <= 3){
+        torque = motorGetTorque(dispenser->address);
+        if(torque < minimum){
+            counterMinimum++;
+        }
+
+    }
+
     stopMotor(dispenser->address);
     PRINT_DEBUG("Dipsenser Position detected")
     dispenser->counterTorque = 0;
@@ -151,7 +171,7 @@ static dispenserState_t downState(dispenser_t *dispenser) {
     PRINT_DEBUG("downState")
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(dispenser->address);
-        moveMotorUpHighSpeed(dispenser->address);
+        moveMotorUpSlowSpeed(dispenser->address);
         dispenser->switchClosed = 1;
         PRINT_DEBUG("isClosed")
     }

@@ -15,7 +15,7 @@
 //! current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
 //! for 3 cl Dispenser '>=100000' is allowed, without deformation
 #define MOTOR_UP_SPEED 120000
-#define MOTOR_UP_SPEED_HIGH 130000
+#define MOTOR_UP_SPEED_SLOW 100000
 #endif
 #ifndef MOTOR_DOWN_SPEED
 //! current dispenser only allows '>=80000', without problems with refilling
@@ -81,7 +81,7 @@ void moveMotorUp(motorAddress_t address);
  *
  * @param motor motor to be moved
  */
-void moveMotorUpHighSpeed(motorAddress_t address);
+void moveMotorUpSlowSpeed(motorAddress_t address);
 
 /*! Move the motor down
  *
