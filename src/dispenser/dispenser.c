@@ -78,7 +78,9 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
     int minimum = 1000;
     int counterMinimum = 0;
 
+    PRINT_DEBUG("resetPosition")
     moveMotorDown(dispenser->address);
+    PRINT_DEBUG("moveDown")
     while (!limitSwitchIsClosed(dispenser->limitSwitch))
         ;
     stopMotor(dispenser->address);
