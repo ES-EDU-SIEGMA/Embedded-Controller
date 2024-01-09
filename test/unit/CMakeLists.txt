@@ -11,7 +11,6 @@ add_executable(unit-test_dispenser
         ${CMAKE_SOURCE_DIR}/src/dispenser/dispenser.c
         ${CMAKE_SOURCE_DIR}/src/motor/motor.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/limitSwitch/limitSwitch.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/limitSwitch/limitSwitch.h
 
         ${CMAKE_SOURCE_DIR}/src/common.h
 )
@@ -25,6 +24,7 @@ target_include_directories(unit-test_dispenser PUBLIC
 
         ${CMAKE_SOURCE_DIR}/src/dispenser
         ${CMAKE_SOURCE_DIR}/src/motor
+        ${CMAKE_SOURCE_DIR}/src/limitSwitch
         ${CMAKE_CURRENT_LIST_DIR}/dummies/limitSwitch
 
         ${CMAKE_SOURCE_DIR}/src

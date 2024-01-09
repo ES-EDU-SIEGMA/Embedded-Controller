@@ -1,7 +1,6 @@
 #define SOURCE_FILE "LIMIT_SWITCH"
 
 #include "limitSwitch.h"
-#include <hardware/gpio.h>
 
 bool re = true;
 bool limitSwitchIsClosed(limitSwitch_t limitSwitch) {
@@ -29,7 +28,5 @@ limitSwitch_t createLimitSwitch(uint8_t id) {
         return (limitSwitch_t){.pin = -1};
     }
 
-    gpio_init(limitSwitch.pin);
-    gpio_set_dir(limitSwitch.pin, GPIO_IN);
     return limitSwitch;
 }
