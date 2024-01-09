@@ -12,22 +12,22 @@ Motor_t motors[4];
 void initializeMotorsEnablePin(Motor_t *motor, SerialAddress_t id) {
     switch (id) {
     case 0:
-        motor[id].enablePin = MOTOR_ENABLE_PINT_0;
+        motor->enablePin = MOTOR_ENABLE_PINT_0;
         break;
     case 1:
-        motor[id].enablePin = MOTOR_ENABLE_PINT_1;
+        motor->enablePin = MOTOR_ENABLE_PINT_1;
         break;
     case 2:
-        motor[id].enablePin = MOTOR_ENABLE_PINT_2;
+        motor->enablePin = MOTOR_ENABLE_PINT_2;
         break;
     case 3:
-        motor[id].enablePin = MOTOR_ENABLE_PINT_3;
+        motor->enablePin = MOTOR_ENABLE_PINT_3;
         break;
     default:
-        motor[id].enablePin = 0;
+        motor->enablePin = 0;
     }
-    gpio_init(motor[id].enablePin);
-    gpio_set_dir(motor[id].enablePin, GPIO_OUT);
+    gpio_init(motor->enablePin);
+    gpio_set_dir(motor->enablePin, GPIO_OUT);
 }
 
 void setUpMotor(Motor_t *motor, SerialAddress_t address) {
@@ -80,9 +80,9 @@ Motor_t* getMotor(motorAddress_t address) {
 }
 
 Motor_t createMotor(motorAddress_t address) {
-    Motor_t motor = {.address = (int)address};
-    setUpMotor(&motor, (int)address);
-    return motor;
+    motors[address].address = (int)address;
+    setUpMotor(&motors[address], (int)address);
+    return motors[address];
 }
 
 /*void moveMotorUp(Motor_t *motor) {
