@@ -18,8 +18,8 @@ bool calibratedLeft = false;
 /* endregion VARIABLES/DEFINES */
 int main() {
     initHardware(false);
+    establishConnectionWithController("LEFT");
     calibratedLeft = initDispenser();
-
     if(!calibratedLeft){
         initDispenser();
     }
@@ -32,7 +32,7 @@ int main() {
         resetWatchdogTimer();
 
         /* region Handle received character */
-        establishConnectionWithController("LEFT");
+        //establishConnectionWithController("LEFT");
         int input = getchar_timeout_us(3 * 1000000);
 
         PRINT_DEBUG("Start Processing Input!")
