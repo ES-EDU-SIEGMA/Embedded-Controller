@@ -20,7 +20,6 @@ int main() {
     initHardware(false);
     establishConnectionWithController("LEFT");
     calibratedLeft = initDispenser();
-
     if(!calibratedLeft){
         initDispenser();
     }
