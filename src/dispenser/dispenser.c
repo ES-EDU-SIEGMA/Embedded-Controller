@@ -152,7 +152,7 @@ static dispenserState_t topState(dispenser_t *dispenser) {
     if (dispenser->haltTime > 0) {
         sleep_ms(TOP_TIME_SLOT);
         dispenser->haltTime = dispenser->haltTime - TOP_TIME_SLOT;
-        return topState_t; //todo
+        return topState_t;
     }
     // reset to 0 when change to down state.
     dispenserSetHaltTime(dispenser, 0);
@@ -160,7 +160,7 @@ static dispenserState_t topState(dispenser_t *dispenser) {
     dispenser->minimum = 1000;
     dispenser->counterTorque = 0;
     dispenser->counterMinimum = 0;
-    return downState_t; //todo
+    return downState_t;
 }
 
 static dispenserState_t downState(dispenser_t *dispenser) {
