@@ -38,6 +38,7 @@ struct dispenser {
     uint8_t counterTorque;
     uint32_t minimum;
     uint8_t counterMinimum;
+    uint16_t downCounter;
 };
 
 /* endregion DEFINES */

@@ -77,6 +77,7 @@ bool dispenserAllInSleepState(dispenser_t *dispenser, uint8_t number_of_dispense
 static void resetDispenserPosition(dispenser_t *dispenser) {
     int minimum = 1000;
     int counterMinimum = 0;
+    int downCounter = 0;
     dispenser->counterTorque = 0;
 
     PRINT_DEBUG("resetPosition")
@@ -101,6 +102,11 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
             //minimum = torque;
             counterMinimum++;
         }
+    }
+    moveMotorDown(dispenser->address);
+    while (downCounter < 100){
+        sleep_ms(1);
+        downCounter++;
     }
     stopMotor(dispenser->address);
     PRINT_DEBUG("Dipsenser Position detected")
@@ -160,6 +166,7 @@ static dispenserState_t topState(dispenser_t *dispenser) {
     dispenser->minimum = 1000;
     dispenser->counterTorque = 0;
     dispenser->counterMinimum = 0;
+    dispenser->downCounter = 0;
     return downState_t;
 }
 
@@ -191,13 +198,19 @@ static dispenserState_t downState(dispenser_t *dispenser) {
                 }
             }
             else{
-                stopMotor(dispenser->address);
-                PRINT_DEBUG("Dipsenser Position detected")
-                dispenser->counterTorque = 0;
-                disableMotorByPin(dispenser->address);
-                dispenser->switchClosed = 0;
-                dispenserSetHaltTime(dispenser, 0);
-                return sleepState_t;
+                moveMotorDown(dispenser->address);
+                if (dispenser->downCounter < 10){
+                        dispenser->downCounter++;
+                }
+                else {
+                    stopMotor(dispenser->address);
+                    PRINT_DEBUG("Dipsenser Position detected")
+                    dispenser->counterTorque = 0;
+                    disableMotorByPin(dispenser->address);
+                    dispenser->switchClosed = 0;
+                    dispenserSetHaltTime(dispenser, 0);
+                    return sleepState_t;
+                }
             }
         }
     }
