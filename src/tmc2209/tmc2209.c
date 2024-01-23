@@ -467,3 +467,7 @@ uint16_t TMC2209_getStallGuardResult(TMC2209_t *tmc2209) {
 void TMC2209_setStallGuardThreshold(TMC2209_t *tmc2209,uint8_t stall_guard_threshold) {
     TMC2209_write(tmc2209, ADDRESS_SGTHRS, stall_guard_threshold);
 }
+
+uint16_t TMC2209_getPosition(TMC2209_t *tmc2209) {
+    return TMC2209_read(tmc2209, ADDRESS_MSCNT);
+}

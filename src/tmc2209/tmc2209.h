@@ -322,4 +322,6 @@ uint16_t TMC2209_getStallGuardResult(TMC2209_t *tmc2209);
 
 void TMC2209_setStallGuardThreshold(TMC2209_t *tmc2209,uint8_t stall_guard_threshold);
 
+uint16_t TMC2209_getPosition(TMC2209_t *tmc2209);
+
 #endif
