@@ -5,7 +5,6 @@
 #include "dispenser_internal.h"
 #include <pico/time.h>
 
-static uint16_t torque = 0;
 
 static dispenserState_t sleepState_t = (dispenserState_t){.function = &sleepState};
 static dispenserState_t upState_t = (dispenserState_t){.function = &upState};
@@ -24,6 +23,7 @@ void dispenserCreate(dispenser_t *dispenser, motorAddress_t address, uint8_t dis
     resetDispenserPosition(dispenser);
     dispenser->switchClosed = 0;
     dispenser->counterTorque = 0;
+    dispenser->torque = 0;
 }
 
 dispenserStateCode_t getDispenserState(dispenser_t *dispenser) {
@@ -89,16 +89,16 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
     moveMotorUpSlowSpeed(dispenser->address);
 
     while (dispenser->counterTorque < 50){
-        torque = motorGetTorque(dispenser->address);
-        if (torque < minimum){
-            minimum = torque;
+        dispenser->torque = motorGetTorque(dispenser->address);
+        if (dispenser->torque < minimum){
+            minimum = dispenser->torque;
         }
         dispenser->counterTorque++;
     }
     //PRINT_DEBUG("Torque Min: %i", minimum)
     while (counterMinimum < 1){
-        torque = motorGetTorque(dispenser->address);
-        if(torque < (minimum-10)){
+        dispenser->torque = motorGetTorque(dispenser->address);
+        if(dispenser->torque < (minimum-10)){
             //minimum = torque;
             counterMinimum++;
         }
@@ -134,12 +134,12 @@ static dispenserState_t sleepState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t upState(dispenser_t *dispenser) {
-    torque = motorGetTorque(dispenser->address);
+    dispenser->torque = motorGetTorque(dispenser->address);
     PRINT_DEBUG("upState")
-    PRINT_DEBUG("Torque: %i", torque)
+    PRINT_DEBUG("Torque: %i", dispenser->torque)
 
     // If the torque is below 10 twice in a row, stop
-    if (torque < 10){
+    if (dispenser->torque < 10){
         dispenser->counterTorque++;
         if (dispenser->counterTorque == 2){
             PRINT_DEBUG("detect Top Position")
@@ -182,17 +182,17 @@ static dispenserState_t downState(dispenser_t *dispenser) {
     }
     if (dispenser->switchClosed){
         if (dispenser->counterTorque < 50){
-            torque = motorGetTorque(dispenser->address);
-            if (torque < dispenser->minimum){
-                dispenser->minimum = torque;
+            dispenser->torque = motorGetTorque(dispenser->address);
+            if (dispenser->torque < dispenser->minimum){
+                dispenser->minimum = dispenser->torque;
             }
             dispenser->counterTorque++;
         }
         else{
             if(dispenser->counterMinimum < 1) {
                 //PRINT_DEBUG("Torque Min: %i", dispenser->minimum)
-                torque = motorGetTorque(dispenser->address);
-                if (torque < (dispenser->minimum - 10)) {
+                dispenser->torque = motorGetTorque(dispenser->address);
+                if (dispenser->torque < (dispenser->minimum - 10)) {
                     // dispenser->minimum = torque;
                     dispenser->counterMinimum++;
                 }

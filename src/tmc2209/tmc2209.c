@@ -411,7 +411,7 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
     }
 
     // Make sure UART is free again
-    sleep_ms(1);
+    sleep_us(20);
 
     return TMC2209_reverseData(read_reply_datagram.data);
 }
