@@ -108,12 +108,10 @@ Motor_t createMotor(motorAddress_t address);
  */
 bool motorIsCommunicating(motorAddress_t address);
 
-uint8_t enablePin;
-
 Motor_t* getMotor(motorAddress_t address);
 
 uint16_t motorGetTorque(motorAddress_t address);
 
-void initializeMotorsEnablePin(Motor_t *motor, SerialAddress_t id);
+void initializeAndActivateMotorsEnablePin();
 
 #endif // SIEGMA_MOTOR_H

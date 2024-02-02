@@ -7,9 +7,10 @@
 #define SERIAL_UART SERIAL2 /// The uart Pins to be used
 
 static uint16_t torque = 0;
+static uint8_t enablePin;
 Motor_t motors[4];
 
-void initializeMotorsEnablePin(Motor_t *motor, SerialAddress_t id) {
+void initializeAndActivateMotorsEnablePin() {
     enablePin = MOTOR_ENABLE_PINT;
     gpio_init(enablePin);
     gpio_set_dir(enablePin, GPIO_OUT);
@@ -17,7 +18,6 @@ void initializeMotorsEnablePin(Motor_t *motor, SerialAddress_t id) {
 }
 
 void setUpMotor(Motor_t *motor, SerialAddress_t address) {
-    initializeMotorsEnablePin(motor, address);
 
     TMC2209_setupByMotor(&motor->tmc2209,address);
 
@@ -43,16 +43,6 @@ bool motorIsCommunicating(motorAddress_t address) {
     return TMC2209_isSetupAndCommunicating(&motor->tmc2209);
 }
 
-void enableMotorByPin(motorAddress_t address) {
-    Motor_t *motor = getMotor(address);
-    gpio_pull_down(enablePin);
-}
-
-void disableMotorByPin(motorAddress_t address) {
-    Motor_t *motor = getMotor(address);
-    gpio_pull_up(enablePin);
-}
-
 Motor_t* getMotor(motorAddress_t address) {
     if (address >= 0 && address < 5) {
         return &motors[address];
@@ -68,22 +58,6 @@ Motor_t createMotor(motorAddress_t address) {
     setUpMotor(&motors[address], (int)address);
     return motors[address];
 }
-
-/*void moveMotorUp(Motor_t *motor) {
-    // TODO: Why double function calls?
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
-}
-
-void moveMotorDown(Motor_t *motor) {
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_DOWN_SPEED);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_DOWN_SPEED);
-}
-
-void stopMotor(Motor_t *motor) {
-    TMC2209_moveAtVelocity(&motor->tmc2209, 0);
-    TMC2209_moveAtVelocity(&motor->tmc2209, 0);
-}*/
 
 uint16_t motorGetTorque(motorAddress_t address){
     Motor_t *motor = getMotor(address);
