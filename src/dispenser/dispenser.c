@@ -47,7 +47,6 @@ dispenserStateCode_t getDispenserState(dispenser_t *dispenser) {
 
 void dispenserEmergencyStop(dispenser_t *dispenser) {
     stopMotor(dispenser->address);
-    disableMotorByPin(dispenser->address);
     dispenserSetHaltTime(dispenser, 0);
     dispenser->state = (dispenserState_t){.function = &sleepState};
 }
@@ -117,7 +116,6 @@ static dispenserState_t errorState(dispenser_t *dispenser) {
     Motor_t *motor = getMotor(dispenser->address);
     setUpMotor(motor, (int)(dispenser->address));
     if (motorIsCommunicating(dispenser->address)) {
-        disableMotorByPin(dispenser->address);
         dispenserSetHaltTime(dispenser, 0);
         return sleepState_t;
     }
@@ -126,7 +124,6 @@ static dispenserState_t errorState(dispenser_t *dispenser) {
 
 static dispenserState_t sleepState(dispenser_t *dispenser) {
     if (dispenser->haltTime > 0) {
-        enableMotorByPin(dispenser->address);
         moveMotorUp(dispenser->address);
         return upState_t;
     }
@@ -206,7 +203,6 @@ static dispenserState_t downState(dispenser_t *dispenser) {
                     stopMotor(dispenser->address);
                     PRINT_DEBUG("Dipsenser Position detected")
                     dispenser->counterTorque = 0;
-                    disableMotorByPin(dispenser->address);
                     dispenser->switchClosed = 0;
                     dispenserSetHaltTime(dispenser, 0);
                     return sleepState_t;

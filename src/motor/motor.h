@@ -4,10 +4,7 @@
 #include "tmc2209.h"
 #include <stdint.h>
 
-#define MOTOR_ENABLE_PINT_0 2
-#define MOTOR_ENABLE_PINT_1 3
-#define MOTOR_ENABLE_PINT_2 6
-#define MOTOR_ENABLE_PINT_3 7
+#define MOTOR_ENABLE_PINT 7
 
 #define MAX_MOTORS = 4;
 
@@ -26,7 +23,6 @@
 
 /// struct containing information (pins, stepper driver, direction, Serial address) for a motor
 typedef struct Motor {
-    uint8_t enablePin;
     TMC2209_t tmc2209;
     SerialAddress_t address;
     int direction;
@@ -111,6 +107,8 @@ Motor_t createMotor(motorAddress_t address);
  * @return      true if the motor communicates, otherwise false
  */
 bool motorIsCommunicating(motorAddress_t address);
+
+uint8_t enablePin;
 
 Motor_t* getMotor(motorAddress_t address);
 

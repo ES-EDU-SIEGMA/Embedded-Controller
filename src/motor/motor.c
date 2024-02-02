@@ -10,30 +10,14 @@ static uint16_t torque = 0;
 Motor_t motors[4];
 
 void initializeMotorsEnablePin(Motor_t *motor, SerialAddress_t id) {
-    switch (id) {
-    case 0:
-        motor->enablePin = MOTOR_ENABLE_PINT_0;
-        break;
-    case 1:
-        motor->enablePin = MOTOR_ENABLE_PINT_1;
-        break;
-    case 2:
-        motor->enablePin = MOTOR_ENABLE_PINT_2;
-        break;
-    case 3:
-        motor->enablePin = MOTOR_ENABLE_PINT_3;
-        break;
-    default:
-        motor->enablePin = 0;
-    }
-    gpio_init(motor->enablePin);
-    gpio_set_dir(motor->enablePin, GPIO_OUT);
+    enablePin = MOTOR_ENABLE_PINT;
+    gpio_init(enablePin);
+    gpio_set_dir(enablePin, GPIO_OUT);
+    gpio_pull_down(enablePin);
 }
 
 void setUpMotor(Motor_t *motor, SerialAddress_t address) {
-    //setUpEnablePin(motor, address);
     initializeMotorsEnablePin(motor, address);
-    disableMotorByPin((int)address);
 
     TMC2209_setupByMotor(&motor->tmc2209,address);
 
@@ -61,12 +45,12 @@ bool motorIsCommunicating(motorAddress_t address) {
 
 void enableMotorByPin(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
-    gpio_pull_down(motor->enablePin);
+    gpio_pull_down(enablePin);
 }
 
 void disableMotorByPin(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
-    gpio_pull_up(motor->enablePin);
+    gpio_pull_up(enablePin);
 }
 
 Motor_t* getMotor(motorAddress_t address) {
