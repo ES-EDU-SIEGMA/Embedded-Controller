@@ -8,11 +8,13 @@ void setUp() {}
 void tearDown() {}
 
 void testDispenserStructChanged(void) {
+    // TODO: FIXME I'm failing
     // If Fails, struct was changed and tests need to be adjusted
     TEST_ASSERT_EQUAL(24, sizeof(dispenser_t));
 }
 
 void test_Dispenser_should_sleep(void) {
+    // TODO: FIXME I'm failing
     dispenser_t dispenser[1];
     dispenserCreate(&dispenser[0], 0, 4);
     dispenserStateCode_t state = getDispenserState(&dispenser[0]);
@@ -20,6 +22,7 @@ void test_Dispenser_should_sleep(void) {
 }
 
 void test_Dispenser_Cycle(void) {
+    // TODO: FIXME I'm failing
     dispenser_t dispenser[1];
     dispenserCreate(&dispenser[0], 0, 4);
     dispenserSetHaltTime(&dispenser[0], 10);
