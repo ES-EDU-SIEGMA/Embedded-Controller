@@ -5,10 +5,10 @@
 #include <stdint.h>
 
 // Pins of the connected Limit switches
-#define STEPPER0_LS_PIN 29
-#define STEPPER1_LS_PIN 28
-#define STEPPER2_LS_PIN 27
-#define STEPPER3_LS_PIN 26
+#define STEPPER0_LS_PIN 26
+#define STEPPER1_LS_PIN 27
+#define STEPPER2_LS_PIN 28
+#define STEPPER3_LS_PIN 29
 
 // assign the limit switches to their stepper motors
 #define LIMIT_SWITCH_0                                                                             \
@@ -41,7 +41,8 @@ bool limitSwitchIsClosed(limitSwitch_t limitSwitch);
 
 /*! create a new limit switch
  *
- * @param id the id of the new switch, if it is not accepted the pin is set to -1 and not initialized
+ * @param id the id of the new switch, if it is not accepted the pin is set to -1 and not
+ * initialized
  * @return a new limit switch with initialized pins
  */
 limitSwitch_t createLimitSwitch(uint8_t id);
