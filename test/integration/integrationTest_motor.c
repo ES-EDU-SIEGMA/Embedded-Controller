@@ -7,7 +7,6 @@
 #include <pico/time.h>
 
 #include "common.h"
-#include "dispenser.h"
 #include "motor.h"
 #include "serialUART.h"
 
@@ -25,6 +24,8 @@ void initPico() {
 
     // Give components time for boot up
     sleep_ms(2500);
+
+    initializeAndActivateMotorsEnablePin();
 
     while (!stdio_usb_connected()) {
         // waits for usb connection
