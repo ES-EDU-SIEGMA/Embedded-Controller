@@ -157,8 +157,8 @@ static dispenserState_t upState(dispenser_t *dispenser) {
 static dispenserState_t topState(dispenser_t *dispenser) {
     PRINT_DEBUG("topState")
     if (dispenser->haltTime > 0) {
-        sleep_ms(TOP_TIME_SLOT);
-        dispenser->haltTime = dispenser->haltTime - TOP_TIME_SLOT;
+        // sleep_ms(TOP_TIME_SLOT);
+        dispenser->haltTime = dispenser->haltTime - dispensersInTopState;
         return topState_t;
     }
     // reset to 0 when change to down state.

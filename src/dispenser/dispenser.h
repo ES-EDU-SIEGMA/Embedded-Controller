@@ -27,6 +27,8 @@ struct dispenserState {
     struct dispenserState (*function)(dispenser_t *);
 };
 
+uint8_t dispensersInTopState = 0;
+
 /// Dispenser struct holding all important values to control the stepper driver
 struct dispenser {
     motorAddress_t address;
