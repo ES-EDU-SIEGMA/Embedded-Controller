@@ -35,36 +35,16 @@ typedef enum motorAddress {
     MOTOR_ADDRESS_3 = 3,
 } motorAddress_t;
 
+void initializeAndActivateMotorsEnablePin();
+
 /*! initializes a new motor
  *
  * @param motor   the new initialized motor
- * @param address serial address of the motor (for more information: https://github.com/janelia-arduino/TMC2209)
+ * @param address serial address of the motor (for more information:
+ * https://github.com/janelia-arduino/TMC2209)
  * @param uart    uart pins to be used
  */
-void setUpMotor(Motor_t *motor, SerialAddress_t address);// serialUart_t uart
-
-/*! Calculate the time a dispenser needs to reach TopState
- *
- * @param dispenserCL 2Cl or 4Cl Dispenser
- * @return        Time that a dispenser needs to reach TopState
- */
-
-/*! Check if all Dispenser are sleeping
- *
- * @param dispenser           an array holding a reference to all dispenser
- * @param number_of_dispenser the amount of initialized dispenser
- * @return true if all Dispenser are in a sleeping state
- *//*
-bool dispenserAllInSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser);*/
-/*void enableMotorByPin(Motor_t *motor);*/
-void enableMotorByPin(motorAddress_t address);
-
-/*! Disable the motor
- *
- * @param motor motor to be disabled
- */
-/*void disableMotorByPin(Motor_t *motor);*/
-void disableMotorByPin(motorAddress_t address);
+void setUpMotor(Motor_t *motor, SerialAddress_t address); // serialUart_t uart
 
 /*! Move the motor up
  *
@@ -95,7 +75,8 @@ void stopMotor(motorAddress_t address);
 
 /*! Create a new motor and initialize its pins
  *
- * @param address serial address of the stepper driver (for more information: https://github.com/janelia-arduino/TMC2209)
+ * @param address serial address of the stepper driver (for more information:
+ * https://github.com/janelia-arduino/TMC2209)
  * @param uart    uart pins to be used
  * @return        motor struct of the new motor
  */
@@ -108,10 +89,8 @@ Motor_t createMotor(motorAddress_t address);
  */
 bool motorIsCommunicating(motorAddress_t address);
 
-Motor_t* getMotor(motorAddress_t address);
+Motor_t *getMotor(motorAddress_t address);
 
 uint16_t motorGetTorque(motorAddress_t address);
-
-void initializeAndActivateMotorsEnablePin();
 
 #endif // SIEGMA_MOTOR_H

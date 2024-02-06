@@ -4,6 +4,7 @@
 #include "common.h"
 #include <hardware/gpio.h>
 #include <pico/time.h>
+
 #define SERIAL_UART SERIAL2 /// The uart Pins to be used
 
 static uint16_t torque = 0;
@@ -19,14 +20,14 @@ void initializeAndActivateMotorsEnablePin() {
 
 void setUpMotor(Motor_t *motor, SerialAddress_t address) {
 
-    TMC2209_setupByMotor(&motor->tmc2209,address);
+    TMC2209_setupByMotor(&motor->tmc2209, address);
 
     while (!TMC2209_isSetupAndCommunicating(&motor->tmc2209)) {
         if (TMC2209_disabledByInputPin(&motor->tmc2209)) {
             PRINT_DEBUG("Setup: Stepper driver with address %u DISABLED by input pin!", address)
         }
         PRINT_DEBUG("Setup: Stepper driver with address %u NOT communicating and setup!", address)
-        TMC2209_setupByMotor(&motor->tmc2209,address);
+        TMC2209_setupByMotor(&motor->tmc2209, address);
         sleep_ms(500);
     }
 
@@ -43,7 +44,7 @@ bool motorIsCommunicating(motorAddress_t address) {
     return TMC2209_isSetupAndCommunicating(&motor->tmc2209);
 }
 
-Motor_t* getMotor(motorAddress_t address) {
+Motor_t *getMotor(motorAddress_t address) {
     if (address >= 0 && address < 5) {
         return &motors[address];
     } else {
@@ -59,7 +60,7 @@ Motor_t createMotor(motorAddress_t address) {
     return motors[address];
 }
 
-uint16_t motorGetTorque(motorAddress_t address){
+uint16_t motorGetTorque(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
     torque = TMC2209_getStallGuardResult(&motor->tmc2209);
     return torque;
@@ -88,4 +89,4 @@ void stopMotor(motorAddress_t address) {
     TMC2209_moveAtVelocity(&motor->tmc2209, 0);
     TMC2209_moveAtVelocity(&motor->tmc2209, 0);
 }
-//maybe we should change the names of TMC2209_moveAtVelocity
+// maybe we should change the names of TMC2209_moveAtVelocity
