@@ -34,7 +34,7 @@
 <layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
-<layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
+<layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
@@ -193,7 +193,8 @@
 <wire x1="150" y1="66" x2="0" y2="66" width="0" layer="20"/>
 <wire x1="0" y1="66" x2="0" y2="0" width="0" layer="20"/>
 <text x="23.6" y="16.6" size="2.54" layer="25">Drink Mixing Machine
-PCB – v3.0</text>
+Controller Board</text>
+<text x="50.3" y="16.2" size="2.54" layer="25">&gt;REVISION</text>
 </plain>
 <libraries>
 <library name="4628" urn="urn:adsk.eagle:library:41102850">
@@ -1567,6 +1568,7 @@ for trimmer refence see : &lt;u&gt;www.electrospec-inc.com/cross_references/trim
 </library>
 </libraries>
 <attributes>
+<attribute name="REVISION" value="v3.0"/>
 </attributes>
 <variantdefs>
 </variantdefs>
@@ -1847,7 +1849,7 @@ design rules under a new name.</description>
 <attribute name="PACKAGE" value="None" x="223.89" y="71.1" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="PRICE" value="None" x="223.89" y="71.1" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
-<element name="R1" library="rcl" library_urn="urn:adsk.eagle:library:334" package="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="10kR" x="20.4125" y="49.79" smashed="yes">
+<element name="R1" library="rcl" library_urn="urn:adsk.eagle:library:334" package="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="270R" x="20.4125" y="49.79" smashed="yes">
 <attribute name="NAME" x="18.7775" y="50.98" size="1.27" layer="25"/>
 <attribute name="POPULARITY" value="86" x="110.5825" y="-36.57" size="1.778" layer="27" display="off"/>
 <attribute name="SPICEPREFIX" value="R" x="110.5825" y="-36.57" size="1.778" layer="27" display="off"/>

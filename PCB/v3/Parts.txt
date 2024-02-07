@@ -1,6 +1,6 @@
 Partlist
 
-Exported from controller_board.sch at 17.11.23 21:35
+Exported from controller_board.sch at 06.02.24 19:13
 
 EAGLE Version 9.6.2 Copyright (c) 1988-2020 Autodesk, Inc.
 
@@ -41,7 +41,7 @@ M3_TMC          TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK MODULE_TMC2209_S
 M4              B4B-PH-K-S(LF)(SN)      B4B-PH-K-S(LF)(SN)      JST_B4B-PH-K-S(LF)(SN)         B4B-PH-K-S_LF__SN_      1
 M4_TMC          TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK MODULE_TMC2209_SILENTSTEPSTICK TMC2209_SILENTSTEPSTICK 1
 POWER_CONNECTOR B4B-PH-K-S(LF)(SN)      B4B-PH-K-S(LF)(SN)      JST_B4B-PH-K-S(LF)(SN)         B4B-PH-K-S_LF__SN_      1
-R1              10kR                    R-EU_R0805              R0805                          rcl                     1
+R1              270R                    R-EU_R0805              R0805                          rcl                     1
 R2              10kR                    R-EU_R0805              R0805                          rcl                     1
 R3              10kR                    R-EU_R0805              R0805                          rcl                     1
 R4              10kR                    R-EU_R0805              R0805                          rcl                     1
