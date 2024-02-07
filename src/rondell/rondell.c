@@ -102,7 +102,6 @@ static void moveRondellClockwise(void) {
 
 static void stopRondell(void) {
     stopMotor(rondell.address);
-    disableMotorByPin(rondell.address);
 }
 
 static uint8_t specialPositionGiven(void) {
@@ -132,7 +131,6 @@ static uint8_t calculatePositionDifference(void) {
 
 static void setExtrema(void) {
     PRINT_DEBUG("ENTERED setExtrema")
-    enableMotorByPin(rondell.address);
     moveRondellClockwise();
     uint16_t dataCollectionTime_ms = 15000;
     uint16_t counter = 0;
@@ -158,7 +156,6 @@ static void setExtrema(void) {
 
 static void startRondellAndDecideDirection(void) {
     PRINT_DEBUG("started rondell and deciding direction")
-    enableMotorByPin(rondell.address);
     if (rondell.position != UNDEFINED) {
         uint8_t positionDifference = calculatePositionDifference();
         PRINT_DEBUG("POSITION DIFFERENCE: %u", positionDifference)

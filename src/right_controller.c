@@ -26,6 +26,7 @@ int main() {
     if(!calibratedRight){
         initDispenser();
     }
+    initializeAndActivateMotorsEnablePin();
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
 #pragma clang diagnostic push

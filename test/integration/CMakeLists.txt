@@ -40,3 +40,19 @@ target_link_libraries(integrationTest-dispenser
         limitSwitch_lib
         )
 make_to_output_file(integrationTest-dispenser)
+
+######################################################################
+# ADC Test
+add_executable(integrationTest-adc integrationTest_adc.c)
+target_include_directories(integrationTest-adc PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(integrationTest-adc
+        pico_time
+        pico_stdio_usb
+        hardware_adc
+        serialUART_lib
+        dispenser_lib
+        tmc2209_lib
+        motor_lib
+        )
+make_to_output_file(integrationTest-adc)
+
