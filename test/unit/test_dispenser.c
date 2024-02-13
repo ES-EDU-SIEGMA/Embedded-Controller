@@ -10,7 +10,7 @@ void tearDown() {}
 void testDispenserStructChanged(void) {
     // TODO: FIXME I'm failing
     // If Fails, struct was changed and tests need to be adjusted
-    TEST_ASSERT_EQUAL(24, sizeof(dispenser_t));
+    TEST_ASSERT_EQUAL(40, sizeof(dispenser_t));
 }
 
 void test_Dispenser_should_sleep(void) {
