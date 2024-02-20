@@ -94,6 +94,10 @@ void processMessage(char *message, size_t messageLength) {
         dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
     }
 
+    for(uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i){
+        dispenserErrorStateCheck(&dispenser[i]);
+    }
+
     do {
         resetWatchdogTimer();
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
