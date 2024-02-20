@@ -54,11 +54,15 @@ void dispenserEmergencyStop(dispenser_t *dispenser) {
 void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime) {
     dispenser->haltTime = haltTime;
 }
-
-void dispenserChangeStates(dispenser_t *dispenser) {
+void dispenserErrorStateCheck(dispenser_t *dispenser){
     if (!motorIsCommunicating(dispenser->address)) {
         dispenser->state = errorState_t;
     }
+}
+void dispenserChangeStates(dispenser_t *dispenser) {
+ /*   if (!motorIsCommunicating(dispenser->address)) {
+        dispenser->state = errorState_t;
+    }*/
     dispenser->state = dispenser->state.function(dispenser);
 }
 

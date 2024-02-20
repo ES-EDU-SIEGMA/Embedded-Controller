@@ -19,11 +19,11 @@ bool calibratedLeft = false;
 int main() {
     initHardware(false);
     establishConnectionWithController("LEFT");
+    initializeAndActivateMotorsEnablePin();
     calibratedLeft = initDispenser();
     if(!calibratedLeft){
         initDispenser();
     }
-    initializeAndActivateMotorsEnablePin();
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
 #pragma clang diagnostic push
@@ -92,6 +92,10 @@ void processMessage(char *message, size_t messageLength) {
             triggeredDispensers[i] = true;
         }
         dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
+    }
+
+    for(uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i){
+        dispenserErrorStateCheck(&dispenser[i]);
     }
 
     do {

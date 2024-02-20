@@ -124,5 +124,5 @@ static dispenserState_t downState(dispenser_t *dispenser);
  */
 static dispenserState_t errorState(dispenser_t *dispenser);
 /* endregion FUNCTION PROTOTYPES */
-
+void dispenserErrorStateCheck(dispenser_t *dispenser);
 #endif // SIEGMA_DISPENSER_H
