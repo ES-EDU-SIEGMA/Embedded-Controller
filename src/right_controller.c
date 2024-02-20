@@ -22,11 +22,11 @@ bool calibratedRight = false;
 int main() {
     initHardware(false);
     establishConnectionWithController("RIGHT");
+    initializeAndActivateMotorsEnablePin();
     calibratedRight = initDispenser();
     if(!calibratedRight){
         initDispenser();
     }
-    initializeAndActivateMotorsEnablePin();
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
 #pragma clang diagnostic push

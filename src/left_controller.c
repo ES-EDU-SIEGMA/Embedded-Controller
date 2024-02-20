@@ -19,11 +19,11 @@ bool calibratedLeft = false;
 int main() {
     initHardware(false);
     establishConnectionWithController("LEFT");
+    initializeAndActivateMotorsEnablePin();
     calibratedLeft = initDispenser();
     if(!calibratedLeft){
         initDispenser();
     }
-    initializeAndActivateMotorsEnablePin();
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
 #pragma clang diagnostic push
