@@ -8,9 +8,7 @@
 
 /* region VARIABLES/DEFINES */
 
-#define SERIAL_UART SERIAL2 /// The uart Pins to be used
 #define NUMBER_OF_DISPENSERS 4
-
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
@@ -18,7 +16,6 @@ size_t characterCounter;
 char *inputBuffer;
 bool calibratedRight = false;
 /* endregion VARIABLES/DEFINES */
-
 int main() {
     initHardware(false);
     establishConnectionWithController("RIGHT");
@@ -95,6 +92,10 @@ void processMessage(char *message, size_t messageLength) {
             triggeredDispensers[i] = true;
         }
         dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
+    }
+
+    for(uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i){
+        dispenserErrorStateCheck(&dispenser[i]);
     }
 
     do {
