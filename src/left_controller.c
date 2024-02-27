@@ -98,10 +98,15 @@ void processMessage(char *message, size_t messageLength) {
 
     do {
         resetWatchdogTimer();
-        dispenser->dispensersInTopState = 0;
+        uint8_t topStateCounter = 0;
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
             if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_TOP) {
-                dispenser->dispensersInTopState++;
+                topStateCounter++;
+            }
+        }
+        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
+            if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_TOP) {
+                dispenser[i].dispensersInTopState = topStateCounter;
             }
         }
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {

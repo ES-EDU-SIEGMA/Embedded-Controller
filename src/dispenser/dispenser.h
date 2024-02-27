@@ -33,7 +33,7 @@ struct dispenser {
     uint16_t stepsUp;
     dispenserState_t state;
     limitSwitch_t limitSwitch;
-    uint32_t haltTime;
+    int32_t haltTime;
     bool switchClosed;
     uint8_t counterTorque;
     uint32_t minimum;
