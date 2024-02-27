@@ -69,24 +69,19 @@ uint16_t motorGetTorque(motorAddress_t address) {
 void moveMotorUp(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
     TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
 }
 
 void moveMotorUpSlowSpeed(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED_SLOW);
     TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED_SLOW);
 }
 
 void moveMotorDown(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
     TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_DOWN_SPEED);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_DOWN_SPEED);
 }
 
 void stopMotor(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
     TMC2209_moveAtVelocity(&motor->tmc2209, 0);
-    TMC2209_moveAtVelocity(&motor->tmc2209, 0);
 }
-// maybe we should change the names of TMC2209_moveAtVelocity
