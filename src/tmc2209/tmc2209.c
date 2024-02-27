@@ -391,21 +391,16 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
     TMC2209_sendDatagramRead(tmc2209, read_request_datagram, READ_REQUEST_DATAGRAM_SIZE);
 
     uint32_t reply_delay = 0;
-//    while ((serialUartAvailable() < WRITE_READ_REPLY_DATAGRAM_SIZE) &&
-//           (reply_delay < REPLY_DELAY_MAX_MICROSECONDS)) {
-//        sleep_us(REPLY_DELAY_INC_MICROSECONDS);
-//        reply_delay += REPLY_DELAY_INC_MICROSECONDS;
-//    }
-    while ((serialUartAvailable() < WRITE_READ_REPLY_DATAGRAM_SIZE)) {
-        ;
+    while ((serialUartAvailable() < WRITE_READ_REPLY_DATAGRAM_SIZE) &&
+           (reply_delay < REPLY_DELAY_MAX_MICROSECONDS)) {
+        sleep_us(REPLY_DELAY_INC_MICROSECONDS);
+        reply_delay += REPLY_DELAY_INC_MICROSECONDS;
     }
-    absolute_time_t to = get_absolute_time();
-//    PRINT_DEBUG("reply spent:%lld", absolute_time_diff_us(from, to))
-    printf("%lld\n", absolute_time_diff_us(from, to));
-//    if (reply_delay >= REPLY_DELAY_MAX_MICROSECONDS) {
-//        tmc2209->blocking = true;
-//        return 0;
-//    }
+
+    if (reply_delay >= REPLY_DELAY_MAX_MICROSECONDS) {
+        tmc2209->blocking = true;
+        return 0;
+    }
 
     uint64_t byte;
     uint8_t byte_count = 0;
