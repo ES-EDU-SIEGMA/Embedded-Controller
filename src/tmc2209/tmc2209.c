@@ -387,19 +387,25 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
     read_request_datagram.crc =
         TMC2209_calculateCrcRead(read_request_datagram, READ_REQUEST_DATAGRAM_SIZE);
 
+    absolute_time_t from = get_absolute_time();
     TMC2209_sendDatagramRead(tmc2209, read_request_datagram, READ_REQUEST_DATAGRAM_SIZE);
 
     uint32_t reply_delay = 0;
-    while ((serialUartAvailable() < WRITE_READ_REPLY_DATAGRAM_SIZE) &&
-           (reply_delay < REPLY_DELAY_MAX_MICROSECONDS)) {
-        sleep_us(REPLY_DELAY_INC_MICROSECONDS);
-        reply_delay += REPLY_DELAY_INC_MICROSECONDS;
+//    while ((serialUartAvailable() < WRITE_READ_REPLY_DATAGRAM_SIZE) &&
+//           (reply_delay < REPLY_DELAY_MAX_MICROSECONDS)) {
+//        sleep_us(REPLY_DELAY_INC_MICROSECONDS);
+//        reply_delay += REPLY_DELAY_INC_MICROSECONDS;
+//    }
+    while ((serialUartAvailable() < WRITE_READ_REPLY_DATAGRAM_SIZE)) {
+        ;
     }
-
-    if (reply_delay >= REPLY_DELAY_MAX_MICROSECONDS) {
-        tmc2209->blocking = true;
-        return 0;
-    }
+    absolute_time_t to = get_absolute_time();
+//    PRINT_DEBUG("reply spent:%lld", absolute_time_diff_us(from, to))
+    printf("%lld\n", absolute_time_diff_us(from, to));
+//    if (reply_delay >= REPLY_DELAY_MAX_MICROSECONDS) {
+//        tmc2209->blocking = true;
+//        return 0;
+//    }
 
     uint64_t byte;
     uint8_t byte_count = 0;
@@ -410,8 +416,13 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
         read_reply_datagram.bytes |= (byte << (byte_count++ * BITS_PER_BYTE));
     }
 
-    // Make sure UART is free again
-    sleep_us(20);
+    /*! Make sure UART is free again
+     * Time to wait TMC2209 switch off output.
+     * Set SENDDELAY to 3*8 bit time and 15*8 bit time,
+     * look at the difference of reply_delay,
+     * calculate how long a 4 bit time is (in release mode).
+     */
+    sleep_us(21 );
 
     return TMC2209_reverseData(read_reply_datagram.data);
 }
