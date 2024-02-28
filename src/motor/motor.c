@@ -7,6 +7,20 @@
 
 #define SERIAL_UART SERIAL2 /// The uart Pins to be used
 
+#define MOTOR_ENABLE_PINT 7
+
+#ifndef MOTOR_UP_SPEED
+#error "MOTOR_UP_SPEED not defined"
+#endif
+#ifndef MOTOR_UP_SPEED_SLOW
+#define MOTOR_UP_SPEED_SLOW 100000
+#endif
+#ifndef MOTOR_DOWN_SPEED
+#error "MOTOR_DOWN_SPEED not defined"
+#endif
+
+#define MOTOR_UP_SPEED_SLOW 100000
+
 static uint16_t torque = 0;
 static uint8_t enablePin;
 Motor_t motors[4];
@@ -35,8 +49,6 @@ void setUpMotor(Motor_t *motor, SerialAddress_t address) {
     TMC2209_setRunCurrent(&motor->tmc2209, 100);
     TMC2209_setHoldCurrent(&motor->tmc2209, 50);
     TMC2209_enable(&motor->tmc2209);
-
-    motor->direction = DIRECTION_UP;
 }
 
 bool motorIsCommunicating(motorAddress_t address) {
@@ -66,27 +78,23 @@ uint16_t motorGetTorque(motorAddress_t address) {
     return torque;
 }
 
+static void moveMotor(Motor_t *motor, int32_t speed) {
+    TMC2209_moveAtVelocity(&motor->tmc2209, speed);
+    TMC2209_moveAtVelocity(&motor->tmc2209, speed);
+}
 void moveMotorUp(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
+    moveMotor(motor, MOTOR_UP_SPEED);
 }
-
 void moveMotorUpSlowSpeed(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED_SLOW);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED_SLOW);
+    moveMotor(motor, MOTOR_UP_SPEED_SLOW);
 }
-
 void moveMotorDown(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_DOWN_SPEED);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_DOWN_SPEED);
+    moveMotor(motor, (-1) * MOTOR_DOWN_SPEED);
 }
-
 void stopMotor(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
-    TMC2209_moveAtVelocity(&motor->tmc2209, 0);
-    TMC2209_moveAtVelocity(&motor->tmc2209, 0);
+    moveMotor(motor, 0);
 }
-// maybe we should change the names of TMC2209_moveAtVelocity

@@ -25,6 +25,13 @@ target_link_libraries(integrationTest-motor
         motor_lib
         limitSwitch_lib
         )
+target_compile_definitions(integrationTest-motor PUBLIC
+        # current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
+        # for 3 cl Dispenser '>=100000' is allowed, without deformation
+        -DMOTOR_UP_SPEED=120000
+        # current dispenser only allows '>=80000', without problems with refilling
+        -DMOTOR_DOWN_SPEED=80000
+)
 make_to_output_file(integrationTest-motor)
 
 ######################################################################
@@ -39,6 +46,13 @@ target_link_libraries(integrationTest-dispenser
         motor_lib
         limitSwitch_lib
         )
+target_compile_definitions(integrationTest-dispenser PUBLIC
+        # current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
+        # for 3 cl Dispenser '>=100000' is allowed, without deformation
+        -DMOTOR_UP_SPEED=120000
+        # current dispenser only allows '>=80000', without problems with refilling
+        -DMOTOR_DOWN_SPEED=80000
+)
 make_to_output_file(integrationTest-dispenser)
 
 ######################################################################
