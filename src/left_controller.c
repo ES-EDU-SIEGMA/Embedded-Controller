@@ -5,6 +5,7 @@
 #include "helper.h"
 #include <pico/stdlib.h> /// must be included -> sets clocks required for watchdog-timer!!
 #include <stdio.h>
+#include <stdlib.h>
 
 /* region VARIABLES/DEFINES */
 
@@ -14,20 +15,49 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
 size_t characterCounter;
 char *inputBuffer;
-bool calibratedLeft = false;
+
 /* endregion VARIABLES/DEFINES */
-int main() {
-    initHardware(false);
-    establishConnectionWithController("LEFT");
-    calibratedLeft = initDispenser();
-    if(!calibratedLeft){
-        initDispenser();
+
+/* region HELPER FUNCTIONS */
+
+void initDispenser(void) {
+    dispenserCreate(&dispenser[0], 0, 4);
+    dispenserCreate(&dispenser[1], 1, 4);
+    dispenserCreate(&dispenser[2], 2, 4);
+    dispenserCreate(&dispenser[3], 3, 4);
+    PRINT_COMMAND("CALIBRATED")
+}
+
+void processMessage(char *message, size_t messageLength) {
+    uint8_t dispensersTrigger = 0;
+    bool triggeredDispensers[NUMBER_OF_DISPENSERS]={false};
+
+    PRINT_DEBUG("Process message len: %u", messageLength)
+    PRINT_DEBUG("Message: %s", message)
+    for (uint8_t i = 0; i < 4; ++i) {
+        uint32_t dispenserHaltTimes = parseInputString(&message);
+        if (dispenserHaltTimes > 0) {
+            dispensersTrigger++;
+            triggeredDispensers[i] = true;
+        }
+        dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
     }
-    initializeAndActivateMotorsEnablePin();
-    initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
-    setUpWatchdog(60);
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "EndlessLoop"
+
+    do {
+        resetWatchdogTimer();
+        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
+            if (triggeredDispensers[i] == true) {
+                dispenserChangeStates(&dispenser[i]);
+                if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_SLEEP) {
+                    triggeredDispensers[i] = false;
+                }
+            }
+        }
+        // When all dispensers are finished, they are in the state sleep
+    } while (!dispenserAllInSleepState(dispenser, NUMBER_OF_DISPENSERS));
+}
+
+_Noreturn void run(void) {
     while (true) {
         // watchdog update needs to be performed frequent, otherwise the device will crash
         resetWatchdogTimer();
@@ -66,46 +96,18 @@ int main() {
 
         /* endregion handle received character */
     }
-#pragma clang diagnostic pop
-}
-
-/* region HELPER FUNCTIONS */
-bool initDispenser(void) {
-    dispenserCreate(&dispenser[0], 0, 4);
-    dispenserCreate(&dispenser[1], 1, 4);
-    dispenserCreate(&dispenser[2], 2, 4);
-    dispenserCreate(&dispenser[3], 3, 4);
-    return true;
-    PRINT_COMMAND("CALIBRATED")
-}
-
-void processMessage(char *message, size_t messageLength) {
-    uint8_t dispensersTrigger = 0;
-    bool triggeredDispensers[NUMBER_OF_DISPENSERS]={false};
-
-    PRINT_DEBUG("Process message len: %u", messageLength)
-    PRINT_DEBUG("Message: %s", message)
-    for (uint8_t i = 0; i < 4; ++i) {
-        uint32_t dispenserHaltTimes = parseInputString(&message);
-        if (dispenserHaltTimes > 0) {
-            dispensersTrigger++;
-            triggeredDispensers[i] = true;
-        }
-        dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
-    }
-
-    do {
-        resetWatchdogTimer();
-        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            if (triggeredDispensers[i] == true) {
-                dispenserChangeStates(&dispenser[i]);
-                if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_SLEEP) {
-                    triggeredDispensers[i] = false;
-                }
-            }
-        }
-        // When all dispensers are finished, they are in the state sleep
-    } while (!dispenserAllInSleepState(dispenser, NUMBER_OF_DISPENSERS));
 }
 
 /* endregion HELPER FUNCTIONS */
+
+int main() {
+    initHardware(false);
+    establishConnectionWithController("LEFT");
+    initDispenser();
+    initializeAndActivateMotorsEnablePin();
+    initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
+    setUpWatchdog(60);
+    run();
+    return EXIT_FAILURE;
+}
+
