@@ -80,7 +80,6 @@ bool initDispenser(void) {
 }
 
 void processMessage(char *message, size_t messageLength) {
-    uint8_t dispensersTrigger = 0;
     bool triggeredDispensers[NUMBER_OF_DISPENSERS]={false};
 
     PRINT_DEBUG("Process message len: %u", messageLength)
@@ -88,7 +87,6 @@ void processMessage(char *message, size_t messageLength) {
     for (uint8_t i = 0; i < 4; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
         if (dispenserHaltTimes > 0) {
-            dispensersTrigger++;
             triggeredDispensers[i] = true;
         }
         dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
@@ -100,6 +98,17 @@ void processMessage(char *message, size_t messageLength) {
 
     do {
         resetWatchdogTimer();
+        uint8_t topStateCounter = 0;
+        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
+            if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_TOP) {
+                topStateCounter++;
+            }
+        }
+        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
+            if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_TOP) {
+                dispenser[i].dispensersInTopState = topStateCounter;
+            }
+        }
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
             if (triggeredDispensers[i] == true) {
                 dispenserChangeStates(&dispenser[i]);

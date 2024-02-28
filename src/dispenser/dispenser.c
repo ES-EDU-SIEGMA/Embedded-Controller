@@ -60,9 +60,6 @@ void dispenserErrorStateCheck(dispenser_t *dispenser){
     }
 }
 void dispenserChangeStates(dispenser_t *dispenser) {
- /*   if (!motorIsCommunicating(dispenser->address)) {
-        dispenser->state = errorState_t;
-    }*/
     dispenser->state = dispenser->state.function(dispenser);
 }
 
@@ -158,7 +155,7 @@ static dispenserState_t topState(dispenser_t *dispenser) {
     PRINT_DEBUG("topState")
     if (dispenser->haltTime > 0) {
         sleep_ms(TOP_TIME_SLOT);
-        dispenser->haltTime = dispenser->haltTime - TOP_TIME_SLOT;
+        dispenser->haltTime = dispenser->haltTime - dispenser->dispensersInTopState;
         return topState_t;
     }
     // reset to 0 when change to down state.
@@ -172,8 +169,6 @@ static dispenserState_t topState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t downState(dispenser_t *dispenser) {
-    int minimum, counterMinimum = 0;
-
     PRINT_DEBUG("downState")
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(dispenser->address);
