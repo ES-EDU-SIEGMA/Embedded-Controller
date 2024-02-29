@@ -7,6 +7,7 @@
 #include <hardware/adc.h>
 #include <pico/stdlib.h> /// must be included -> sets clocks required for watchdog-timer!!
 #include <stdio.h>
+#include <stdlib.h>
 
 /* region VARIABLES/DEFINES */
 
@@ -16,20 +17,61 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
 size_t characterCounter;
 char *inputBuffer;
-bool calibratedRondell = false;
+
 /* endregion VARIABLES/DEFINES */
-int main() {
-    initHardware(false);
-    establishConnectionWithController("RONDELL");
-    calibratedRondell = initRondellDispenser();
-    if(!calibratedRondell){
-        initRondellDispenser();
+
+/* region HELPER FUNCTIONS */
+
+void initialize_adc(uint8_t gpio) {
+    uint8_t adcInputPin;
+    switch (gpio) {
+    case 29:
+        adcInputPin = 3;
+        break;
+    case 28:
+        adcInputPin = 2;
+        break;
+    case 27:
+        adcInputPin = 1;
+        break;
+    case 26:
+        adcInputPin = 0;
+        break;
+    default:
+        PRINT_DEBUG("Invalid ADC GPIO")
+        return;
     }
-    initializeAndActivateMotorsEnablePin();
-    initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
-    setUpWatchdog(60);
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "EndlessLoop"
+
+    adc_init();
+    adc_gpio_init(gpio);
+    adc_select_input(adcInputPin);
+}
+
+void initRondellDispenser(void) {
+    initialize_adc(27);
+    createRondell(2);
+    dispenserCreate(&dispenser[0], 0, 4);
+    PRINT_COMMAND("CALIBRATED")
+}
+
+void processMessage(char *message, size_t messageLength) {
+    PRINT_DEBUG("Process message len: %u", messageLength)
+    PRINT_DEBUG("Message: %s", message)
+    for (uint8_t i = 0; i < 4; ++i) {
+        uint32_t dispenserHaltTimes = parseInputString(&message);
+        dispenserSetHaltTime(&dispenser[0], dispenserHaltTimes);
+        if (dispenserHaltTimes > 0) {
+            resetWatchdogTimer();
+            moveToDispenserWithId(i);
+            do {
+                resetWatchdogTimer();
+                dispenserChangeStates(&dispenser[i]);
+            } while (!dispenserAllInSleepState(dispenser, 1));
+        }
+    }
+}
+
+_Noreturn void run() {
     while (true) {
         // watchdog update needs to be performed frequent, otherwise the device will crash
         resetWatchdogTimer();
@@ -68,59 +110,16 @@ int main() {
 
         /* endregion handle received character */
     }
-#pragma clang diagnostic pop
-}
-
-/* region HELPER FUNCTIONS */
-
-void initialize_adc(uint8_t gpio) {
-    uint8_t adcInputPin;
-    switch (gpio) {
-    case 29:
-        adcInputPin = 3;
-        break;
-    case 28:
-        adcInputPin = 2;
-        break;
-    case 27:
-        adcInputPin = 1;
-        break;
-    case 26:
-        adcInputPin = 0;
-        break;
-    default:
-        PRINT_DEBUG("Invalid ADC GPIO")
-        return;
-    }
-
-    adc_init();
-    adc_gpio_init(gpio);
-    adc_select_input(adcInputPin);
-}
-
-bool initRondellDispenser(void) {
-    initialize_adc(28);
-    dispenserCreate(&dispenser[0], 0,4);
-    createRondell(2);
-    return true;
-    //PRINT_COMMAND("CALIBRATED")
-}
-
-void processMessage(char *message, size_t messageLength) {
-    PRINT_DEBUG("Process message len: %u", messageLength)
-    PRINT_DEBUG("Message: %s", message)
-    for (uint8_t i = 0; i < 4; ++i) {
-        uint32_t dispenserHaltTimes = parseInputString(&message);
-        dispenserSetHaltTime(&dispenser[0], dispenserHaltTimes);
-        if (dispenserHaltTimes > 0) {
-            resetWatchdogTimer();
-            moveToDispenserWithId(i);
-            do {
-                resetWatchdogTimer();
-                dispenserChangeStates(&dispenser[i]);
-            } while (!dispenserAllInSleepState(dispenser, 1));
-        }
-    }
 }
 
 /* endregion HELPER FUNCTIONS */
+
+int main() {
+    initHardware(false);
+    establishConnectionWithController("RONDELL");
+    initRondellDispenser();
+    initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
+    setUpWatchdog(60);
+    run();
+    return EXIT_FAILURE;
+}

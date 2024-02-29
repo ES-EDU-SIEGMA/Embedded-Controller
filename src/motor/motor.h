@@ -4,22 +4,6 @@
 #include "tmc2209.h"
 #include <stdint.h>
 
-#define MOTOR_ENABLE_PINT 7
-
-#define MAX_MOTORS = 4;
-
-#ifndef MOTOR_UP_SPEED
-//! current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
-//! for 3 cl Dispenser '>=100000' is allowed, without deformation
-#define MOTOR_UP_SPEED 120000
-#define MOTOR_UP_SPEED_SLOW 100000
-#endif
-#ifndef MOTOR_DOWN_SPEED
-//! current dispenser only allows '>=80000', without problems with refilling
-#define MOTOR_DOWN_SPEED 80000
-#endif
-#define DIRECTION_UP 1
-#define DIRECTION_DOWN (-1)
 
 /// struct containing information (pins, stepper driver, direction, Serial address) for a motor
 typedef struct Motor {

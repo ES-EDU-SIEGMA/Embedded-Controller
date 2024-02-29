@@ -50,5 +50,5 @@ void createRondell(motorAddress_t address);
  * @param positionToDriveTo rondellPosition Position that should be driven to.
  */
 void moveToDispenserWithId(rondellPosition_t positionToDriveTo);
-bool initRondellDispenser(void);
+
 #endif // SIEGMA_RONDELL_H

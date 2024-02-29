@@ -9,7 +9,6 @@
 #include <pico/time.h>
 
 #include "common.h"
-#include "limitSwitch.h"
 
 #define GPIO_PIN 28
 
@@ -56,8 +55,8 @@ void initialize_adc(uint8_t gpio) {
 _Noreturn static void runTest(uint8_t gpio) {
     PRINT("##########\n# Start Test")
     while (true) {
-        PRINT("OUTPUT: %lu", adc_read())
-        PRINT("#####");
+        PRINT("OUTPUT: %hu", adc_read())
+        PRINT("#####")
         sleep_ms(2000);
     }
 }

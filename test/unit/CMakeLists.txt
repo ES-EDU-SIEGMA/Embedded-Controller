@@ -30,6 +30,13 @@ target_include_directories(unit-test_dispenser PUBLIC
 target_link_libraries(unit-test_dispenser
         unity
 )
+target_compile_definitions(unit-test_dispenser PUBLIC
+        # current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
+        # for 3 cl Dispenser '>=100000' is allowed, without deformation
+        -DMOTOR_UP_SPEED=120000
+        # current dispenser only allows '>=80000', without problems with refilling
+        -DMOTOR_DOWN_SPEED=80000
+)
 add_test(unit-test_dispenser unit-test_dispenser)
 
 # Limit switch

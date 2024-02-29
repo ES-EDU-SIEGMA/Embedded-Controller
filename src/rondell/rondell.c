@@ -1,10 +1,5 @@
 #define SOURCE_FILE "RONDELL"
 
-/// required so that the rondell motor works on slower rate than the dispenser
-#define MOTOR_UP_SPEED 50000
-/// required so that the rondell motor works on slower rate than the dispenser
-#define MOTOR_DOWN_SPEED 50000
-
 #include "rondell.h"
 #include "common.h"
 #include "motor.h"
@@ -78,14 +73,14 @@ void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
 
 static void setUpRondell(motorAddress_t address) {
     rondell.address = address;
-    //rondell.uart = uart;
+    // rondell.uart = uart;
     rondell.position = UNDEFINED;
     rondell.state = RONDELL_SLEEP;
     rondell.positionToDriveTo = UNDEFINED;
     rondell.max_ldr_value = 0;
     rondell.min_ldr_value = 4095;
     createMotor(rondell.address);
-    //resetRondellPosition(rondell);
+    // resetRondellPosition(rondell);
 }
 
 static void moveRondellCounterClockwise(void) {
@@ -148,7 +143,7 @@ static void setExtrema(void) {
     stopRondell();
     rondell.state = RONDELL_SLEEP;
     sleep_ms(1000);
-    moveToDispenserWithId(0);
+    moveToDispenserWithId(RONDELL_POSITION_0);
     rondell.state = RONDELL_SLEEP;
     PRINT_DEBUG("LEAVING SET EXTREMA, MAX LDR: %d, MIN LDR: %d", rondell.max_ldr_value,
                 rondell.min_ldr_value)

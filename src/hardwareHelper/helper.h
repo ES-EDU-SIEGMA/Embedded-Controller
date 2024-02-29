@@ -21,7 +21,7 @@ void resetWatchdogTimer();
  *
  * \IMPORTANT needs to implemented!
  */
-bool initDispenser(void);
+void initDispenser(void);
 
 /* endregion HARDWARE */
 
