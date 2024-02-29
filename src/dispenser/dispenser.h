@@ -33,13 +33,14 @@ struct dispenser {
     uint16_t stepsUp;
     dispenserState_t state;
     limitSwitch_t limitSwitch;
-    uint32_t haltTime;
+    int32_t haltTime;
     bool switchClosed;
     uint8_t counterTorque;
     uint32_t minimum;
     uint8_t counterMinimum;
     uint16_t downCounter;
     uint16_t torque;
+    uint8_t dispensersInTopState;
 };
 
 /* endregion DEFINES */
@@ -124,5 +125,5 @@ static dispenserState_t downState(dispenser_t *dispenser);
  */
 static dispenserState_t errorState(dispenser_t *dispenser);
 /* endregion FUNCTION PROTOTYPES */
-
+void dispenserErrorStateCheck(dispenser_t *dispenser);
 #endif // SIEGMA_DISPENSER_H
