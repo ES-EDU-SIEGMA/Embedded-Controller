@@ -2,6 +2,7 @@
 
 #include "helper.h"
 #include "common.h"
+#include "motor.h"
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
 #include <pico/stdlib.h>
@@ -27,6 +28,10 @@ void initHardware(bool waitForConnection) {
             // waits for usb connection
         }
     }
+
+    // Enable TMC2209 drivers
+    initializeAndActivateMotorsEnablePin();
+
     PRINT_DEBUG("Hardware Initialized!")
 }
 

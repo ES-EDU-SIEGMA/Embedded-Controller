@@ -29,10 +29,12 @@ void initializeAndActivateMotorsEnablePin() {
     enablePin = MOTOR_ENABLE_PINT;
     gpio_init(enablePin);
     gpio_set_dir(enablePin, GPIO_OUT);
-    gpio_pull_down(enablePin);
+    gpio_pull_up(enablePin);
+
 }
 
 void setUpMotor(Motor_t *motor, SerialAddress_t address) {
+    gpio_pull_down(enablePin);
 
     TMC2209_setupByMotor(&motor->tmc2209, address);
 
@@ -49,6 +51,7 @@ void setUpMotor(Motor_t *motor, SerialAddress_t address) {
     TMC2209_setRunCurrent(&motor->tmc2209, 100);
     TMC2209_setHoldCurrent(&motor->tmc2209, 50);
     TMC2209_enable(&motor->tmc2209);
+    TMC2209_moveAtVelocity(&motor->tmc2209, 0);
 }
 
 bool motorIsCommunicating(motorAddress_t address) {

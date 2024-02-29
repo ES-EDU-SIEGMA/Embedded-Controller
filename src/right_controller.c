@@ -106,7 +106,6 @@ int main() {
     initHardware(false);
     establishConnectionWithController("RIGHT");
     initDispenser();
-    initializeAndActivateMotorsEnablePin();
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
     run();

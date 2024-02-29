@@ -49,8 +49,8 @@ void initialize_adc(uint8_t gpio) {
 
 void initRondellDispenser(void) {
     initialize_adc(27);
-    dispenserCreate(&dispenser[0], 0, 4);
     createRondell(2);
+    dispenserCreate(&dispenser[0], 0, 4);
     PRINT_COMMAND("CALIBRATED")
 }
 
@@ -117,7 +117,6 @@ _Noreturn void run() {
 int main() {
     initHardware(false);
     establishConnectionWithController("RONDELL");
-    initializeAndActivateMotorsEnablePin();
     initRondellDispenser();
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
     setUpWatchdog(60);
