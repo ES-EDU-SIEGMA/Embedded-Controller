@@ -51,7 +51,7 @@ void dispenserEmergencyStop(dispenser_t *dispenser) {
     dispenser->state = (dispenserState_t){.function = &sleepState};
 }
 
-void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime) {
+void dispenserSetHaltTime(dispenser_t *dispenser, int32_t haltTime) {
     dispenser->haltTime = haltTime;
 }
 void dispenserErrorStateCheck(dispenser_t *dispenser){

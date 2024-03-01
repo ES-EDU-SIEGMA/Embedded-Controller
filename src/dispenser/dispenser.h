@@ -63,7 +63,7 @@ void dispenserCreate(dispenser_t *dispenser, motorAddress_t address, uint8_t dis
  * @param haltTime  the time in ms to halt
  * @return void
  */
-void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime);
+void dispenserSetHaltTime(dispenser_t *dispenser, int32_t haltTime);
 
 dispenserStateCode_t getDispenserState(dispenser_t *dispenser);
 
