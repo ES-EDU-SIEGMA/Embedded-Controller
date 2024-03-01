@@ -51,7 +51,7 @@ void dispenserEmergencyStop(dispenser_t *dispenser) {
     dispenser->state = (dispenserState_t){.function = &sleepState};
 }
 
-void dispenserSetHaltTime(dispenser_t *dispenser, int32_t haltTime) {
+void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime) {
     dispenser->haltTime = haltTime;
 }
 void dispenserErrorStateCheck(dispenser_t *dispenser){
@@ -155,7 +155,13 @@ static dispenserState_t topState(dispenser_t *dispenser) {
     PRINT_DEBUG("topState")
     if (dispenser->haltTime > 0) {
         sleep_ms(TOP_TIME_SLOT);
-        dispenser->haltTime = dispenser->haltTime - dispenser->dispensersInTopState;
+        if (dispenser->haltTime < dispenser->dispensersInTopState) {
+            // underflow
+            dispenserSetHaltTime(dispenser, 0);
+        }
+        else {
+            dispenser->haltTime = dispenser->haltTime - dispenser->dispensersInTopState;
+        }
         return topState_t;
     }
     // reset to 0 when change to down state.
