@@ -387,7 +387,10 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
     read_request_datagram.crc =
         TMC2209_calculateCrcRead(read_request_datagram, READ_REQUEST_DATAGRAM_SIZE);
 
-    absolute_time_t from = get_absolute_time();
+    // Timestamps test time difference of SENDDELAY = 2 and SENDDELAY = 15
+    // SENDDELAY defined in tmc2209.h
+    // Time difference = 12 * 8 bit times
+//    absolute_time_t from = get_absolute_time();
     TMC2209_sendDatagramRead(tmc2209, read_request_datagram, READ_REQUEST_DATAGRAM_SIZE);
 
     uint32_t reply_delay = 0;
@@ -396,6 +399,9 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
         sleep_us(REPLY_DELAY_INC_MICROSECONDS);
         reply_delay += REPLY_DELAY_INC_MICROSECONDS;
     }
+//    absolute_time_t to = get_absolute_time();
+    // PRINT_DEBUG also costs time.
+//    PRINT_DEBUG("Time difference:%lld", absolute_time_diff_us(from, to))
 
     if (reply_delay >= REPLY_DELAY_MAX_MICROSECONDS) {
         tmc2209->blocking = true;
@@ -413,11 +419,10 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
 
     /*! Make sure UART is free again
      * Time to wait TMC2209 switch off output.
-     * Set SENDDELAY to 3*8 bit time and 15*8 bit time,
-     * look at the difference of reply_delay,
-     * calculate how long a 4 bit time is (in release mode).
+     * Can take use of Time Difference calculated above.
+     * Time may not accurate, try it.
      */
-    sleep_us(21 );
+    sleep_us(21);
 
     return TMC2209_reverseData(read_reply_datagram.data);
 }

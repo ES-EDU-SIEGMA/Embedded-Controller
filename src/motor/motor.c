@@ -83,7 +83,6 @@ uint16_t motorGetTorque(motorAddress_t address) {
 
 static void moveMotor(Motor_t *motor, int32_t speed) {
     TMC2209_moveAtVelocity(&motor->tmc2209, speed);
-//    TMC2209_moveAtVelocity(&motor->tmc2209, speed);
 }
 void moveMotorUp(motorAddress_t address) {
     Motor_t *motor = getMotor(address);
