@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* region VARIABLES/DEFINES */
 
@@ -24,6 +25,8 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
 size_t characterCounter;
 char inputBuffer[INPUT_BUFFER_LEN];
+
+bool dispenserInitialized = false;
 
 /* endregion VARIABLES/DEFINES */
 
@@ -55,6 +58,10 @@ void initialize_adc(uint8_t gpio) {
 }
 
 void initDispenser(void) {
+    if (dispenserInitialized) {
+        return;
+    }
+
     initialize_adc(27);
     createRondell(2);
     dispenserCreate(&dispenser[0], 0, 4);
@@ -64,6 +71,14 @@ void initDispenser(void) {
 void processMessage(char *message, size_t messageLength) {
     PRINT("Process message len: %u", messageLength);
     PRINT("Message: %s", message);
+
+    if (strcmp("i\n", message) == 0) {
+        PRINT_COMMAND("%s", CONTROLLER_ID);
+        initDispenser();
+        PRINT_COMMAND("CALIBRATED");
+        return;
+    }
+
     for (uint8_t i = 0; i < 4; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
         dispenserSetHaltTime(&dispenser[0], dispenserHaltTimes);
@@ -127,8 +142,6 @@ _Noreturn void run() {
 
 int main() {
     initIO(false);
-    establishConnectionWithController(CONTROLLER_ID);
-    initDispenser();
 
     run();
 

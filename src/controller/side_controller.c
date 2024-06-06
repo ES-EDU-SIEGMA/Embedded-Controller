@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* region VARIABLES/DEFINES */
 
@@ -24,18 +25,23 @@ dispenser_t dispenser[NUMBER_OF_DISPENSERS]; //!< Array containing the dispenser
 size_t characterCounter;
 char inputBuffer[INPUT_BUFFER_LEN];
 
+bool dispenserInitialized = false;
+
 /* endregion VARIABLES/DEFINES */
 
 /* region FUNCTIONS */
 
 void initDispenser(void) {
+    if (dispenserInitialized) {
+        return;
+    }
+
     initializeAndActivateMotorsEnablePin(); // Enable TMC2209 drivers
 
     dispenserCreate(&dispenser[0], 0, 4);
     dispenserCreate(&dispenser[1], 1, 4);
     dispenserCreate(&dispenser[2], 2, 4);
     dispenserCreate(&dispenser[3], 3, 4);
-    PRINT_COMMAND("CALIBRATED");
 }
 
 void processMessage(char *message, size_t messageLength) {
@@ -44,7 +50,15 @@ void processMessage(char *message, size_t messageLength) {
 
     PRINT("Process message len: %u", messageLength);
     PRINT("Message: %s", message);
-    for (uint8_t i = 0; i < 4; ++i) {
+
+    if (strcmp("i\n", message) == 0) {
+        PRINT_COMMAND("%s", CONTROLLER_ID);
+        initDispenser();
+        PRINT_COMMAND("CALIBRATED");
+        return;
+    }
+
+    for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
         if (dispenserHaltTimes > 0) {
             dispensersTrigger++;
@@ -130,8 +144,6 @@ _Noreturn void run(void) {
 
 int main() {
     initIO(false);
-    establishConnectionWithController(CONTROLLER_ID);
-    initDispenser();
 
     run();
 
