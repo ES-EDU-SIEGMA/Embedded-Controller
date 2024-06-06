@@ -1,15 +1,21 @@
-#define SOURCE_FILE "MAIN-LEFT"
+#define SOURCE_FILE "MAIN-RIGHT"
 
+#include "com_protocol.h"
 #include "common.h"
 #include "dispenser.h"
 #include "helper.h"
-#include <pico/stdlib.h> /// must be included -> sets clocks required for watchdog-timer!!
+
+#include "hardware/watchdog.h"
+#include "pico/stdlib.h" /// must be included -> sets clocks required for watchdog-timer!!
+
 #include <stdio.h>
 #include <stdlib.h>
 
 /* region VARIABLES/DEFINES */
 
+#define SERIAL_UART SERIAL2 /// The uart Pins to be used
 #define NUMBER_OF_DISPENSERS 4
+
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
@@ -30,7 +36,7 @@ void initDispenser(void) {
 
 void processMessage(char *message, size_t messageLength) {
     uint8_t dispensersTrigger = 0;
-    bool triggeredDispensers[NUMBER_OF_DISPENSERS]={false};
+    bool triggeredDispensers[NUMBER_OF_DISPENSERS] = {false};
 
     PRINT("Process message len: %u", messageLength);
     PRINT("Message: %s", message);
@@ -43,12 +49,12 @@ void processMessage(char *message, size_t messageLength) {
         dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
     }
 
-    for(uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i){
+    for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
         dispenserErrorStateCheck(&dispenser[i]);
     }
 
     do {
-        resetWatchdogTimer();
+        watchdog_update();
         uint8_t topStateCounter = 0;
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
             if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_TOP) {
@@ -75,7 +81,7 @@ void processMessage(char *message, size_t messageLength) {
 _Noreturn void run(void) {
     while (true) {
         // watchdog update needs to be performed frequent, otherwise the device will crash
-        resetWatchdogTimer();
+        watchdog_update();
 
         /* region Handle received character */
         int input = getchar_timeout_us(3 * 1000000);
@@ -117,11 +123,10 @@ _Noreturn void run(void) {
 
 int main() {
     initHardware(false);
-    establishConnectionWithController("LEFT");
+    establishConnectionWithController("RIGHT");
     initDispenser();
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
-    setUpWatchdog(60);
+    watchdog_enable(60 * 1000, true);
     run();
     return EXIT_FAILURE;
 }
-

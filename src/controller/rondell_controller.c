@@ -1,17 +1,21 @@
-#define SOURCE_FILE "MAIN-RIGHT"
+#define SOURCE_FILE "RONDELL"
 
+#include "com_protocol.h"
 #include "common.h"
 #include "dispenser.h"
 #include "helper.h"
-#include <pico/stdlib.h> /// must be included -> sets clocks required for watchdog-timer!!
+#include "rondell.h"
+
+#include "hardware/adc.h"
+#include "hardware/watchdog.h"
+#include "pico/stdlib.h" /// must be included -> sets clocks required for watchdog-timer!!
+
 #include <stdio.h>
 #include <stdlib.h>
 
 /* region VARIABLES/DEFINES */
 
-#define SERIAL_UART SERIAL2 /// The uart Pins to be used
-#define NUMBER_OF_DISPENSERS 4
-
+#define NUMBER_OF_DISPENSERS 1
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
@@ -22,62 +26,59 @@ char *inputBuffer;
 
 /* region HELPER FUNCTIONS */
 
-void initDispenser(void) {
+void initialize_adc(uint8_t gpio) {
+    uint8_t adcInputPin;
+    switch (gpio) {
+    case 29:
+        adcInputPin = 3;
+        break;
+    case 28:
+        adcInputPin = 2;
+        break;
+    case 27:
+        adcInputPin = 1;
+        break;
+    case 26:
+        adcInputPin = 0;
+        break;
+    default:
+        PRINT("Invalid ADC GPIO");
+        return;
+    }
+
+    adc_init();
+    adc_gpio_init(gpio);
+    adc_select_input(adcInputPin);
+}
+
+void initRondellDispenser(void) {
+    initialize_adc(27);
+    createRondell(2);
     dispenserCreate(&dispenser[0], 0, 4);
-    dispenserCreate(&dispenser[1], 1, 4);
-    dispenserCreate(&dispenser[2], 2, 4);
-    dispenserCreate(&dispenser[3], 3, 4);
     PRINT_COMMAND("CALIBRATED");
 }
 
 void processMessage(char *message, size_t messageLength) {
-    uint8_t dispensersTrigger = 0;
-    bool triggeredDispensers[NUMBER_OF_DISPENSERS] = {false};
-
     PRINT("Process message len: %u", messageLength);
     PRINT("Message: %s", message);
     for (uint8_t i = 0; i < 4; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
+        dispenserSetHaltTime(&dispenser[0], dispenserHaltTimes);
         if (dispenserHaltTimes > 0) {
-            dispensersTrigger++;
-            triggeredDispensers[i] = true;
-        }
-        dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
-    }
-
-    for(uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i){
-        dispenserErrorStateCheck(&dispenser[i]);
-    }
-
-    do {
-        resetWatchdogTimer();
-        uint8_t topStateCounter = 0;
-        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_TOP) {
-                topStateCounter++;
-            }
-        }
-        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_TOP) {
-                dispenser[i].dispensersInTopState = topStateCounter;
-            }
-        }
-        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            if (triggeredDispensers[i] == true) {
+            watchdog_update();
+            moveToDispenserWithId(i);
+            do {
+                watchdog_update();
                 dispenserChangeStates(&dispenser[i]);
-                if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_SLEEP) {
-                    triggeredDispensers[i] = false;
-                }
-            }
+            } while (!dispenserAllInSleepState(dispenser, 1));
         }
-        // When all dispensers are finished, they are in the state sleep
-    } while (!dispenserAllInSleepState(dispenser, NUMBER_OF_DISPENSERS));
+    }
 }
 
-_Noreturn void run(void) {
+_Noreturn void run() {
     while (true) {
         // watchdog update needs to be performed frequent, otherwise the device will crash
-        resetWatchdogTimer();
+        watchdog_update();
 
         /* region Handle received character */
         int input = getchar_timeout_us(3 * 1000000);
@@ -119,10 +120,10 @@ _Noreturn void run(void) {
 
 int main() {
     initHardware(false);
-    establishConnectionWithController("RIGHT");
-    initDispenser();
+    establishConnectionWithController("RONDELL");
+    initRondellDispenser();
     initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
-    setUpWatchdog(60);
+    watchdog_enable(60 * 1000, true);
     run();
     return EXIT_FAILURE;
 }
