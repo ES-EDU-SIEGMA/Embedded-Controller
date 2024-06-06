@@ -54,6 +54,18 @@ const static uint32_t POST_READ_DELAY_NUMERATOR = 500000;
 const static uint8_t STEPPER_DRIVER_FEATURE_OFF = 0;
 const static uint8_t STEPPER_DRIVER_FEATURE_ON = 1;
 
+/*! SENDDELAY for read access (time until TMC starts sending replies):
+ * 0, 1: 8 bit times (Attention: Don’t use in multi-node).
+ * 2, 3: 3*8 bit times.
+ * 4, 5: 5*8 bit times.
+ * 6, 7: 7*8 bit times.
+ * 8, 9: 9*8 bit times.
+ * 10, 11: 11*8 bit times.
+ * 12, 13: 13*8 bit times.
+ * 14, 15: 15*8 bit times.
+ */
+const static uint8_t SEND_DELAY = 2;
+
 // Datagrams
 const static uint8_t WRITE_READ_REPLY_DATAGRAM_SIZE = 8;
 const static uint8_t DATA_SIZE = 4;
@@ -106,6 +118,17 @@ typedef union GlobalConfig {
     };
     uint32_t bytes;
 } TMC2209_GlobalConfig_t;
+
+// SENDDELAY for read access (time until TMC starts sending replies)
+const static uint8_t ADDRESS_SENDDELAY = 0x03;
+typedef union SendDelay {
+    struct {
+        uint32_t reserved_0: 8;
+        uint32_t senddelay: 4;
+        uint32_t reserved_1: 20;
+    };
+    uint32_t bytes;
+} TMC2209_SendDelay_t;
 
 const static uint8_t ADDRESS_IOIN = 0x06;
 typedef union Input {
@@ -269,6 +292,8 @@ typedef struct TMC2209 {
 void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, uint32_t serial_baud_rate,
                    SerialAddress_t serial_address);
 
+void TMC2209_setupByMotor(TMC2209_t *tmc2209,SerialAddress_t serial_address);
+
 // check to make sure TMC2209 is properly setup and communicating
 bool TMC2209_isSetupAndCommunicating(TMC2209_t *tmc2209);
 
@@ -296,5 +321,7 @@ void TMC2209_setHoldCurrent(TMC2209_t *tmc2209, uint8_t percent);
 uint16_t TMC2209_getStallGuardResult(TMC2209_t *tmc2209);
 
 void TMC2209_setStallGuardThreshold(TMC2209_t *tmc2209,uint8_t stall_guard_threshold);
+
+uint16_t TMC2209_getPosition(TMC2209_t *tmc2209);
 
 #endif

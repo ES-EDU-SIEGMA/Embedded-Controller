@@ -1,19 +1,11 @@
 #define SOURCE_FILE "RONDELL"
 
-/// required so that the rondell motor works on slower rate than the dispenser
-#define MOTOR_UP_SPEED 50000
-/// required so that the rondell motor works on slower rate than the dispenser
-#define MOTOR_DOWN_SPEED 50000
-
 #include "rondell.h"
 #include "common.h"
 #include "motor.h"
 #include "rondell_internal.h"
-#include "serialUART.h"
-#include "tmc2209.h"
 #include <hardware/adc.h>
 #include <pico/time.h>
-#include <stdio.h>
 
 /* region VARIABLES */
 
@@ -23,13 +15,12 @@ static Rondell_t rondell;
 
 /* region HEADER FUNCTIONS */
 
-void setUpRondell(SerialAddress_t address, serialUart_t uart) {
-    createRondell(address, uart);
+void createRondell(motorAddress_t address) {
+    setUpRondell(address);
     setExtrema();
 }
-
 void handleSpecialPosition(void) {
-    PRINT_DEBUG("ENTERED handleSpecialPosition\n");
+    PRINT_DEBUG("ENTERED handleSpecialPosition\n")
     if (rondell.positionToDriveTo == 3 && rondell.position == 0) {
         moveRondellCounterClockwise();
     } else {
@@ -80,32 +71,32 @@ void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
-static void createRondell(SerialAddress_t address, serialUart_t uart) {
+static void setUpRondell(motorAddress_t address) {
     rondell.address = address;
-    rondell.uart = uart;
+    // rondell.uart = uart;
     rondell.position = UNDEFINED;
     rondell.state = RONDELL_SLEEP;
     rondell.positionToDriveTo = UNDEFINED;
     rondell.max_ldr_value = 0;
     rondell.min_ldr_value = 4095;
-    rondell.motor = createMotor(address, uart);
+    createMotor(rondell.address);
+    // resetRondellPosition(rondell);
 }
 
 static void moveRondellCounterClockwise(void) {
-    moveMotorUp(&rondell.motor);
+    moveMotorUp(rondell.address);
     rondell.state = RONDELL_MOVING_COUNTER_CLOCKWISE;
     sleep_ms(200);
 }
 
 static void moveRondellClockwise(void) {
-    moveMotorDown(&rondell.motor);
+    moveMotorDown(rondell.address);
     rondell.state = RONDELL_MOVING_CLOCKWISE;
     sleep_ms(200);
 }
 
 static void stopRondell(void) {
-    stopMotor(&rondell.motor);
-    disableMotorByPin(&rondell.motor);
+    stopMotor(rondell.address);
 }
 
 static uint8_t specialPositionGiven(void) {
@@ -135,7 +126,6 @@ static uint8_t calculatePositionDifference(void) {
 
 static void setExtrema(void) {
     PRINT_DEBUG("ENTERED setExtrema")
-    enableMotorByPin(&rondell.motor);
     moveRondellClockwise();
     uint16_t dataCollectionTime_ms = 15000;
     uint16_t counter = 0;
@@ -153,7 +143,7 @@ static void setExtrema(void) {
     stopRondell();
     rondell.state = RONDELL_SLEEP;
     sleep_ms(1000);
-    moveToDispenserWithId(0);
+    moveToDispenserWithId(RONDELL_POSITION_0);
     rondell.state = RONDELL_SLEEP;
     PRINT_DEBUG("LEAVING SET EXTREMA, MAX LDR: %d, MIN LDR: %d", rondell.max_ldr_value,
                 rondell.min_ldr_value)
@@ -161,7 +151,6 @@ static void setExtrema(void) {
 
 static void startRondellAndDecideDirection(void) {
     PRINT_DEBUG("started rondell and deciding direction")
-    enableMotorByPin(&rondell.motor);
     if (rondell.position != UNDEFINED) {
         uint8_t positionDifference = calculatePositionDifference();
         PRINT_DEBUG("POSITION DIFFERENCE: %u", positionDifference)

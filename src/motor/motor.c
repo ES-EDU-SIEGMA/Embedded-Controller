@@ -5,39 +5,45 @@
 #include <hardware/gpio.h>
 #include <pico/time.h>
 
-void setUpEnablePin(Motor_t *motor, SerialAddress_t id) {
-    switch (id) {
-    case 0:
-        motor->enablePin = MOTOR_ENABLE_PINT_0;
-        break;
-    case 1:
-        motor->enablePin = MOTOR_ENABLE_PINT_1;
-        break;
-    case 2:
-        motor->enablePin = MOTOR_ENABLE_PINT_2;
-        break;
-    case 3:
-        motor->enablePin = MOTOR_ENABLE_PINT_3;
-        break;
-    default:
-        motor->enablePin = 0;
-    }
-    gpio_init(motor->enablePin);
-    gpio_set_dir(motor->enablePin, GPIO_OUT);
+#define SERIAL_UART SERIAL2 /// The uart Pins to be used
+
+#define MOTOR_ENABLE_PINT 7
+
+#ifndef MOTOR_UP_SPEED
+#error "MOTOR_UP_SPEED not defined"
+#endif
+#ifndef MOTOR_UP_SPEED_SLOW
+#define MOTOR_UP_SPEED_SLOW 100000
+#endif
+#ifndef MOTOR_DOWN_SPEED
+#error "MOTOR_DOWN_SPEED not defined"
+#endif
+
+#define MOTOR_UP_SPEED_SLOW 100000
+
+static uint16_t torque = 0;
+static uint8_t enablePin;
+Motor_t motors[4];
+
+void initializeAndActivateMotorsEnablePin() {
+    enablePin = MOTOR_ENABLE_PINT;
+    gpio_init(enablePin);
+    gpio_set_dir(enablePin, GPIO_OUT);
+    gpio_pull_up(enablePin);
+
 }
 
-void setUpMotor(Motor_t *motor, SerialAddress_t address, serialUart_t uart) {
-    setUpEnablePin(motor, address);
-    disableMotorByPin(motor);
+void setUpMotor(Motor_t *motor, SerialAddress_t address) {
+    gpio_pull_down(enablePin);
 
-    TMC2209_setup(&motor->tmc2209, uart, SERIAL_BAUD_RATE, address);
+    TMC2209_setupByMotor(&motor->tmc2209, address);
 
     while (!TMC2209_isSetupAndCommunicating(&motor->tmc2209)) {
         if (TMC2209_disabledByInputPin(&motor->tmc2209)) {
             PRINT_DEBUG("Setup: Stepper driver with address %u DISABLED by input pin!", address)
         }
         PRINT_DEBUG("Setup: Stepper driver with address %u NOT communicating and setup!", address)
-        TMC2209_setup(&motor->tmc2209, uart, SERIAL_BAUD_RATE, address);
+        TMC2209_setupByMotor(&motor->tmc2209, address);
         sleep_ms(500);
     }
 
@@ -45,40 +51,52 @@ void setUpMotor(Motor_t *motor, SerialAddress_t address, serialUart_t uart) {
     TMC2209_setRunCurrent(&motor->tmc2209, 100);
     TMC2209_setHoldCurrent(&motor->tmc2209, 50);
     TMC2209_enable(&motor->tmc2209);
-
-    motor->direction = DIRECTION_UP;
+    TMC2209_moveAtVelocity(&motor->tmc2209, 0);
 }
 
-bool motorIsCommunicating(Motor_t *motor) {
+bool motorIsCommunicating(motorAddress_t address) {
+    Motor_t *motor = getMotor(address);
     return TMC2209_isSetupAndCommunicating(&motor->tmc2209);
 }
 
-void enableMotorByPin(Motor_t *motor) {
-    gpio_pull_down(motor->enablePin);
+Motor_t *getMotor(motorAddress_t address) {
+    if (address >= 0 && address < 5) {
+        return &motors[address];
+    } else {
+        PRINT_DEBUG("Didnt find motor")
+        // Handle invalid motorNum
+        return NULL;
+    }
 }
 
-void disableMotorByPin(Motor_t *motor) {
-    gpio_pull_up(motor->enablePin);
+Motor_t createMotor(motorAddress_t address) {
+    motors[address].address = (int)address;
+    setUpMotor(&motors[address], (int)address);
+    return motors[address];
 }
 
-Motor_t createMotor(SerialAddress_t address, serialUart_t uart) {
-    Motor_t motor = {.address = address};
-    setUpMotor(&motor, address, uart);
-    return motor;
+uint16_t motorGetTorque(motorAddress_t address) {
+    Motor_t *motor = getMotor(address);
+    torque = TMC2209_getStallGuardResult(&motor->tmc2209);
+    return torque;
 }
 
-void moveMotorUp(Motor_t *motor) {
-    // TODO: Why double function calls?
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * MOTOR_UP_SPEED);
+static void moveMotor(Motor_t *motor, int32_t speed) {
+    TMC2209_moveAtVelocity(&motor->tmc2209, speed);
 }
-
-void moveMotorDown(Motor_t *motor) {
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_DOWN_SPEED);
-    TMC2209_moveAtVelocity(&motor->tmc2209, motor->direction * -MOTOR_DOWN_SPEED);
+void moveMotorUp(motorAddress_t address) {
+    Motor_t *motor = getMotor(address);
+    moveMotor(motor, MOTOR_UP_SPEED);
 }
-
-void stopMotor(Motor_t *motor) {
-    TMC2209_moveAtVelocity(&motor->tmc2209, 0);
-    TMC2209_moveAtVelocity(&motor->tmc2209, 0);
+void moveMotorUpSlowSpeed(motorAddress_t address) {
+    Motor_t *motor = getMotor(address);
+    moveMotor(motor, MOTOR_UP_SPEED_SLOW);
+}
+void moveMotorDown(motorAddress_t address) {
+    Motor_t *motor = getMotor(address);
+    moveMotor(motor, (-1) * MOTOR_DOWN_SPEED);
+}
+void stopMotor(motorAddress_t address) {
+    Motor_t *motor = getMotor(address);
+    moveMotor(motor, 0);
 }

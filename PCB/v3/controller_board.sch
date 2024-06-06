@@ -187,6 +187,9 @@
 <layer number="255" name="routoute" color="7" fill="1" visible="yes" active="yes"/>
 </layers>
 <schematic xreflabel="%F%N/%S.%C%R" xrefpart="/%S.%C%R">
+<description>Drink Mixing Machine 
+-- 
+Controller Board v3.1</description>
 <libraries>
 <library name="TMC2209_SILENTSTEPSTICK" urn="urn:adsk.eagle:library:40997366">
 <packages>
@@ -5467,6 +5470,7 @@ DIN A3, landscape with location and doc. field</description>
 </library>
 </libraries>
 <attributes>
+<attribute name="REVISION" value="v3.1"/>
 </attributes>
 <variantdefs>
 </variantdefs>
@@ -5498,8 +5502,10 @@ DIN A3, landscape with location and doc. field</description>
 <part name="S4" library="B2B-PH-K-S_LF__SN_" library_urn="urn:adsk.eagle:library:41002042" deviceset="B2B-PH-K-S(LF)(SN)" device="" package3d_urn="urn:adsk.eagle:package:41002045/1"/>
 <part name="R5" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="10kR"/>
 <part name="R7" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="0R"/>
-<part name="R1" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="10kR"/>
-<part name="FRAME1" library="frames" library_urn="urn:adsk.eagle:library:229" deviceset="A3L-LOC" device="" value="Drink Mixing Machine v2.0"/>
+<part name="R1" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="270R"/>
+<part name="FRAME1" library="frames" library_urn="urn:adsk.eagle:library:229" deviceset="A3L-LOC" device="" value="Drink Mixing Machine v2.0">
+<attribute name="VERSION" value="v3.1"/>
+</part>
 <part name="CONTROLLER" library="tiny2040_headerd" library_urn="urn:adsk.eagle:library:42308319" deviceset="TINY2040_HEADER" device="" package3d_urn="urn:adsk.eagle:package:42308322/5"/>
 <part name="3V3_FUSE1" library="4628" library_urn="urn:adsk.eagle:library:41102850" deviceset="4628" device="" package3d_urn="urn:adsk.eagle:package:41102853/1"/>
 <part name="R8" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="0R"/>
@@ -5531,7 +5537,15 @@ DIN A3, landscape with location and doc. field</description>
 </parts>
 <sheets>
 <sheet>
+<description>Drink Mixing Machine
+Controller Board</description>
 <plain>
+<text x="345.44" y="15.24" size="1.778" layer="94">Intelligent Embedded Systems</text>
+<text x="345.44" y="20.32" size="1.6764" layer="94">University of Duisburg-Essen</text>
+<text x="345.44" y="10.16" size="1.778" layer="94">&gt;LAST_DATE_TIME</text>
+<text x="304.8" y="17.78" size="1.778" layer="94">Drink Mixing Machine</text>
+<text x="289.56" y="10.16" size="3.81" layer="94">Controller Board</text>
+<text x="330.2" y="10.16" size="3.81" layer="94">&gt;REVISION</text>
 </plain>
 <instances>
 <instance part="M1_TMC" gate="G$1" x="67.06" y="124.76" smashed="yes">
@@ -5623,9 +5637,8 @@ DIN A3, landscape with location and doc. field</description>
 <attribute name="VALUE" x="331.978" y="219.71" size="1.778" layer="96" rot="R270"/>
 </instance>
 <instance part="FRAME1" gate="G$1" x="0" y="0" smashed="yes">
-<attribute name="DRAWING_NAME" x="344.17" y="15.24" size="2.54" layer="94"/>
-<attribute name="LAST_DATE_TIME" x="344.17" y="10.16" size="2.286" layer="94"/>
 <attribute name="SHEET" x="357.505" y="5.08" size="2.54" layer="94"/>
+<attribute name="VERSION" x="0" y="0" size="1.778" layer="96"/>
 </instance>
 <instance part="CONTROLLER" gate="G$1" x="304.8" y="231.14" smashed="yes">
 <attribute name="NAME" x="305.308" y="246.888" size="2.54" layer="95" font="vector" ratio="14" align="bottom-center"/>

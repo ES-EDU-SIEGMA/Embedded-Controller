@@ -42,6 +42,7 @@
 #include "serialUART.h"
 #include "tmc2209_intern.h"
 #include <pico/time.h>
+#define SERIAL_UART SERIAL2
 
 #ifndef constrain
 #define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
@@ -63,6 +64,7 @@ void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, uint32_t serial_baud
 
     TMC2209_setOperationModeToSerial(tmc2209, serial, serial_baud_rate, serial_address);
     TMC2209_setRegistersToDefaults(tmc2209);
+    TMC2209_setSendDelay(tmc2209);
     TMC2209_readAndStoreRegisters(tmc2209);
     TMC2209_minimizeMotorCurrent(tmc2209);
     TMC2209_disable(tmc2209);
@@ -73,6 +75,10 @@ void TMC2209_setup(TMC2209_t *tmc2209, serialUart_t serial, uint32_t serial_baud
     if (!TMC2209_isSetupAndCommunicating(tmc2209)) {
         tmc2209->blocking = true;
     }
+}
+
+void TMC2209_setupByMotor(TMC2209_t *tmc2209,SerialAddress_t serial_address){
+    TMC2209_setup(tmc2209, SERIAL_UART, SERIAL_BAUD_RATE, serial_address);
 }
 
 void TMC2209_setHoldCurrent(TMC2209_t *tmc2209, uint8_t percent) {
@@ -211,6 +217,13 @@ void TMC2209_setRegistersToDefaults(TMC2209_t *tmc2209) {
     TMC2209_write(tmc2209, ADDRESS_TCOOLTHRS, TCOOLTHRS_DEFAULT);
     TMC2209_write(tmc2209, ADDRESS_SGTHRS, SGTHRS_DEFAULT);
     TMC2209_write(tmc2209, ADDRESS_COOLCONF, COOLCONF_DEFAULT);
+}
+
+void TMC2209_setSendDelay(TMC2209_t *tmc2209) {
+    TMC2209_SendDelay_t send_delay_data;
+    send_delay_data.bytes = 0;
+    send_delay_data.senddelay = SEND_DELAY;
+    TMC2209_write(tmc2209, ADDRESS_SENDDELAY, send_delay_data.bytes);
 }
 
 void TMC2209_readAndStoreRegisters(TMC2209_t *tmc2209) {
@@ -374,6 +387,10 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
     read_request_datagram.crc =
         TMC2209_calculateCrcRead(read_request_datagram, READ_REQUEST_DATAGRAM_SIZE);
 
+    // Timestamps test time difference of SENDDELAY = 2 and SENDDELAY = 15
+    // SENDDELAY defined in tmc2209.h
+    // Time difference = 12 * 8 bit times
+//    absolute_time_t from = get_absolute_time();
     TMC2209_sendDatagramRead(tmc2209, read_request_datagram, READ_REQUEST_DATAGRAM_SIZE);
 
     uint32_t reply_delay = 0;
@@ -382,6 +399,9 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
         sleep_us(REPLY_DELAY_INC_MICROSECONDS);
         reply_delay += REPLY_DELAY_INC_MICROSECONDS;
     }
+//    absolute_time_t to = get_absolute_time();
+    // PRINT_DEBUG also costs time.
+//    PRINT_DEBUG("Time difference:%lld", absolute_time_diff_us(from, to))
 
     if (reply_delay >= REPLY_DELAY_MAX_MICROSECONDS) {
         tmc2209->blocking = true;
@@ -397,14 +417,12 @@ uint32_t TMC2209_read(TMC2209_t *tmc2209, uint8_t register_address) {
         read_reply_datagram.bytes |= (byte << (byte_count++ * BITS_PER_BYTE));
     }
 
-    // this unfortunate code was found to be necessary after testing on hardware
-    uint32_t post_read_delay_repeat = POST_READ_DELAY_NUMERATOR / tmc2209->serial_baud_rate;
-    for (uint32_t i = 0; i < post_read_delay_repeat; ++i) {
-        sleep_us(POST_READ_DELAY_INC_MICROSECONDS);
-    }
-
-    // Make sure UART is free again
-    sleep_ms(10);
+    /*! Make sure UART is free again
+     * Time to wait TMC2209 switch off output.
+     * Can take use of Time Difference calculated above.
+     * Time may not accurate, try it.
+     */
+    sleep_us(21);
 
     return TMC2209_reverseData(read_reply_datagram.data);
 }
@@ -459,4 +477,8 @@ uint16_t TMC2209_getStallGuardResult(TMC2209_t *tmc2209) {
 
 void TMC2209_setStallGuardThreshold(TMC2209_t *tmc2209,uint8_t stall_guard_threshold) {
     TMC2209_write(tmc2209, ADDRESS_SGTHRS, stall_guard_threshold);
+}
+
+uint16_t TMC2209_getPosition(TMC2209_t *tmc2209) {
+    return TMC2209_read(tmc2209, ADDRESS_MSCNT);
 }

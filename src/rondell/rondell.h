@@ -6,7 +6,6 @@
 
 /// A main concept of the rondell is reading out light dependent resistor (=:LDR) values.
 typedef uint16_t LDR_VALUE;
-
 /// all possible rondell positions
 typedef uint8_t rondellPosition_t;
 enum rondellPosition {
@@ -27,15 +26,14 @@ enum rondellState {
 };
 
 /// general often needed information of the rondell.
+
 struct Rondell {
-    SerialAddress_t address;
+    motorAddress_t address;
     rondellState_t state;
     rondellPosition_t position;
     rondellPosition_t positionToDriveTo;
     LDR_VALUE max_ldr_value;
     LDR_VALUE min_ldr_value;
-    Motor_t motor;
-    serialUart_t uart;
 };
 typedef struct Rondell Rondell_t;
 
@@ -45,7 +43,7 @@ typedef struct Rondell Rondell_t;
  * https://github.com/janelia-arduino/TMC2209
  * @param uart    Further UART configuration
  */
-void setUpRondell(SerialAddress_t address, serialUart_t uart);
+void createRondell(motorAddress_t address);
 
 /*! This is the core-function of the rondell; it moves the rondell to the desired dispenser.
  *

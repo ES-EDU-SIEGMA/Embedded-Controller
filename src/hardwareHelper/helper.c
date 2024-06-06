@@ -2,6 +2,7 @@
 
 #include "helper.h"
 #include "common.h"
+#include "motor.h"
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
 #include <pico/stdlib.h>
@@ -27,6 +28,10 @@ void initHardware(bool waitForConnection) {
             // waits for usb connection
         }
     }
+
+    // Enable TMC2209 drivers
+    initializeAndActivateMotorsEnablePin();
+
     PRINT_DEBUG("Hardware Initialized!")
 }
 
@@ -39,7 +44,7 @@ __force_inline void setUpWatchdog(int timeoutInSeconds) {
 
 __force_inline void resetWatchdogTimer(void) {
     watchdog_update();
-    PRINT_DEBUG("Watchdog reset performed!")
+    PRINT_DEBUG("Watchdog timer performed restart!")
 }
 
 /* endregion HARDWARE */
@@ -65,6 +70,11 @@ void establishConnectionWithController(char *identifier) {
             PRINT_COMMAND("F")
         }
     }
+}
+
+void initAndConnect(bool waitForConnection, char *identifier) {
+    initHardware(waitForConnection);
+    establishConnectionWithController(identifier);
 }
 
 void initializeMessageHandler(char **buffer, size_t bufferLength, size_t *characterCounter) {

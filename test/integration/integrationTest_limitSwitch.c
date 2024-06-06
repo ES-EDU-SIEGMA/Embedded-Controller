@@ -1,15 +1,20 @@
 #define SOURCE_FILE "LIMIT_SWITCH_TEST"
 
-#include "common.h"
-#include "limitSwitch.h"
+#include <stdlib.h>
+
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
 #include <pico/time.h>
 
+#include "common.h"
+#include "limitSwitch.h"
+
 #define NUMBER_OF_DISPENSERS 4
 
-void initPico(bool waitForUSBConnection) {
+static limitSwitch_t limitSwitch[NUMBER_OF_DISPENSERS];
+
+static void initPico(void) {
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
@@ -19,32 +24,34 @@ void initPico(bool waitForUSBConnection) {
     // Give components time for boot up
     sleep_ms(2500);
 
-    if (waitForUSBConnection) {
-        while ((!stdio_usb_connected())) {
-            // waits for usb connection
+    while (!stdio_usb_connected()) {
+        // waits for usb connection
+    }
+}
+
+static void setupLimitSwitchtes() {
+    for (int i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
+        limitSwitch[i] = createLimitSwitch(i);
+    }
+}
+
+_Noreturn static void runTest() {
+    PRINT("##########\n# Start Test")
+    while (true) {
+        for (int index = 0; index < NUMBER_OF_DISPENSERS; ++index) {
+            if (limitSwitchIsClosed(limitSwitch[index])) {
+                PRINT("Switch %i is closed", index)
+            } else {
+                PRINT("Switch %i is open", index)
+            }
         }
+        PRINT("#####");
+        sleep_ms(2000);
     }
 }
 
 int main() {
-    initPico(true);
-
-    limitSwitch_t limitSwitch[NUMBER_OF_DISPENSERS];
-
-    for (int i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-        limitSwitch[i] = createLimitSwitch(i);
-    }
-
-    PRINT("##########\n# Start Test")
-    while (true) {
-        for (int i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            if (limitSwitchIsClosed(limitSwitch[i])) {
-                PRINT("Switch %i is closed", i)
-            } else {
-                PRINT("Switch %i is open", i)
-            }
-        }
-        PRINT("#####");
-        sleep_ms(1000);
-    }
+    initPico();
+    setupLimitSwitchtes();
+    runTest();
 }

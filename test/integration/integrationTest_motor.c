@@ -1,19 +1,21 @@
 #define SOURCE_FILE "MOTOR_TEST"
 
-#include "common.h"
-#include "dispenser.h"
-#include "motor.h"
-#include "serialUART.h"
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
 #include <pico/stdio.h>
 #include <pico/stdio_usb.h>
 #include <pico/time.h>
 
+#include "common.h"
+#include "motor.h"
+#include "serialUART.h"
+
 #define SERIAL_UART SERIAL2
 #define NUMBER_OF_DISPENSERS 4
 
-void initPico(bool waitForUSBConnection) {
+static Motor_t motor[4];
+
+void initPico() {
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
@@ -23,36 +25,31 @@ void initPico(bool waitForUSBConnection) {
     // Give components time for boot up
     sleep_ms(2500);
 
-    if (waitForUSBConnection) {
-        while ((!stdio_usb_connected())) {
-            // waits for usb connection
-        }
+    initializeAndActivateMotorsEnablePin();
+
+    while (!stdio_usb_connected()) {
+        // waits for usb connection
     }
 }
 
-int main() {
-    initPico(true);
-
-    Motor_t motor[4];
-
+_Noreturn static void runTest() {
     PRINT("##########\n# Start Test")
     while (true) {
-        PRINT("First write Stepper ID (0-%i) and then command:"
-              "Setup (s), Up (u), Down (d), Halt(h)",
-              NUMBER_OF_DISPENSERS - 1)
-
-        uint32_t id = getchar_timeout_us(10000000);
+        PRINT("Enter the Stepper ID (0-%i)", NUMBER_OF_DISPENSERS - 1)
+        uint32_t id = getchar_timeout_us(5000000);
         if (id == PICO_ERROR_TIMEOUT) {
+            PRINT("Enter the Stepper ID (0-%i)", NUMBER_OF_DISPENSERS - 1)
             continue;
         } else if (id - 48 > NUMBER_OF_DISPENSERS - 1) {
-            PRINT("Wrong ID")
+            PRINT("ID out of scope!")
             continue;
         } else {
             // convert ascii code to integer number
             id = id - 48;
         }
 
-        uint32_t command = getchar_timeout_us(10000000);
+        PRINT("Run a Command: Setup (s), Up (u), Down (d), Halt(h)")
+        uint32_t command = getchar_timeout_us(30000000);
         if (command == PICO_ERROR_TIMEOUT) {
             PRINT("No command received")
             continue;
@@ -60,23 +57,27 @@ int main() {
         switch (command) {
         case 's':
             PRINT("Setup dispenser: %lu", id)
-            motor[id] = createMotor(id, SERIAL_UART);
+            motor[id] = createMotor(id);
             break;
         case 'u':
             PRINT("Move dispenser up: %lu", id)
-            moveMotorUp(&motor[id]);
+            moveMotorUp(id);
             break;
         case 'd':
             PRINT("Move dispenser down: %lu", id)
-            moveMotorDown(&motor[id]);
+            moveMotorDown(id);
             break;
         case 'h':
             PRINT("Stop dispenser: %lu", id)
-            stopMotor(&motor[id]);
+            stopMotor(id);
             break;
         default:
             PRINT("Invalid command received!")
         }
-        PRINT("#####")
     }
+}
+
+int main() {
+    initPico();
+    runTest();
 }
