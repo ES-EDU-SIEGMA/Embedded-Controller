@@ -5,7 +5,6 @@
 #include "dispenser_internal.h"
 #include <pico/time.h>
 
-
 static dispenserState_t sleepState_t = (dispenserState_t){.function = &sleepState};
 static dispenserState_t upState_t = (dispenserState_t){.function = &upState};
 static dispenserState_t topState_t = (dispenserState_t){.function = &topState};
@@ -54,7 +53,7 @@ void dispenserEmergencyStop(dispenser_t *dispenser) {
 void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime) {
     dispenser->haltTime = haltTime;
 }
-void dispenserErrorStateCheck(dispenser_t *dispenser){
+void dispenserErrorStateCheck(dispenser_t *dispenser) {
     if (!motorIsCommunicating(dispenser->address)) {
         dispenser->state = errorState_t;
     }
@@ -80,36 +79,36 @@ static void resetDispenserPosition(dispenser_t *dispenser) {
     int downCounter = 0;
     dispenser->counterTorque = 0;
 
-    PRINT_DEBUG("resetPosition")
+    PRINT("resetPosition");
     moveMotorDown(dispenser->address);
-    PRINT_DEBUG("moveDown")
+    PRINT("moveDown");
     while (!limitSwitchIsClosed(dispenser->limitSwitch))
         ;
     stopMotor(dispenser->address);
     moveMotorUpSlowSpeed(dispenser->address);
 
-    while (dispenser->counterTorque < 50){
+    while (dispenser->counterTorque < 50) {
         dispenser->torque = motorGetTorque(dispenser->address);
-        if (dispenser->torque < minimum){
+        if (dispenser->torque < minimum) {
             minimum = dispenser->torque;
         }
         dispenser->counterTorque++;
     }
-    //PRINT_DEBUG("Torque Min: %i", minimum)
-    while (counterMinimum < 1){
+    PRINT("Torque Min: %i", minimum);
+    while (counterMinimum < 1) {
         dispenser->torque = motorGetTorque(dispenser->address);
-        if(dispenser->torque < (minimum-10)){
-            //minimum = torque;
+        if (dispenser->torque < (minimum - 10)) {
+            // minimum = torque;
             counterMinimum++;
         }
     }
     moveMotorDown(dispenser->address);
-    while (downCounter < 100){
+    while (downCounter < 100) {
         sleep_ms(1);
         downCounter++;
     }
     stopMotor(dispenser->address);
-    PRINT_DEBUG("Dipsenser Position detected")
+    PRINT("Dipsenser Position detected");
     dispenser->counterTorque = 0;
 }
 
@@ -133,33 +132,33 @@ static dispenserState_t sleepState(dispenser_t *dispenser) {
 
 static dispenserState_t upState(dispenser_t *dispenser) {
     dispenser->torque = motorGetTorque(dispenser->address);
-    PRINT_DEBUG("upState")
-    PRINT_DEBUG("Torque: %i", dispenser->torque)
+    PRINT("upState");
+    PRINT("Torque: %i", dispenser->torque);
 
     // If the torque is below 10 twice in a row, stop
-    if (dispenser->torque < 10){
+    if (dispenser->torque < 10) {
         dispenser->counterTorque++;
-        if (dispenser->counterTorque == 2){
-            PRINT_DEBUG("detect Top Position")
+        if (dispenser->counterTorque == 2) {
+            PRINT("detect Top Position");
             stopMotor(dispenser->address);
             dispenser->counterTorque = 0;
             return topState_t;
         }
+    } else {
+        dispenser->counterTorque = 0;
     }
-    else dispenser->counterTorque = 0;
 
     return upState_t;
 }
 
 static dispenserState_t topState(dispenser_t *dispenser) {
-    PRINT_DEBUG("topState")
+    PRINT("topState");
     if (dispenser->haltTime > 0) {
         sleep_ms(TOP_TIME_SLOT);
         if (dispenser->haltTime < dispenser->dispensersInTopState) {
             // underflow
             dispenserSetHaltTime(dispenser, 0);
-        }
-        else {
+        } else {
             dispenser->haltTime = dispenser->haltTime - dispenser->dispensersInTopState;
         }
         return topState_t;
@@ -175,38 +174,35 @@ static dispenserState_t topState(dispenser_t *dispenser) {
 }
 
 static dispenserState_t downState(dispenser_t *dispenser) {
-    PRINT_DEBUG("downState")
+    PRINT("downState");
     if (limitSwitchIsClosed(dispenser->limitSwitch)) {
         stopMotor(dispenser->address);
         moveMotorUpSlowSpeed(dispenser->address);
         dispenser->switchClosed = 1;
-        PRINT_DEBUG("isClosed")
+        PRINT("isClosed");
     }
-    if (dispenser->switchClosed){
-        if (dispenser->counterTorque < 50){
+    if (dispenser->switchClosed) {
+        if (dispenser->counterTorque < 50) {
             dispenser->torque = motorGetTorque(dispenser->address);
-            if (dispenser->torque < dispenser->minimum){
+            if (dispenser->torque < dispenser->minimum) {
                 dispenser->minimum = dispenser->torque;
             }
             dispenser->counterTorque++;
-        }
-        else{
-            if(dispenser->counterMinimum < 1) {
-                //PRINT_DEBUG("Torque Min: %i", dispenser->minimum)
+        } else {
+            if (dispenser->counterMinimum < 1) {
+                PRINT("Torque Min: %i", dispenser->minimum);
                 dispenser->torque = motorGetTorque(dispenser->address);
                 if (dispenser->torque < (dispenser->minimum - 10)) {
                     // dispenser->minimum = torque;
                     dispenser->counterMinimum++;
                 }
-            }
-            else{
+            } else {
                 moveMotorDown(dispenser->address);
-                if (dispenser->downCounter < 10){
-                        dispenser->downCounter++;
-                }
-                else {
+                if (dispenser->downCounter < 10) {
+                    dispenser->downCounter++;
+                } else {
                     stopMotor(dispenser->address);
-                    PRINT_DEBUG("Dipsenser Position detected")
+                    PRINT("Dipsenser Position detected");
                     dispenser->counterTorque = 0;
                     dispenser->switchClosed = 0;
                     dispenserSetHaltTime(dispenser, 0);

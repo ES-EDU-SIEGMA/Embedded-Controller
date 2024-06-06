@@ -20,7 +20,7 @@ void createRondell(motorAddress_t address) {
     setExtrema();
 }
 void handleSpecialPosition(void) {
-    PRINT_DEBUG("ENTERED handleSpecialPosition\n")
+    PRINT("ENTERED handleSpecialPosition\n");
     if (rondell.positionToDriveTo == 3 && rondell.position == 0) {
         moveRondellCounterClockwise();
     } else {
@@ -33,16 +33,16 @@ void handleSpecialPosition(void) {
  * neither (3,0) nor (0,3).
  */
 void handleOrdinaryPosition(void) {
-    PRINT_DEBUG("ENTERED handleOrdinaryPosition")
-    PRINT_DEBUG("rondell.position = %d, rondell.positionToDriveTo: %d", rondell.position,
-                rondell.positionToDriveTo)
+    PRINT("ENTERED handleOrdinaryPosition");
+    PRINT("rondell.position = %d, rondell.positionToDriveTo: %d", rondell.position,
+          rondell.positionToDriveTo);
     // The if-condition may seem arbitrary, but it is not; it results from the corresponding
     // dispenser IDs.
     if (rondell.positionToDriveTo > rondell.position) {
-        PRINT_DEBUG("positionToDriveTo > rondell.position")
+        PRINT("positionToDriveTo > rondell.position");
         moveRondellClockwise();
     } else {
-        PRINT_DEBUG("positionToDriveTo <= rondell.position")
+        PRINT("positionToDriveTo <= rondell.position");
         moveRondellCounterClockwise();
     }
 }
@@ -63,8 +63,8 @@ void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
     }
     rondell.state = RONDELL_IN_KEY_POS;
     stopRondell();
-    PRINT_DEBUG("reached desired position: %d, while position variable is: %d", positionToDriveTo,
-                rondell.position)
+    PRINT("reached desired position: %d, while position variable is: %d", positionToDriveTo,
+          rondell.position);
 }
 
 /* endregion HEADER FUNCTIONS */
@@ -125,7 +125,7 @@ static uint8_t calculatePositionDifference(void) {
 }
 
 static void setExtrema(void) {
-    PRINT_DEBUG("ENTERED setExtrema")
+    PRINT("ENTERED setExtrema");
     moveRondellClockwise();
     uint16_t dataCollectionTime_ms = 15000;
     uint16_t counter = 0;
@@ -145,15 +145,15 @@ static void setExtrema(void) {
     sleep_ms(1000);
     moveToDispenserWithId(RONDELL_POSITION_0);
     rondell.state = RONDELL_SLEEP;
-    PRINT_DEBUG("LEAVING SET EXTREMA, MAX LDR: %d, MIN LDR: %d", rondell.max_ldr_value,
-                rondell.min_ldr_value)
+    PRINT("LEAVING SET EXTREMA, MAX LDR: %d, MIN LDR: %d", rondell.max_ldr_value,
+          rondell.min_ldr_value);
 }
 
 static void startRondellAndDecideDirection(void) {
-    PRINT_DEBUG("started rondell and deciding direction")
+    PRINT("started rondell and deciding direction");
     if (rondell.position != UNDEFINED) {
         uint8_t positionDifference = calculatePositionDifference();
-        PRINT_DEBUG("POSITION DIFFERENCE: %u", positionDifference)
+        PRINT("POSITION DIFFERENCE: %u", positionDifference);
         if (positionDifference == 1) {
             if (specialPositionGiven()) {
                 handleSpecialPosition();
@@ -168,7 +168,7 @@ static void startRondellAndDecideDirection(void) {
 }
 
 static void findLongHole(bool *longHoleFound) {
-    PRINT_DEBUG("entered FINDLONGHOLE")
+    PRINT("entered FINDLONGHOLE");
     int high_counter = 0;
     passDarkPeriod(0);
     while (adc_read() < MEAN_OF_LDR_VALUES) {
@@ -198,7 +198,7 @@ static void findLongHoleAndPassIt(void) {
     while (!longHoleFound) {
         findLongHole(&longHoleFound);
     }
-    PRINT_DEBUG("LONG HOLE FOUND")
+    PRINT("LONG HOLE FOUND");
 
     passLongHole();
 }
@@ -227,17 +227,17 @@ static void identifyPosition(void) {
     passDarkPeriod(&counterLongHoleToFirstHole);
     sleep_ms(25);
 
-    PRINT_DEBUG("LH TO FH: %u", counterLongHoleToFirstHole)
+    PRINT("LH TO FH: %u", counterLongHoleToFirstHole);
     // If one of the first two if statements evaluates to true the position can be determined
     // immediately due to the rondell's shape. Tests have shown that the time difference for
     // RONDELL_POSITION_2 needs wider range of tolerance.
     if (counterLongHoleToFirstHole >= 700 && counterLongHoleToFirstHole <= 1000) {
-        PRINT_DEBUG("RONDELL POS2")
+        PRINT("RONDELL POS2");
         rondell.position = RONDELL_POSITION_2;
         return;
     }
     if (counterLongHoleToFirstHole >= 400 && counterLongHoleToFirstHole <= 600) {
-        PRINT_DEBUG("RONDELL POS3")
+        PRINT("RONDELL POS3");
         rondell.position = RONDELL_POSITION_3;
         return;
     }
@@ -253,14 +253,14 @@ static void identifyPosition(void) {
         sleep_ms(50);
 
         passDarkPeriod(&counterFirstHoleToSecondHole);
-        PRINT_DEBUG("FH TO 2ndH: %u", counterFirstHoleToSecondHole)
+        PRINT("FH TO 2ndH: %u", counterFirstHoleToSecondHole);
         if (counterFirstHoleToSecondHole >= 100 && counterFirstHoleToSecondHole <= 300) {
-            PRINT_DEBUG("RONDELL POS1")
+            PRINT("RONDELL POS1");
             rondell.position = RONDELL_POSITION_1;
             return;
         }
         if (counterFirstHoleToSecondHole >= 400 && counterFirstHoleToSecondHole <= 600) {
-            PRINT_DEBUG("RONDELL POS0")
+            PRINT("RONDELL POS0");
             rondell.position = RONDELL_POSITION_0;
             return;
         }

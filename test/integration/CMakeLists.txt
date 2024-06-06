@@ -10,8 +10,9 @@ target_link_libraries(integrationTest-limitSwitches
         hardware_watchdog
         hardware_gpio
         limitSwitch_lib
+        common
         )
-make_to_output_file(integrationTest-limitSwitches)
+GENERATE_PICO_BINARY(integrationTest-limitSwitches)
 
 ######################################################################
 # Motor Test
@@ -24,6 +25,7 @@ target_link_libraries(integrationTest-motor
         tmc2209_lib
         motor_lib
         limitSwitch_lib
+        common
         )
 target_compile_definitions(integrationTest-motor PUBLIC
         # current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
@@ -32,7 +34,7 @@ target_compile_definitions(integrationTest-motor PUBLIC
         # current dispenser only allows '>=80000', without problems with refilling
         -DMOTOR_DOWN_SPEED=80000
 )
-make_to_output_file(integrationTest-motor)
+GENERATE_PICO_BINARY(integrationTest-motor)
 
 ######################################################################
 # Dispenser Test
@@ -45,6 +47,7 @@ target_link_libraries(integrationTest-dispenser
         tmc2209_lib
         motor_lib
         limitSwitch_lib
+        common
         )
 target_compile_definitions(integrationTest-dispenser PUBLIC
         # current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
@@ -53,7 +56,7 @@ target_compile_definitions(integrationTest-dispenser PUBLIC
         # current dispenser only allows '>=80000', without problems with refilling
         -DMOTOR_DOWN_SPEED=80000
 )
-make_to_output_file(integrationTest-dispenser)
+GENERATE_PICO_BINARY(integrationTest-dispenser)
 
 ######################################################################
 # ADC Test
@@ -67,6 +70,7 @@ target_link_libraries(integrationTest-adc
         hardware_watchdog
         hardware_gpio
         hardware_adc
+        common
         )
-make_to_output_file(integrationTest-adc)
+GENERATE_PICO_BINARY(integrationTest-adc)
 

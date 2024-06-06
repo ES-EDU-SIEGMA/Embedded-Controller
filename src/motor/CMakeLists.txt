@@ -6,4 +6,5 @@ target_link_libraries(motor_lib INTERFACE
         hardware_gpio
         serialUART_lib
         tmc2209_lib
-        )
+        common
+)

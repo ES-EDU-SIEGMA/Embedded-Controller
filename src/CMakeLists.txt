@@ -18,7 +18,7 @@ target_compile_definitions(left PUBLIC
         # current dispenser only allows '>=80000', without problems with refilling
         -DMOTOR_DOWN_SPEED=80000
 )
-make_to_output_file(left)
+GENERATE_PICO_BINARY(left)
 
 #########################
 ## RIGHT
@@ -40,7 +40,7 @@ target_compile_definitions(right PUBLIC
         # current dispenser only allows '>=80000', without problems with refilling
         -DMOTOR_DOWN_SPEED=80000
 )
-make_to_output_file(right)
+GENERATE_PICO_BINARY(right)
 
 #########################
 ## RONDELL
@@ -62,4 +62,4 @@ target_compile_definitions(rondell PUBLIC
         -DMOTOR_UP_SPEED=50000
         -DMOTOR_DOWN_SPEED=50000
 )
-make_to_output_file(rondell)
+GENERATE_PICO_BINARY(rondell)

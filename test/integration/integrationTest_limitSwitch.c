@@ -36,13 +36,13 @@ static void setupLimitSwitchtes() {
 }
 
 _Noreturn static void runTest() {
-    PRINT("##########\n# Start Test")
+    PRINT("##########\n# Start Test");
     while (true) {
         for (int index = 0; index < NUMBER_OF_DISPENSERS; ++index) {
             if (limitSwitchIsClosed(limitSwitch[index])) {
-                PRINT("Switch %i is closed", index)
+                PRINT("Switch %i is closed", index);
             } else {
-                PRINT("Switch %i is open", index)
+                PRINT("Switch %i is open", index);
             }
         }
         PRINT("#####");

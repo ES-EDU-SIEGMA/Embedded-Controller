@@ -6,4 +6,5 @@ target_link_libraries(helper INTERFACE
         pico_stdio_usb
         pico_time
         hardware_watchdog
-        )
+        common
+)

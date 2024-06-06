@@ -27,15 +27,15 @@ void initDispenser(void) {
     dispenserCreate(&dispenser[1], 1, 4);
     dispenserCreate(&dispenser[2], 2, 4);
     dispenserCreate(&dispenser[3], 3, 4);
-    PRINT_COMMAND("CALIBRATED")
+    PRINT_COMMAND("CALIBRATED");
 }
 
 void processMessage(char *message, size_t messageLength) {
     uint8_t dispensersTrigger = 0;
     bool triggeredDispensers[NUMBER_OF_DISPENSERS] = {false};
 
-    PRINT_DEBUG("Process message len: %u", messageLength)
-    PRINT_DEBUG("Message: %s", message)
+    PRINT("Process message len: %u", messageLength);
+    PRINT("Message: %s", message);
     for (uint8_t i = 0; i < 4; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
         if (dispenserHaltTimes > 0) {
@@ -82,32 +82,32 @@ _Noreturn void run(void) {
         /* region Handle received character */
         int input = getchar_timeout_us(3 * 1000000);
 
-        PRINT_DEBUG("Start Processing Input!")
+        PRINT("Start Processing Input!");
         if (input == PICO_ERROR_TIMEOUT) {
-            PRINT_DEBUG("No command received! Timeout reached.")
+            PRINT("No command received! Timeout reached.");
             continue;
         }
-        PRINT_DEBUG("No timeout reached!")
+        PRINT("No timeout reached!");
 
         if (!isAllowedCharacter(input)) {
-            PRINT_DEBUG("Received '%c' which is not allowed. It will be ignored", input)
+            PRINT("Received '%c' which is not allowed. It will be ignored", input);
             continue;
         }
-        PRINT_DEBUG("Received valid character")
+        PRINT("Received valid character");
 
         if (isMessageToLong(characterCounter, INPUT_BUFFER_LEN)) {
             resetMessageBuffer(inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
-            PRINT_DEBUG("Input too long! Flushed buffer.")
+            PRINT("Input too long! Flushed buffer.");
             continue;
         }
-        PRINT_DEBUG("Message Buffer not full!")
+        PRINT("Message Buffer not full!");
 
         if (isLineEnd(input)) {
             handleMessage(inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
-            PRINT_COMMAND("READY")
+            PRINT_COMMAND("READY");
             continue;
         }
-        PRINT_DEBUG("Message end not reached!")
+        PRINT("Message end not reached!");
 
         storeCharacter(inputBuffer, &characterCounter, input);
 

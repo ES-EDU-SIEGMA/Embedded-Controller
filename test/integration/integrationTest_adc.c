@@ -43,7 +43,7 @@ void initialize_adc(uint8_t gpio) {
         adcInputPin = 0;
         break;
     default:
-        PRINT_DEBUG("Invalid ADC GPIO")
+        PRINT("Invalid ADC GPIO");
         return;
     }
 
@@ -53,10 +53,10 @@ void initialize_adc(uint8_t gpio) {
 }
 
 _Noreturn static void runTest(uint8_t gpio) {
-    PRINT("##########\n# Start Test")
+    PRINT("##########\n# Start Test");
     while (true) {
-        PRINT("OUTPUT: %hu", adc_read())
-        PRINT("#####")
+        PRINT("OUTPUT: %hu", adc_read());
+        PRINT("#####");
         sleep_ms(2000);
     }
 }

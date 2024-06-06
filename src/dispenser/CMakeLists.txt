@@ -6,4 +6,5 @@ target_link_libraries(dispenser_lib INTERFACE
         limitSwitch_lib
         motor_lib
         serialUART_lib
-        )
+        common
+)
