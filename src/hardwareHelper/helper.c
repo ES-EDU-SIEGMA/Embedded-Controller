@@ -32,19 +32,19 @@ void initHardware(bool waitForConnection) {
     // Enable TMC2209 drivers
     initializeAndActivateMotorsEnablePin();
 
-    PRINT_DEBUG("Hardware Initialized!")
+    PRINT("Hardware Initialized!");
 }
 
 __force_inline void setUpWatchdog(int timeoutInSeconds) {
     if (timeoutInSeconds > 0) {
         watchdog_enable(timeoutInSeconds * 1000, true);
-        PRINT_DEBUG("Watchdog enabled with %i seconds", timeoutInSeconds)
+        PRINT("Watchdog enabled with %i seconds", timeoutInSeconds);
     }
 }
 
 __force_inline void resetWatchdogTimer(void) {
     watchdog_update();
-    PRINT_DEBUG("Watchdog timer performed restart!")
+    PRINT("Watchdog timer performed restart!");
 }
 
 /* endregion HARDWARE */
@@ -62,12 +62,12 @@ void establishConnectionWithController(char *identifier) {
         if (receivedCharacter == 'i') {
             receivedCharacter = getchar_timeout_us(10000000);
             if (receivedCharacter == '\n') {
-                PRINT_COMMAND("%s", identifier)
+                PRINT_COMMAND("%s", identifier);
                 identified = true;
             }
         } else {
             // Did not receive proper string; await new string.
-            PRINT_COMMAND("F")
+            PRINT_COMMAND("F");
         }
     }
 }
@@ -124,7 +124,7 @@ void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacter
 }
 
 void storeCharacter(char *buffer, size_t *bufferIndex, char newCharacter) {
-    PRINT_DEBUG("Received: %c (counter: %u)", newCharacter, *bufferIndex)
+    PRINT("Received: %c (counter: %u)", newCharacter, *bufferIndex);
     buffer[*bufferIndex] = newCharacter;
     *bufferIndex = *bufferIndex + 1;
 }

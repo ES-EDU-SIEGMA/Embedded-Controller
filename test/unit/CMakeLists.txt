@@ -9,8 +9,6 @@ add_executable(unit-test_dispenser
         ${CMAKE_SOURCE_DIR}/src/dispenser/dispenser.c
         ${CMAKE_SOURCE_DIR}/src/motor/motor.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/limitSwitch/limitSwitch.c
-
-        ${CMAKE_SOURCE_DIR}/src/common.h
 )
 target_include_directories(unit-test_dispenser PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}
@@ -29,6 +27,7 @@ target_include_directories(unit-test_dispenser PUBLIC
 )
 target_link_libraries(unit-test_dispenser
         unity
+        common
 )
 target_compile_definitions(unit-test_dispenser PUBLIC
         # current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
@@ -54,6 +53,7 @@ target_include_directories(unit-test_limitSwitch PUBLIC
 )
 target_link_libraries(unit-test_limitSwitch
         unity
+        common
 )
 add_test(unit-test_limitSwitch unit-test_limitSwitch)
 
@@ -68,5 +68,6 @@ target_include_directories(unit-test_hardwareHelper PUBLIC
 )
 target_link_libraries(unit-test_hardwareHelper
         unity
+        common
 )
 add_test(unit-test_hardwareHelper unit-test_hardwareHelper)

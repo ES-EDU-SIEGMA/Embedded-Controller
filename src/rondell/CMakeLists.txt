@@ -6,4 +6,6 @@ target_link_libraries(rondell_lib INTERFACE
         hardware_adc
         motor_lib
         serialUART_lib
-        tmc2209_lib)
+        tmc2209_lib
+        common
+)
