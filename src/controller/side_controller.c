@@ -1,9 +1,8 @@
-#define SOURCE_FILE "MAIN-RIGHT"
+#define SOURCE_FILE "SIDE-CONTROLLER"
 
 #include "com_protocol.h"
 #include "common.h"
 #include "dispenser.h"
-#include "helper.h"
 
 #include "hardware/watchdog.h"
 #include "pico/stdlib.h" /// must be included -> sets clocks required for watchdog-timer!!
@@ -13,20 +12,25 @@
 
 /* region VARIABLES/DEFINES */
 
-#define SERIAL_UART SERIAL2 /// The uart Pins to be used
+#ifndef CONTROLLER_ID
+#error "Controller ID must be defined!"
+#endif
+
 #define NUMBER_OF_DISPENSERS 4
 
-dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
+dispenser_t dispenser[NUMBER_OF_DISPENSERS]; //!< Array containing the dispenser
 
-#define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
+#define INPUT_BUFFER_LEN 255 //!< maximum count of allowed input length
 size_t characterCounter;
-char *inputBuffer;
+char inputBuffer[INPUT_BUFFER_LEN];
 
 /* endregion VARIABLES/DEFINES */
 
-/* region HELPER FUNCTIONS */
+/* region FUNCTIONS */
 
 void initDispenser(void) {
+    initializeAndActivateMotorsEnablePin(); // Enable TMC2209 drivers
+
     dispenserCreate(&dispenser[0], 0, 4);
     dispenserCreate(&dispenser[1], 1, 4);
     dispenserCreate(&dispenser[2], 2, 4);
@@ -79,6 +83,10 @@ void processMessage(char *message, size_t messageLength) {
 }
 
 _Noreturn void run(void) {
+    resetMessageBuffer(inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
+
+    watchdog_enable(60 * 1000, true);
+
     while (true) {
         // watchdog update needs to be performed frequent, otherwise the device will crash
         watchdog_update();
@@ -91,7 +99,6 @@ _Noreturn void run(void) {
             PRINT("No command received! Timeout reached.");
             continue;
         }
-        PRINT("No timeout reached!");
 
         if (!isAllowedCharacter(input)) {
             PRINT("Received '%c' which is not allowed. It will be ignored", input);
@@ -119,14 +126,14 @@ _Noreturn void run(void) {
     }
 }
 
-/* endregion HELPER FUNCTIONS */
+/* endregion FUNCTIONS */
 
 int main() {
-    initHardware(false);
-    establishConnectionWithController("RIGHT");
+    initIO(false);
+    establishConnectionWithController(CONTROLLER_ID);
     initDispenser();
-    initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
-    watchdog_enable(60 * 1000, true);
+
     run();
+
     return EXIT_FAILURE;
 }

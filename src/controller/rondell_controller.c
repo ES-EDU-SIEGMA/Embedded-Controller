@@ -3,7 +3,6 @@
 #include "com_protocol.h"
 #include "common.h"
 #include "dispenser.h"
-#include "helper.h"
 #include "rondell.h"
 
 #include "hardware/adc.h"
@@ -15,12 +14,16 @@
 
 /* region VARIABLES/DEFINES */
 
+#ifndef CONTROLLER_ID
+#error "Controller ID must be defined!"
+#endif
+
 #define NUMBER_OF_DISPENSERS 1
 dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
 
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
 size_t characterCounter;
-char *inputBuffer;
+char inputBuffer[INPUT_BUFFER_LEN];
 
 /* endregion VARIABLES/DEFINES */
 
@@ -51,7 +54,7 @@ void initialize_adc(uint8_t gpio) {
     adc_select_input(adcInputPin);
 }
 
-void initRondellDispenser(void) {
+void initDispenser(void) {
     initialize_adc(27);
     createRondell(2);
     dispenserCreate(&dispenser[0], 0, 4);
@@ -76,6 +79,10 @@ void processMessage(char *message, size_t messageLength) {
 }
 
 _Noreturn void run() {
+    resetMessageBuffer(inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
+
+    watchdog_enable(60 * 1000, true);
+
     while (true) {
         // watchdog update needs to be performed frequent, otherwise the device will crash
         watchdog_update();
@@ -119,11 +126,11 @@ _Noreturn void run() {
 /* endregion HELPER FUNCTIONS */
 
 int main() {
-    initHardware(false);
-    establishConnectionWithController("RONDELL");
-    initRondellDispenser();
-    initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
-    watchdog_enable(60 * 1000, true);
+    initIO(false);
+    establishConnectionWithController(CONTROLLER_ID);
+    initDispenser();
+
     run();
+
     return EXIT_FAILURE;
 }

@@ -2,10 +2,13 @@
 
 #include "motor.h"
 #include "common.h"
+
 #include <hardware/gpio.h>
 #include <pico/time.h>
 
-#define SERIAL_UART SERIAL2 /// The uart Pins to be used
+#ifndef SERIAL_UART
+#error "SERIAL_UART instance needs to be defined!"
+#endif
 
 #define MOTOR_ENABLE_PINT 7
 
@@ -30,7 +33,6 @@ void initializeAndActivateMotorsEnablePin() {
     gpio_init(enablePin);
     gpio_set_dir(enablePin, GPIO_OUT);
     gpio_pull_up(enablePin);
-
 }
 
 void setUpMotor(Motor_t *motor, SerialAddress_t address) {

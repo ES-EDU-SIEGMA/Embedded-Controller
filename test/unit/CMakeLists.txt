@@ -30,6 +30,7 @@ target_link_libraries(unit-test_dispenser
         common
 )
 target_compile_definitions(unit-test_dispenser PUBLIC
+        -DSERIAL_UART=SERIAL1
         # current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
         # for 3 cl Dispenser '>=100000' is allowed, without deformation
         -DMOTOR_UP_SPEED=120000

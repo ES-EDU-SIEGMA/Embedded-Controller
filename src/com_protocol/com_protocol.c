@@ -3,12 +3,35 @@
 #include "com_protocol.h"
 #include "common.h"
 
+#include "hardware/watchdog.h"
+#include "pico/bootrom.h"
 #include "pico/stdio.h"
+#include "pico/stdio_usb.h"
+#include "pico/time.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 const char *allowedCharacters = "0123456789i;\n"; /// sequence of allowed character
+
+void initIO(bool waitForConnection) {
+#ifdef DEBUG
+    if (watchdog_enable_caused_reboot()) {
+        reset_usb_boot(0, 0);
+    }
+#endif
+
+    stdio_init_all();
+
+    if (waitForConnection) {
+        while ((!stdio_usb_connected())) {
+            // waits for usb connection
+        }
+    } else {
+        // Take a break to make sure everything is ready
+        sleep_ms(2500);
+    }
+}
 
 void establishConnectionWithController(char *identifier) {
     char receivedCharacter;
@@ -27,11 +50,6 @@ void establishConnectionWithController(char *identifier) {
             PRINT_COMMAND("F");
         }
     }
-}
-
-void initializeMessageHandler(char **buffer, size_t bufferLength, size_t *characterCounter) {
-    *buffer = malloc(bufferLength);
-    resetMessageBuffer(*buffer, bufferLength, characterCounter);
 }
 
 void resetMessageBuffer(char *buffer, size_t bufferSize, size_t *receivedCharacterCount) {

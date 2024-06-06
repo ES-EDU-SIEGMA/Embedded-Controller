@@ -10,7 +10,6 @@
 #include "motor.h"
 #include "serialUART.h"
 
-#define SERIAL_UART SERIAL2
 #define NUMBER_OF_DISPENSERS 4
 
 static Motor_t motor[4];

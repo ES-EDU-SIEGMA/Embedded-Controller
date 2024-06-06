@@ -12,6 +12,9 @@ target_link_libraries(integrationTest-limitSwitches
         limitSwitch_lib
         common
         )
+target_compile_definitions(integrationTest-limitSwitches PUBLIC
+        -DSERIAL_UART=SERIAL1
+)
 GENERATE_PICO_BINARY(integrationTest-limitSwitches)
 
 ######################################################################
@@ -28,6 +31,7 @@ target_link_libraries(integrationTest-motor
         common
         )
 target_compile_definitions(integrationTest-motor PUBLIC
+        -DSERIAL_UART=SERIAL1
         # current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
         # for 3 cl Dispenser '>=100000' is allowed, without deformation
         -DMOTOR_UP_SPEED=120000
@@ -50,6 +54,7 @@ target_link_libraries(integrationTest-dispenser
         common
         )
 target_compile_definitions(integrationTest-dispenser PUBLIC
+        -DSERIAL_UART=SERIAL1
         # current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
         # for 3 cl Dispenser '>=100000' is allowed, without deformation
         -DMOTOR_UP_SPEED=120000

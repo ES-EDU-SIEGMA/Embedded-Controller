@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+void initIO(bool waitForConnection);
+
 /*! This function's purpose is to establish synchronization between the pico
  * and the pi. The pi sends `i\\n` to the pico corresponding and to confirm
  * that the string has been received the pico sends back `[POSITION]\\n`.
@@ -12,8 +14,6 @@
  * synchronization has been established.
  */
 void establishConnectionWithController(char *identifier);
-
-void initializeMessageHandler(char **buffer, size_t bufferLength, size_t *characterCounter);
 
 void resetMessageBuffer(char *buffer, size_t bufferSize, size_t *receivedCharacterCount);
 
