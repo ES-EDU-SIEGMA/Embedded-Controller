@@ -27,10 +27,11 @@
 #define SOURCE_FILE "SERIAL_UART"
 
 #include "serialUART.h"
-#include "common.h"
+
 #include <hardware/gpio.h>
 #include <hardware/irq.h>
 #include <hardware/uart.h>
+
 #include <stdlib.h>
 
 static serialUart_t serialUart;

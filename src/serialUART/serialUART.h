@@ -3,6 +3,7 @@
 
 #include <hardware/gpio.h>
 #include <hardware/uart.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -30,18 +31,18 @@
 
 #define SERIAL_BAUD_RATE 115200
 
+/* region Serial 0 */
+#define PIN_SERIAL0_TX (0u)
+#define PIN_SERIAL0_RX (1u)
+
+#define SERIAL0 serialUartCreate(uart0, PIN_SERIAL0_TX, PIN_SERIAL0_RX)
+/* endregion Serial 0 */
 /* region Serial 1 */
-#define PIN_SERIAL1_TX (0u)
-#define PIN_SERIAL1_RX (1u)
+#define PIN_SERIAL1_TX (4u)
+#define PIN_SERIAL1_RX (5u)
 
-#define SERIAL1 serialUartCreate(uart0, PIN_SERIAL1_TX, PIN_SERIAL1_RX)
+#define SERIAL1 serialUartCreate(uart1, PIN_SERIAL1_TX, PIN_SERIAL1_RX)
 /* endregion Serial 1 */
-/* region Serial 2 */
-#define PIN_SERIAL2_TX (4u)
-#define PIN_SERIAL2_RX (5u)
-
-#define SERIAL2 serialUartCreate(uart1, PIN_SERIAL2_TX, PIN_SERIAL2_RX)
-/* endregion Serial 2 */
 
 struct serialUart {
     bool _running; // set to false by init

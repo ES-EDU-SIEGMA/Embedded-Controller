@@ -42,7 +42,7 @@
 #include "serialUART.h"
 #include "tmc2209_intern.h"
 #include <pico/time.h>
-#define SERIAL_UART SERIAL2
+#define SERIAL_UART SERIAL1
 
 #ifndef constrain
 #define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))

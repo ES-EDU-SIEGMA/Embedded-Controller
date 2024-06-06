@@ -9,7 +9,7 @@
 #include <pico/stdio_usb.h>
 #include <pico/time.h>
 
-#define SERIAL_UART SERIAL2
+#define SERIAL_UART SERIAL1
 #define NUMBER_OF_DISPENSERS 4
 #define DISPENSER_SEARCH_TIMEOUT 250
 

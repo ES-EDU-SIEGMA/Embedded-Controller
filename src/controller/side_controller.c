@@ -1,40 +1,64 @@
-#define SOURCE_FILE "MAIN-LEFT"
+#define SOURCE_FILE "SIDE-CONTROLLER"
 
+#include "com_protocol.h"
 #include "common.h"
 #include "dispenser.h"
-#include "helper.h"
-#include <pico/stdlib.h> /// must be included -> sets clocks required for watchdog-timer!!
+
+#include "hardware/watchdog.h"
+#include "pico/stdlib.h" /// must be included -> sets clocks required for watchdog-timer!!
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* region VARIABLES/DEFINES */
 
-#define NUMBER_OF_DISPENSERS 4
-dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
+#ifndef CONTROLLER_ID
+#error "Controller ID must be defined!"
+#endif
 
-#define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
+#define NUMBER_OF_DISPENSERS 4
+
+dispenser_t dispenser[NUMBER_OF_DISPENSERS]; //!< Array containing the dispenser
+
+#define INPUT_BUFFER_LEN 255 //!< maximum count of allowed input length
 size_t characterCounter;
-char *inputBuffer;
+char inputBuffer[INPUT_BUFFER_LEN];
+
+bool dispenserInitialized = false;
 
 /* endregion VARIABLES/DEFINES */
 
-/* region HELPER FUNCTIONS */
+/* region FUNCTIONS */
 
 void initDispenser(void) {
+    if (dispenserInitialized) {
+        return;
+    }
+
+    initializeAndActivateMotorsEnablePin(); // Enable TMC2209 drivers
+
     dispenserCreate(&dispenser[0], 0, 4);
     dispenserCreate(&dispenser[1], 1, 4);
     dispenserCreate(&dispenser[2], 2, 4);
     dispenserCreate(&dispenser[3], 3, 4);
-    PRINT_COMMAND("CALIBRATED");
 }
 
 void processMessage(char *message, size_t messageLength) {
     uint8_t dispensersTrigger = 0;
-    bool triggeredDispensers[NUMBER_OF_DISPENSERS]={false};
+    bool triggeredDispensers[NUMBER_OF_DISPENSERS] = {false};
 
     PRINT("Process message len: %u", messageLength);
     PRINT("Message: %s", message);
-    for (uint8_t i = 0; i < 4; ++i) {
+
+    if (strcmp("i\n", message) == 0) {
+        PRINT_COMMAND("%s", CONTROLLER_ID);
+        initDispenser();
+        PRINT_COMMAND("CALIBRATED");
+        return;
+    }
+
+    for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
         uint32_t dispenserHaltTimes = parseInputString(&message);
         if (dispenserHaltTimes > 0) {
             dispensersTrigger++;
@@ -43,12 +67,12 @@ void processMessage(char *message, size_t messageLength) {
         dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
     }
 
-    for(uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i){
+    for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
         dispenserErrorStateCheck(&dispenser[i]);
     }
 
     do {
-        resetWatchdogTimer();
+        watchdog_update();
         uint8_t topStateCounter = 0;
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
             if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_TOP) {
@@ -73,9 +97,13 @@ void processMessage(char *message, size_t messageLength) {
 }
 
 _Noreturn void run(void) {
+    resetMessageBuffer(inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
+
+    watchdog_enable(60 * 1000, true);
+
     while (true) {
         // watchdog update needs to be performed frequent, otherwise the device will crash
-        resetWatchdogTimer();
+        watchdog_update();
 
         /* region Handle received character */
         int input = getchar_timeout_us(3 * 1000000);
@@ -85,7 +113,6 @@ _Noreturn void run(void) {
             PRINT("No command received! Timeout reached.");
             continue;
         }
-        PRINT("No timeout reached!");
 
         if (!isAllowedCharacter(input)) {
             PRINT("Received '%c' which is not allowed. It will be ignored", input);
@@ -113,15 +140,12 @@ _Noreturn void run(void) {
     }
 }
 
-/* endregion HELPER FUNCTIONS */
+/* endregion FUNCTIONS */
 
 int main() {
-    initHardware(false);
-    establishConnectionWithController("LEFT");
-    initDispenser();
-    initializeMessageHandler(&inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
-    setUpWatchdog(60);
+    initIO(false);
+
     run();
+
     return EXIT_FAILURE;
 }
-
