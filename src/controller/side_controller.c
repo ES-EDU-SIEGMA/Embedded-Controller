@@ -51,7 +51,7 @@ void processMessage(char *message, size_t messageLength) {
     PRINT("Process message len: %u", messageLength);
     PRINT("Message: %s", message);
 
-    if (strcmp("i\n", message) == 0) {
+    if (strstr("i", message) != NULL) {
         PRINT_COMMAND("%s", CONTROLLER_ID);
         initDispenser();
         PRINT_COMMAND("CALIBRATED");
