@@ -11,7 +11,6 @@
 
 #define SERIAL_UART SERIAL1
 #define NUMBER_OF_DISPENSERS 4
-#define DISPENSER_SEARCH_TIMEOUT 250
 
 void initPico(bool waitForUSBConnection) {
     if (watchdog_enable_caused_reboot()) {
@@ -34,16 +33,16 @@ static dispenser_t initDispenser(dispenser_t *dispenser, uint8_t dispenserId) {
     PRINT("Dispenser %i selected", dispenserId);
     switch (dispenserId) {
     case 0:
-        dispenserCreate(dispenser, 0,4);
+        dispenserCreate(dispenser, 0, 4, false);
         break;
     case 1:
-        dispenserCreate(dispenser, 1,4);
+        dispenserCreate(dispenser, 1, 4, false);
         break;
     case 2:
-        dispenserCreate(dispenser, 2,4);
+        dispenserCreate(dispenser, 2, 4, false);
         break;
     case 3:
-        dispenserCreate(dispenser, 3,4);
+        dispenserCreate(dispenser, 3, 4, false);
         break;
     default:
         PRINT("Invalid Dispenser");

@@ -38,10 +38,10 @@ void initDispenser(void) {
 
     initializeAndActivateMotorsEnablePin(); // Enable TMC2209 drivers
 
-    dispenserCreate(&dispenser[0], 0, 4);
-    dispenserCreate(&dispenser[1], 1, 4);
-    dispenserCreate(&dispenser[2], 2, 4);
-    dispenserCreate(&dispenser[3], 3, 4);
+    dispenserCreate(&dispenser[0], 0, 4, false);
+    dispenserCreate(&dispenser[1], 1, 4, false);
+    dispenserCreate(&dispenser[2], 2, 4, false);
+    dispenserCreate(&dispenser[3], 3, 4, false);
 }
 
 void processMessage(char *message, size_t messageLength) {

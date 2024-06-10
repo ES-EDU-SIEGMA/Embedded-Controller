@@ -10,7 +10,6 @@
 #include "pico/stdlib.h" /// must be included -> sets clocks required for watchdog-timer!!
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 /* region VARIABLES/DEFINES */
@@ -64,7 +63,7 @@ void initDispenser(void) {
 
     initialize_adc(27);
     createRondell(2);
-    dispenserCreate(&dispenser[0], 0, 4);
+    dispenserCreate(dispenser, 0, 4, true);
     PRINT_COMMAND("CALIBRATED");
 }
 
@@ -144,6 +143,4 @@ int main() {
     initIO(false);
 
     run();
-
-    return EXIT_FAILURE;
 }
