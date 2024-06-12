@@ -1,8 +1,7 @@
 ### Custom
 
 */**/KiCAD
-.vimrc
-
+build/
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,visualstudiocode
@@ -123,6 +122,3 @@ cmake-build-*
 build/
 build_*/
 out/
-
-### CLion ###
-.idea/

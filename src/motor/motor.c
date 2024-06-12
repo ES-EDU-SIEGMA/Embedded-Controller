@@ -2,10 +2,13 @@
 
 #include "motor.h"
 #include "common.h"
+
 #include <hardware/gpio.h>
 #include <pico/time.h>
 
-#define SERIAL_UART SERIAL2 /// The uart Pins to be used
+#ifndef SERIAL_UART
+#error "SERIAL_UART instance needs to be defined!"
+#endif
 
 #define MOTOR_ENABLE_PINT 7
 
@@ -29,25 +32,22 @@ void initializeAndActivateMotorsEnablePin() {
     enablePin = MOTOR_ENABLE_PINT;
     gpio_init(enablePin);
     gpio_set_dir(enablePin, GPIO_OUT);
-    gpio_pull_up(enablePin);
-
+    gpio_pull_down(enablePin);
 }
 
 void setUpMotor(Motor_t *motor, SerialAddress_t address) {
-    gpio_pull_down(enablePin);
-
     TMC2209_setupByMotor(&motor->tmc2209, address);
 
     while (!TMC2209_isSetupAndCommunicating(&motor->tmc2209)) {
         if (TMC2209_disabledByInputPin(&motor->tmc2209)) {
-            PRINT_DEBUG("Setup: Stepper driver with address %u DISABLED by input pin!", address)
+            PRINT("Setup: Stepper driver with address %u DISABLED by input pin!", address);
         }
-        PRINT_DEBUG("Setup: Stepper driver with address %u NOT communicating and setup!", address)
+        PRINT("Setup: Stepper driver with address %u NOT communicating and setup!", address);
         TMC2209_setupByMotor(&motor->tmc2209, address);
         sleep_ms(500);
     }
 
-    PRINT_DEBUG("Setup: Stepper driver with address %u communicating and setup!", address)
+    PRINT("Setup: Stepper driver with address %u communicating and setup!", address);
     TMC2209_setRunCurrent(&motor->tmc2209, 100);
     TMC2209_setHoldCurrent(&motor->tmc2209, 50);
     TMC2209_enable(&motor->tmc2209);
@@ -63,7 +63,7 @@ Motor_t *getMotor(motorAddress_t address) {
     if (address >= 0 && address < 5) {
         return &motors[address];
     } else {
-        PRINT_DEBUG("Didnt find motor")
+        PRINT("Didnt find motor");
         // Handle invalid motorNum
         return NULL;
     }

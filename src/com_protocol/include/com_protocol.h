@@ -1,31 +1,11 @@
-#ifndef SIEGMA_HELPER_H
-#define SIEGMA_HELPER_H
+#ifndef SIEGMA_COM_PROTOCOL_HEADER
+#define SIEGMA_COM_PROTOCOL_HEADER
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
-/* region HARDWARE */
-
-/*! initialize the hardware
- *
- * @param waitForConnection defines if the pico waits for a USB connection
- */
-void initHardware(bool waitForConnection);
-
-void setUpWatchdog(int timeoutInSeconds);
-
-void resetWatchdogTimer();
-
-/*! initializes the dispenser
- *
- * \IMPORTANT needs to implemented!
- */
-void initDispenser(void);
-
-/* endregion HARDWARE */
-
-/* region MESSAGE */
+void initIO(bool waitForConnection);
 
 /*! This function's purpose is to establish synchronization between the pico
  * and the pi. The pi sends `i\\n` to the pico corresponding and to confirm
@@ -34,8 +14,6 @@ void initDispenser(void);
  * synchronization has been established.
  */
 void establishConnectionWithController(char *identifier);
-
-void initializeMessageHandler(char **buffer, size_t bufferLength, size_t *characterCounter);
 
 void resetMessageBuffer(char *buffer, size_t bufferSize, size_t *receivedCharacterCount);
 
@@ -59,6 +37,5 @@ void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacter
  * @param messageLength length of the message
  */
 void processMessage(char *message, size_t messageLength);
-/* endregion MESSAGE */
 
-#endif // SIEGMA_HELPER_H
+#endif /* SIEGMA_COM_PROTOCOL_HEADER */

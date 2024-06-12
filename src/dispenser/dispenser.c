@@ -1,45 +1,48 @@
 #define SOURCE_FILE "DISPENSER"
 
-#include "dispenser.h"
+#include "include/dispenser.h"
 #include "common.h"
-#include "dispenser_internal.h"
+#include "dispenser.h"
+
 #include <pico/time.h>
 
+/* region PUBLIC FUNCTIONS */
 
-static dispenserState_t sleepState_t = (dispenserState_t){.function = &sleepState};
-static dispenserState_t upState_t = (dispenserState_t){.function = &upState};
-static dispenserState_t topState_t = (dispenserState_t){.function = &topState};
-static dispenserState_t downState_t = (dispenserState_t){.function = &downState};
-static dispenserState_t errorState_t = (dispenserState_t){.function = &errorState};
-
-/* region HEADER FUNCTIONS */
-void dispenserCreate(dispenser_t *dispenser, motorAddress_t address, uint8_t dispenserCL) {
+void dispenserCreate(dispenser_t *dispenser, motorAddress_t address, uint8_t dispenserCL,
+                     bool isRondell) {
     dispenser->address = address;
-    dispenser->state = (dispenserState_t){.function = &sleepState};
     dispenser->limitSwitch = createLimitSwitch(address);
-    // dispenser->stepsUp = dispenserUpTime(dispenserCL) / DISPENSER_STEP_TIME_MS;
+    dispenser->isRondell = isRondell;
+    dispenser->nextState = (state)sleepState;
+    dispenser->timeToTopPosition = 0;
     dispenser->haltTime = 0;
+    dispenser->limitTopState = 0;
+    dispenser->torqueCounter = 0;
+    dispenser->minimum = 0;
+    dispenser->counterMinimum = 0;
+    dispenser->downCounter = 0;
+    dispenser->torque = 0;
     createMotor(dispenser->address);
     resetDispenserPosition(dispenser);
-    dispenser->switchClosed = 0;
-    dispenser->counterTorque = 0;
-    dispenser->torque = 0;
 }
 
 dispenserStateCode_t getDispenserState(dispenser_t *dispenser) {
-    if (dispenser->state.function == sleepState) {
+    if (dispenser->nextState == (state)sleepState) {
         return DISPENSER_STATE_SLEEP;
     }
-    if (dispenser->state.function == upState) {
+    if (dispenser->nextState == (state)upState) {
         return DISPENSER_STATE_UP;
     }
-    if (dispenser->state.function == topState) {
+    if (dispenser->nextState == (state)topState) {
         return DISPENSER_STATE_TOP;
     }
-    if (dispenser->state.function == downState) {
+    if (dispenser->nextState == (state)downState) {
         return DISPENSER_STATE_DOWN;
     }
-    if (dispenser->state.function == errorState) {
+    if (dispenser->nextState == (state)contactState) {
+        return DISPENSER_CONTACT_STATE;
+    }
+    if (dispenser->nextState == (state)errorState) {
         return DISPENSER_STATE_ERROR;
     }
     return DISPENSER_STATE_INVALID;
@@ -48,173 +51,225 @@ dispenserStateCode_t getDispenserState(dispenser_t *dispenser) {
 void dispenserEmergencyStop(dispenser_t *dispenser) {
     stopMotor(dispenser->address);
     dispenserSetHaltTime(dispenser, 0);
-    dispenser->state = (dispenserState_t){.function = &sleepState};
+    dispenser->nextState = (state)sleepState;
 }
 
 void dispenserSetHaltTime(dispenser_t *dispenser, uint32_t haltTime) {
     dispenser->haltTime = haltTime;
 }
-void dispenserErrorStateCheck(dispenser_t *dispenser){
+void dispenserErrorStateCheck(dispenser_t *dispenser) {
     if (!motorIsCommunicating(dispenser->address)) {
-        dispenser->state = errorState_t;
+        dispenser->nextState = (state)errorState;
     }
 }
-void dispenserChangeStates(dispenser_t *dispenser) {
-    dispenser->state = dispenser->state.function(dispenser);
+void dispenserExecuteNextState(dispenser_t *dispenser) {
+    void (*next)(dispenser_t *dispenser) = (void (*)(dispenser_t *))dispenser->nextState;
+    next(dispenser);
 }
 
-bool dispenserAllInSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser) {
-    for (uint8_t i = 0; i < number_of_dispenser; ++i) {
-        if (dispenser[i].state.function != sleepState_t.function) {
+bool dispenserInSleepState(dispenser_t *dispenser) {
+    return getDispenserState(dispenser) == DISPENSER_STATE_SLEEP;
+}
+bool dispenserAllInSleepState(dispenser_t *dispenser, size_t numberOfDispenser) {
+    for (uint8_t index = 0; index < numberOfDispenser; index++) {
+        if (!dispenserInSleepState(&dispenser[index])) {
             return false;
         }
     }
     return true;
 }
-/* endregion HEADER FUNCTIONS */
 
-/* region STATIC FUNCTIONS */
+/* endregion PUBLIC FUNCTIONS */
+
+/* region INTERNAL FUNCTIONS */
+
 static void resetDispenserPosition(dispenser_t *dispenser) {
-    int minimum = 1000;
-    int counterMinimum = 0;
-    int downCounter = 0;
-    dispenser->counterTorque = 0;
+    PRINT("Initial State");
 
-    PRINT_DEBUG("resetPosition")
+    dispenser->minimum = 1000;
+    dispenser->counterMinimum = 0;
+    dispenser->downCounter = 0;
+    dispenser->torqueCounter = 0;
+
+    /* region move to limit-switch */
     moveMotorDown(dispenser->address);
-    PRINT_DEBUG("moveDown")
-    while (!limitSwitchIsClosed(dispenser->limitSwitch))
-        ;
+    while (!limitSwitchIsClosed(dispenser->limitSwitch)) {}
     stopMotor(dispenser->address);
+    /* endregion move to limit-switch */
+
+    if (dispenser->isRondell) {
+        PRINT("Dispenser Position detected");
+        return;
+    }
+
+    //! use torque detection
+    /* region move motor up until contact with dispenser */
     moveMotorUpSlowSpeed(dispenser->address);
+    while (dispenser->torqueCounter < 50) {
+        dispenser->torque = motorGetTorque(dispenser->address);
+        if (dispenser->torque < dispenser->minimum) {
+            dispenser->minimum = dispenser->torque;
+        }
+        dispenser->torqueCounter += 1;
+    }
+    PRINT("Torque Min: %lu", dispenser->minimum);
 
-    while (dispenser->counterTorque < 50){
+    while (true) {
         dispenser->torque = motorGetTorque(dispenser->address);
-        if (dispenser->torque < minimum){
-            minimum = dispenser->torque;
-        }
-        dispenser->counterTorque++;
-    }
-    //PRINT_DEBUG("Torque Min: %i", minimum)
-    while (counterMinimum < 1){
-        dispenser->torque = motorGetTorque(dispenser->address);
-        if(dispenser->torque < (minimum-10)){
-            //minimum = torque;
-            counterMinimum++;
+        if (dispenser->torque < (dispenser->minimum - 10)) {
+            break;
         }
     }
+    /* endregion move motor up until contact with dispenser */
+
+    /* region reduce pressure to dispenser */
     moveMotorDown(dispenser->address);
-    while (downCounter < 100){
-        sleep_ms(1);
-        downCounter++;
-    }
+    sleep_ms(100);
     stopMotor(dispenser->address);
-    PRINT_DEBUG("Dipsenser Position detected")
-    dispenser->counterTorque = 0;
+    /* endregion reduce pressure to dispenser */
+
+    dispenser->torqueCounter = 0;
+
+    PRINT("Dispenser Position detected");
 }
 
-static dispenserState_t errorState(dispenser_t *dispenser) {
+/* region STATES */
+
+static void errorState(dispenser_t *dispenser) {
     Motor_t *motor = getMotor(dispenser->address);
     setUpMotor(motor, (int)(dispenser->address));
     if (motorIsCommunicating(dispenser->address)) {
         dispenserSetHaltTime(dispenser, 0);
-        return sleepState_t;
+        dispenser->nextState = (state)sleepState;
     }
-    return errorState_t;
+    dispenser->nextState = (state)errorState;
 }
 
-static dispenserState_t sleepState(dispenser_t *dispenser) {
+static void sleepState(dispenser_t *dispenser) {
+    PRINT("sleepState");
+    PRINT("ht: %lu", dispenser->haltTime);
+
     if (dispenser->haltTime > 0) {
+        if (dispenser->isRondell) {
+            dispenser->timeToTopPosition = time_us_32() + DISPENSER_MS_TO_TOP_POSITION * 1000;
+        }
         moveMotorUp(dispenser->address);
-        return upState_t;
+        dispenser->nextState = (state)upState;
+        return;
     }
-    return sleepState_t;
+    dispenser->nextState = (state)sleepState;
 }
 
-static dispenserState_t upState(dispenser_t *dispenser) {
-    dispenser->torque = motorGetTorque(dispenser->address);
-    PRINT_DEBUG("upState")
-    PRINT_DEBUG("Torque: %i", dispenser->torque)
+static void upState(dispenser_t *dispenser) {
+    PRINT("upState");
 
-    // If the torque is below 10 twice in a row, stop
-    if (dispenser->torque < 10){
-        dispenser->counterTorque++;
-        if (dispenser->counterTorque == 2){
-            PRINT_DEBUG("detect Top Position")
+    if (dispenser->isRondell) {
+        if (dispenser->timeToTopPosition <= time_us_32()) {
             stopMotor(dispenser->address);
-            dispenser->counterTorque = 0;
-            return topState_t;
+            dispenser->timeToTopPosition = 0;
+            dispenser->nextState = (state)topState;
+            return;
         }
+        dispenser->nextState = (state)upState;
+        return;
     }
-    else dispenser->counterTorque = 0;
 
-    return upState_t;
-}
-
-static dispenserState_t topState(dispenser_t *dispenser) {
-    PRINT_DEBUG("topState")
-    if (dispenser->haltTime > 0) {
-        sleep_ms(TOP_TIME_SLOT);
-        if (dispenser->haltTime < dispenser->dispensersInTopState) {
-            // underflow
-            dispenserSetHaltTime(dispenser, 0);
-        }
-        else {
-            dispenser->haltTime = dispenser->haltTime - dispenser->dispensersInTopState;
-        }
-        return topState_t;
+    if (motorGetTorque(dispenser->address) < 5) {
+        dispenser->torqueCounter++;
+    } else {
+        dispenser->torqueCounter = 0;
     }
-    // reset to 0 when change to down state.
-    dispenserSetHaltTime(dispenser, 0);
-    moveMotorDown(dispenser->address);
-    dispenser->minimum = 1000;
-    dispenser->counterTorque = 0;
-    dispenser->counterMinimum = 0;
-    dispenser->downCounter = 0;
-    return downState_t;
-}
 
-static dispenserState_t downState(dispenser_t *dispenser) {
-    PRINT_DEBUG("downState")
-    if (limitSwitchIsClosed(dispenser->limitSwitch)) {
+    if (dispenser->torqueCounter == 8) {
+        PRINT("top position reached");
         stopMotor(dispenser->address);
-        moveMotorUpSlowSpeed(dispenser->address);
-        dispenser->switchClosed = 1;
-        PRINT_DEBUG("isClosed")
+        dispenser->torqueCounter = 0;
+        dispenser->nextState = (state)topState;
+        return;
     }
-    if (dispenser->switchClosed){
-        if (dispenser->counterTorque < 50){
-            dispenser->torque = motorGetTorque(dispenser->address);
-            if (dispenser->torque < dispenser->minimum){
-                dispenser->minimum = dispenser->torque;
-            }
-            dispenser->counterTorque++;
-        }
-        else{
-            if(dispenser->counterMinimum < 1) {
-                //PRINT_DEBUG("Torque Min: %i", dispenser->minimum)
-                dispenser->torque = motorGetTorque(dispenser->address);
-                if (dispenser->torque < (dispenser->minimum - 10)) {
-                    // dispenser->minimum = torque;
-                    dispenser->counterMinimum++;
-                }
-            }
-            else{
-                moveMotorDown(dispenser->address);
-                if (dispenser->downCounter < 10){
-                        dispenser->downCounter++;
-                }
-                else {
-                    stopMotor(dispenser->address);
-                    PRINT_DEBUG("Dipsenser Position detected")
-                    dispenser->counterTorque = 0;
-                    dispenser->switchClosed = 0;
-                    dispenserSetHaltTime(dispenser, 0);
-                    return sleepState_t;
-                }
-            }
-        }
-    }
-    return downState_t;
+
+    dispenser->nextState = (state)upState;
 }
-/* endregion STATIC FUNCTIONS */
+
+static void topState(dispenser_t *dispenser) {
+    PRINT("topState");
+
+    if (dispenser->haltTime > 0 && dispenser->limitTopState == 0) {
+        dispenser->limitTopState = time_us_32() + dispenser->haltTime * 1000;
+    }
+
+    if (dispenser->limitTopState <= time_us_32()) {
+        PRINT("limit reached");
+        dispenser->haltTime = 0;
+        dispenser->limitTopState = 0;
+
+        moveMotorDown(dispenser->address);
+        dispenser->nextState = (state)downState;
+        return;
+    }
+
+    dispenser->nextState = (state)topState;
+}
+
+static void downState(dispenser_t *dispenser) {
+    PRINT("downState");
+
+    if (limitSwitchIsClosed(dispenser->limitSwitch)) {
+        PRINT("limitswitch reached");
+        stopMotor(dispenser->address);
+
+        if (dispenser->isRondell) {
+            dispenser->nextState = (state)sleepState;
+            return;
+        } else {
+            dispenser->minimum = 1000;
+            dispenser->torqueCounter = 0;
+            dispenser->counterMinimum = 0;
+            dispenser->downCounter = 0;
+            moveMotorUpSlowSpeed(dispenser->address);
+            dispenser->nextState = (state)contactState;
+            return;
+        }
+    }
+
+    dispenser->nextState = (state)downState;
+}
+
+static void contactState(dispenser_t *dispenser) {
+    // TODO: check state
+    if (dispenser->torqueCounter < 50) {
+        dispenser->torque = motorGetTorque(dispenser->address);
+        if (dispenser->torque < dispenser->minimum) {
+            dispenser->minimum = dispenser->torque;
+        }
+        PRINT("Torque: %u", dispenser->torque);
+        dispenser->torqueCounter += 1;
+        dispenser->nextState = (state)contactState;
+        return;
+    }
+
+    if (dispenser->counterMinimum < 1) {
+        PRINT("Torque Min: %lu", dispenser->minimum);
+        dispenser->torque = motorGetTorque(dispenser->address);
+        if (dispenser->torque < (dispenser->minimum - 10)) {
+            dispenser->counterMinimum += 1;
+        }
+        dispenser->nextState = (state)contactState;
+        return;
+    }
+
+    moveMotorDown(dispenser->address);
+    sleep_ms(100);
+    dispenser->nextState = (state)contactState;
+    stopMotor(dispenser->address);
+
+    PRINT("Dispenser Position detected");
+
+    dispenser->torqueCounter = 0;
+    dispenserSetHaltTime(dispenser, 0);
+    dispenser->nextState = (state)sleepState;
+}
+
+/* endregion STATES */
+
+/* endregion INTERNAL FUNCTIONS */

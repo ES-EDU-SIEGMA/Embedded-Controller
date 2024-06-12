@@ -1,17 +1,20 @@
-#define SOURCE_FILE "HELPER"
+#define SOURCE_FILE "COM-PROTOCOL"
 
-#include "helper.h"
+#include "com_protocol.h"
 #include "common.h"
-#include "motor.h"
-#include <hardware/watchdog.h>
-#include <pico/bootrom.h>
-#include <pico/stdlib.h>
+
+#include "hardware/watchdog.h"
+#include "pico/bootrom.h"
+#include "pico/stdio.h"
+#include "pico/stdio_usb.h"
+#include "pico/time.h"
+
 #include <stdlib.h>
 #include <string.h>
 
-/* region HARDWARE */
+const char *allowedCharacters = "0123456789i;\n"; /// sequence of allowed character
 
-void initHardware(bool waitForConnection) {
+void initIO(bool waitForConnection) {
 #ifdef DEBUG
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
@@ -20,38 +23,15 @@ void initHardware(bool waitForConnection) {
 
     stdio_init_all();
 
-    // Take a break to make sure everything is ready
-    sleep_ms(2500);
-
     if (waitForConnection) {
         while ((!stdio_usb_connected())) {
             // waits for usb connection
         }
-    }
-
-    // Enable TMC2209 drivers
-    initializeAndActivateMotorsEnablePin();
-
-    PRINT_DEBUG("Hardware Initialized!")
-}
-
-__force_inline void setUpWatchdog(int timeoutInSeconds) {
-    if (timeoutInSeconds > 0) {
-        watchdog_enable(timeoutInSeconds * 1000, true);
-        PRINT_DEBUG("Watchdog enabled with %i seconds", timeoutInSeconds)
+    } else {
+        // Take a break to make sure everything is ready
+        sleep_ms(2500);
     }
 }
-
-__force_inline void resetWatchdogTimer(void) {
-    watchdog_update();
-    PRINT_DEBUG("Watchdog timer performed restart!")
-}
-
-/* endregion HARDWARE */
-
-/* region MESSAGE */
-
-const char *allowedCharacters = "0123456789i;\n"; /// sequence of allowed character
 
 void establishConnectionWithController(char *identifier) {
     char receivedCharacter;
@@ -62,24 +42,14 @@ void establishConnectionWithController(char *identifier) {
         if (receivedCharacter == 'i') {
             receivedCharacter = getchar_timeout_us(10000000);
             if (receivedCharacter == '\n') {
-                PRINT_COMMAND("%s", identifier)
+                PRINT_COMMAND("%s", identifier);
                 identified = true;
             }
         } else {
             // Did not receive proper string; await new string.
-            PRINT_COMMAND("F")
+            PRINT_COMMAND("F");
         }
     }
-}
-
-void initAndConnect(bool waitForConnection, char *identifier) {
-    initHardware(waitForConnection);
-    establishConnectionWithController(identifier);
-}
-
-void initializeMessageHandler(char **buffer, size_t bufferLength, size_t *characterCounter) {
-    *buffer = malloc(bufferLength);
-    resetMessageBuffer(*buffer, bufferLength, characterCounter);
 }
 
 void resetMessageBuffer(char *buffer, size_t bufferSize, size_t *receivedCharacterCount) {
@@ -124,9 +94,7 @@ void handleMessage(char *buffer, size_t maxBufferSize, size_t *receivedCharacter
 }
 
 void storeCharacter(char *buffer, size_t *bufferIndex, char newCharacter) {
-    PRINT_DEBUG("Received: %c (counter: %u)", newCharacter, *bufferIndex)
+    PRINT("Received: %c (counter: %u)", newCharacter, *bufferIndex);
     buffer[*bufferIndex] = newCharacter;
     *bufferIndex = *bufferIndex + 1;
 }
-
-/* endregion */

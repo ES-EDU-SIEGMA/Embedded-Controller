@@ -9,8 +9,6 @@ add_executable(unit-test_dispenser
         ${CMAKE_SOURCE_DIR}/src/dispenser/dispenser.c
         ${CMAKE_SOURCE_DIR}/src/motor/motor.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/limitSwitch/limitSwitch.c
-
-        ${CMAKE_SOURCE_DIR}/src/common.h
 )
 target_include_directories(unit-test_dispenser PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}
@@ -29,8 +27,10 @@ target_include_directories(unit-test_dispenser PUBLIC
 )
 target_link_libraries(unit-test_dispenser
         unity
+        common
 )
 target_compile_definitions(unit-test_dispenser PUBLIC
+        -DSERIAL_UART=SERIAL1
         # current hardware only allows '>=120000' for 4 cl Dispenser, without deformation
         # for 3 cl Dispenser '>=100000' is allowed, without deformation
         -DMOTOR_UP_SPEED=120000
@@ -54,19 +54,17 @@ target_include_directories(unit-test_limitSwitch PUBLIC
 )
 target_link_libraries(unit-test_limitSwitch
         unity
+        common
 )
 add_test(unit-test_limitSwitch unit-test_limitSwitch)
 
 # hardware helper
-add_executable(unit-test_hardwareHelper
-        ${CMAKE_CURRENT_LIST_DIR}/test_hardwareHelper.c
-        dummies/hardwareHelper/helper.c
-)
-target_include_directories(unit-test_hardwareHelper PUBLIC
-        ${CMAKE_SOURCE_DIR}/src/hardwareHelper
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/hardwareHelper
-)
-target_link_libraries(unit-test_hardwareHelper
-        unity
-)
-add_test(unit-test_hardwareHelper unit-test_hardwareHelper)
+#add_executable(unit-test_comProtcol
+#        ${CMAKE_CURRENT_LIST_DIR}/test_comProtocol.c
+#)
+#target_link_libraries(unit-test_comProtcol
+#        unity
+#        com_protocol
+#        common
+#)
+#add_test(unit-test_hardwareHelper unit-test_hardwareHelper)

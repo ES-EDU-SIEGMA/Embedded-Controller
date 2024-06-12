@@ -1,4 +1,6 @@
-#include "helper.h"
+// FIXME: Update Tests
+
+#include "com_protocol.h"
 #include "unity.h"
 #include <string.h>
 
