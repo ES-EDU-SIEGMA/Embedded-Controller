@@ -8,7 +8,6 @@
 #include "pico/stdlib.h" /// must be included -> sets clocks required for watchdog-timer!!
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 /* region VARIABLES/DEFINES */
@@ -36,35 +35,39 @@ void initDispenser(void) {
         return;
     }
 
+    PRINT("init motor");
     initializeAndActivateMotorsEnablePin(); // Enable TMC2209 drivers
 
+    PRINT("init dispenser");
     dispenserCreate(&dispenser[0], 0, 4, false);
     dispenserCreate(&dispenser[1], 1, 4, false);
     dispenserCreate(&dispenser[2], 2, 4, false);
     dispenserCreate(&dispenser[3], 3, 4, false);
+
+    dispenserInitialized = true;
 }
 
 void processMessage(char *message, size_t messageLength) {
-    uint8_t dispensersTrigger = 0;
-    bool triggeredDispensers[NUMBER_OF_DISPENSERS] = {false};
+    bool activeDispenser[NUMBER_OF_DISPENSERS] = {false};
 
     PRINT("Process message len: %u", messageLength);
     PRINT("Message: %s", message);
 
     if (strstr("i", message) != NULL) {
         PRINT_COMMAND("%s", CONTROLLER_ID);
-        initDispenser();
-        PRINT_COMMAND("CALIBRATED");
+        if (dispenserInitialized) {
+            PRINT_COMMAND("CALIBRATED");
+        }
         return;
     }
 
     for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-        uint32_t dispenserHaltTimes = parseInputString(&message);
-        if (dispenserHaltTimes > 0) {
-            dispensersTrigger++;
-            triggeredDispensers[i] = true;
+        uint32_t haltTime = parseInputString(&message);
+        PRINT("Halt Time: %lu", haltTime);
+        if (haltTime > 0) {
+            activeDispenser[i] = true;
         }
-        dispenserSetHaltTime(&dispenser[i], dispenserHaltTimes);
+        dispenserSetHaltTime(&dispenser[i], haltTime);
     }
 
     for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
@@ -73,26 +76,15 @@ void processMessage(char *message, size_t messageLength) {
 
     do {
         watchdog_update();
-        uint8_t topStateCounter = 0;
+
         for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_TOP) {
-                topStateCounter++;
-            }
-        }
-        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_TOP) {
-                dispenser[i].dispensersInTopState = topStateCounter;
-            }
-        }
-        for (uint8_t i = 0; i < NUMBER_OF_DISPENSERS; ++i) {
-            if (triggeredDispensers[i] == true) {
-                dispenserChangeStates(&dispenser[i]);
+            if (activeDispenser[i] == true) {
+                dispenserExecuteNextState(&dispenser[i]);
                 if (getDispenserState(&dispenser[i]) == DISPENSER_STATE_SLEEP) {
-                    triggeredDispensers[i] = false;
+                    activeDispenser[i] = false;
                 }
             }
         }
-        // When all dispensers are finished, they are in the state sleep
     } while (!dispenserAllInSleepState(dispenser, NUMBER_OF_DISPENSERS));
 }
 
@@ -144,8 +136,7 @@ _Noreturn void run(void) {
 
 int main() {
     initIO(false);
+    initDispenser();
 
     run();
-
-    return EXIT_FAILURE;
 }

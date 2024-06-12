@@ -24,7 +24,7 @@ void test_Dispenser_Cycle(void) {
     dispenserCreate(&dispenser[0], 0, 4);
     dispenserSetHaltTime(&dispenser[0], 10);
     do {
-        dispenserChangeStates(&dispenser[0]);
+        dispenserExecuteNextState(&dispenser[0]);
     } while(getDispenserState(&dispenser[0]) != DISPENSER_STATE_SLEEP);
     dispenserStateCode_t state = getDispenserState(&dispenser[0]);
     TEST_ASSERT_EQUAL(DISPENSER_STATE_SLEEP, state);

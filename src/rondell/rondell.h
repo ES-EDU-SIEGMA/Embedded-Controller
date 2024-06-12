@@ -39,9 +39,7 @@ typedef struct Rondell Rondell_t;
 
 /*! Sets up the rondell by initializing corresponding struct and setting extreme values of ldr.
  *
- * @param address SerialAddress for UART configuration. For further information visit:
- * https://github.com/janelia-arduino/TMC2209
- * @param uart    Further UART configuration
+ * @param address[in] Address of the motor
  */
 void createRondell(motorAddress_t address);
 

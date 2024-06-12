@@ -18,8 +18,8 @@
 #error "Controller ID must be defined!"
 #endif
 
-#define NUMBER_OF_DISPENSERS 1
-dispenser_t dispenser[NUMBER_OF_DISPENSERS]; /// Array containing the dispenser
+#define NUMBER_OF_DISPENSER 4
+dispenser_t dispenser; /// Array containing the dispenser
 
 #define INPUT_BUFFER_LEN 255 /// maximum count of allowed input length
 size_t characterCounter;
@@ -31,63 +31,52 @@ bool dispenserInitialized = false;
 
 /* region HELPER FUNCTIONS */
 
-void initialize_adc(uint8_t gpio) {
-    uint8_t adcInputPin;
-    switch (gpio) {
-    case 29:
-        adcInputPin = 3;
-        break;
-    case 28:
-        adcInputPin = 2;
-        break;
-    case 27:
-        adcInputPin = 1;
-        break;
-    case 26:
-        adcInputPin = 0;
-        break;
-    default:
-        PRINT("Invalid ADC GPIO");
-        return;
-    }
-
+/*
+ * @param gpio[in] GPIO of the ADC (26-29)
+ */
+void initializeAdc(uint8_t gpio) {
     adc_init();
     adc_gpio_init(gpio);
-    adc_select_input(adcInputPin);
+    adc_select_input(gpio - 26);
+
+    PRINT("Initialized ADC %u (GPIO %u)", gpio - 26, gpio);
 }
 
 void initDispenser(void) {
-    if (dispenserInitialized) {
-        return;
-    }
+    PRINT("activate motor");
+    initializeAndActivateMotorsEnablePin(); // Enable TMC2209 drivers
 
-    initialize_adc(27);
-    createRondell(2);
-    dispenserCreate(dispenser, 0, 4, true);
-    PRINT_COMMAND("CALIBRATED");
+    PRINT("init rondell");
+    createRondell(MOTOR_ADDRESS_2);
+
+    PRINT("init dispenser");
+    dispenserCreate(&dispenser, MOTOR_ADDRESS_0, 4, true);
+
+    dispenserInitialized = true;
 }
 
 void processMessage(char *message, size_t messageLength) {
     PRINT("Process message len: %u", messageLength);
     PRINT("Message: %s", message);
 
-    if (strcmp("i\n", message) == 0) {
+    if (strstr("i", message) != NULL) {
         PRINT_COMMAND("%s", CONTROLLER_ID);
-        initDispenser();
-        PRINT_COMMAND("CALIBRATED");
+        if (dispenserInitialized) {
+            PRINT_COMMAND("CALIBRATED");
+        }
         return;
     }
 
-    for (uint8_t i = 0; i < 4; ++i) {
-        uint32_t dispenserHaltTimes = parseInputString(&message);
-        dispenserSetHaltTime(&dispenser[0], dispenserHaltTimes);
-        if (dispenserHaltTimes > 0) {
+    for (uint8_t i = 0; i < NUMBER_OF_DISPENSER; ++i) {
+        uint32_t dispenserHaltTime = parseInputString(&message);
+        if (dispenserHaltTime > 0) {
+            dispenser.haltTime = dispenserHaltTime;
             watchdog_update();
             moveToDispenserWithId(i);
             do {
                 watchdog_update();
-                dispenserChangeStates(&dispenser[i]);
-            } while (!dispenserAllInSleepState(dispenser, 1));
+                dispenserExecuteNextState(&dispenser);
+            } while (!dispenserInSleepState(&dispenser));
         }
     }
 }
@@ -95,7 +84,7 @@ void processMessage(char *message, size_t messageLength) {
 _Noreturn void run() {
     resetMessageBuffer(inputBuffer, INPUT_BUFFER_LEN, &characterCounter);
 
-    watchdog_enable(60 * 1000, true);
+//    watchdog_enable(60 * 1000, true);
 
     while (true) {
         // watchdog update needs to be performed frequent, otherwise the device will crash
@@ -141,6 +130,8 @@ _Noreturn void run() {
 
 int main() {
     initIO(false);
+    initializeAdc(27);
+    initDispenser();
 
     run();
 }

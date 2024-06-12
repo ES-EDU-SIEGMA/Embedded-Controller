@@ -8,6 +8,7 @@
 /* region DEFINES */
 
 #define DISPENSER_STEP_TIME_MS 100
+#define DISPENSER_MS_TO_TOP_POSITION 10000
 
 typedef enum dispenserStateCode {
     DISPENSER_STATE_SLEEP,
@@ -26,7 +27,7 @@ typedef struct dispenser {
     limitSwitch_t limitSwitch;
     bool isRondell;
     state nextState;
-    uint16_t stepsUp;
+    uint32_t timeToTopPosition;
     uint32_t haltTime; //!< milliseconds to stay in top state
     uint32_t limitTopState;
     uint8_t torqueCounter;
@@ -62,13 +63,20 @@ dispenserStateCode_t getDispenserState(dispenser_t *dispenser);
  * @param dispenser dispenser to stop
  */
 void dispenserEmergencyStop(dispenser_t *dispenser);
+
+/*! Check if Dispenser is sleeping
+ *
+ * @param dispenser           an array holding a reference to all dispenser
+ * @return true if Dispenser is in a sleeping state
+ */
+bool dispenserInSleepState(dispenser_t *dispenser);
 /*! Check if all Dispenser are sleeping
  *
  * @param dispenser           an array holding a reference to all dispenser
- * @param number_of_dispenser the amount of initialized dispenser
+ * @param numberOfDispenser the amount of initialized dispenser
  * @return true if all Dispenser are in a sleeping state
  */
-bool dispenserAllInSleepState(dispenser_t *dispenser, uint8_t number_of_dispenser);
+bool dispenserAllInSleepState(dispenser_t *dispenser, size_t numberOfDispenser);
 
 /*! Enable the motor
  *
@@ -79,7 +87,7 @@ bool dispenserAllInSleepState(dispenser_t *dispenser, uint8_t number_of_dispense
  *
  * @param dispenser the Dispenser to take action on
  */
-void dispenserChangeStates(dispenser_t *dispenser);
+void dispenserExecuteNextState(dispenser_t *dispenser);
 
 void dispenserErrorStateCheck(dispenser_t *dispenser);
 

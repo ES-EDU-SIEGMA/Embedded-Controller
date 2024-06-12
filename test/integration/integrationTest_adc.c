@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-#define GPIO_PIN 28
+#define GPIO_PIN 27
 
 static void initPico(void) {
     if (watchdog_enable_caused_reboot()) {
@@ -27,7 +27,7 @@ static void initPico(void) {
     }
 }
 
-void initialize_adc(uint8_t gpio) {
+void initializeAdc(uint8_t gpio) {
     uint8_t adcInputPin;
     switch (gpio) {
     case 29:
@@ -63,6 +63,6 @@ _Noreturn static void runTest(uint8_t gpio) {
 
 int main() {
     initPico();
-    initialize_adc(GPIO_PIN);
+    initializeAdc(GPIO_PIN);
     runTest(GPIO_PIN);
 }

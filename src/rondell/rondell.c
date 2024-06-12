@@ -9,6 +9,8 @@
 
 /* region VARIABLES */
 
+#define MEASUREMENT_CYCLE_IN_SECONDS 15
+
 static Rondell_t rondell;
 
 /* endregion VARIABLES */
@@ -19,6 +21,7 @@ void createRondell(motorAddress_t address) {
     setUpRondell(address);
     setExtrema();
 }
+
 void handleSpecialPosition(void) {
     PRINT("ENTERED handleSpecialPosition\n");
     if (rondell.positionToDriveTo == 3 && rondell.position == 0) {
@@ -54,17 +57,16 @@ void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
         return;
     }
 
-    bool reachedDesiredPosition = false;
-    while (!reachedDesiredPosition) {
+    while (true) {
         moveRondellToKeyPosition();
         if (rondell.position == rondell.positionToDriveTo) {
-            reachedDesiredPosition = true;
+            stopRondell();
+            rondell.state = RONDELL_IN_KEY_POS;
+            PRINT("reached desired position: %d, while position variable is: %d", positionToDriveTo,
+                  rondell.position);
+            return;
         }
     }
-    rondell.state = RONDELL_IN_KEY_POS;
-    stopRondell();
-    PRINT("reached desired position: %d, while position variable is: %d", positionToDriveTo,
-          rondell.position);
 }
 
 /* endregion HEADER FUNCTIONS */
@@ -73,14 +75,12 @@ void moveToDispenserWithId(rondellPosition_t positionToDriveTo) {
 
 static void setUpRondell(motorAddress_t address) {
     rondell.address = address;
-    // rondell.uart = uart;
     rondell.position = UNDEFINED;
     rondell.state = RONDELL_SLEEP;
     rondell.positionToDriveTo = UNDEFINED;
     rondell.max_ldr_value = 0;
     rondell.min_ldr_value = 4095;
     createMotor(rondell.address);
-    // resetRondellPosition(rondell);
 }
 
 static void moveRondellCounterClockwise(void) {
@@ -90,6 +90,7 @@ static void moveRondellCounterClockwise(void) {
 }
 
 static void moveRondellClockwise(void) {
+    PRINT("moveRondellClockwise");
     moveMotorDown(rondell.address);
     rondell.state = RONDELL_MOVING_CLOCKWISE;
     sleep_ms(200);
@@ -126,25 +127,30 @@ static uint8_t calculatePositionDifference(void) {
 
 static void setExtrema(void) {
     PRINT("ENTERED setExtrema");
+
     moveRondellClockwise();
-    uint16_t dataCollectionTime_ms = 15000;
-    uint16_t counter = 0;
-    while (counter <= dataCollectionTime_ms) {
+
+    uint32_t collectionLimit = time_us_32() + MEASUREMENT_CYCLE_IN_SECONDS * 1000000;
+    while (collectionLimit >= time_us_32()) {
         uint16_t current_val = adc_read();
+        //PRINT("ADC: %i", current_val);
         if (current_val > rondell.max_ldr_value) {
             rondell.max_ldr_value = current_val;
         }
         if (current_val < rondell.min_ldr_value) {
             rondell.min_ldr_value = current_val;
         }
-        counter += 10;
-        sleep_ms(10);
+        sleep_ms(1);
     }
+
     stopRondell();
+
     rondell.state = RONDELL_SLEEP;
     sleep_ms(1000);
+
     moveToDispenserWithId(RONDELL_POSITION_0);
     rondell.state = RONDELL_SLEEP;
+
     PRINT("LEAVING SET EXTREMA, MAX LDR: %d, MIN LDR: %d", rondell.max_ldr_value,
           rondell.min_ldr_value);
 }
@@ -254,14 +260,14 @@ static void identifyPosition(void) {
 
         passDarkPeriod(&counterFirstHoleToSecondHole);
         PRINT("FH TO 2ndH: %u", counterFirstHoleToSecondHole);
-        if (counterFirstHoleToSecondHole >= 100 && counterFirstHoleToSecondHole <= 300) {
-            PRINT("RONDELL POS1");
-            rondell.position = RONDELL_POSITION_1;
-            return;
-        }
         if (counterFirstHoleToSecondHole >= 400 && counterFirstHoleToSecondHole <= 600) {
             PRINT("RONDELL POS0");
             rondell.position = RONDELL_POSITION_0;
+            return;
+        }
+        if (counterFirstHoleToSecondHole >= 100 && counterFirstHoleToSecondHole <= 300) {
+            PRINT("RONDELL POS1");
+            rondell.position = RONDELL_POSITION_1;
             return;
         }
     }
